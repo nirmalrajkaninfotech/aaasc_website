@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Carousel from "@/components/Carousel";
+import Footer from "@/components/Footer";
+import Imagew from "@/components/Imagew";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,11 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        <Carousel isTamil={false} activeSlide={0} setActiveSlide={function (index: number | ((prev: number) => number)): void {
-          throw new Error("Function not implemented.");
-        } } />
-        {children}
+          <Imagew/>  
+       {/*<Header />
+        <Carousel isTamil={false} />
+          {children}
+        
+        <Footer />*/}
       </body>
     </html>
   );

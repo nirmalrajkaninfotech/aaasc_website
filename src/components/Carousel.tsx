@@ -1,17 +1,18 @@
+'use client';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 interface CarouselProps {
   isTamil: boolean;
-  activeSlide: number;
-  setActiveSlide: (index: number | ((prev: number) => number)) => void;
 }
 
-export default function Carousel({ isTamil, activeSlide, setActiveSlide }: CarouselProps) {
+export default function Carousel({ isTamil }: CarouselProps) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [localIndex, setLocalIndex] = useState(1);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const slides = [
     {
@@ -70,22 +71,20 @@ export default function Carousel({ isTamil, activeSlide, setActiveSlide }: Carou
     setTransitioning(false);
     if (localIndex === 0) {
       setLocalIndex(totalSlides);
-      setActiveSlide(totalSlides - 1); // Update activeSlide to last slide
+      setActiveSlide(totalSlides - 1);
     } else if (localIndex === totalSlides + 1) {
       setLocalIndex(1);
-      setActiveSlide(0); // Update activeSlide to first slide
+      setActiveSlide(0);
     } else {
-      // Update activeSlide for all other cases
       setActiveSlide(localIndex - 1);
     }
   };
 
-  // Update activeSlide whenever localIndex changes
   useEffect(() => {
     if (localIndex > 0 && localIndex <= totalSlides) {
       setActiveSlide(localIndex - 1);
     }
-  }, [localIndex, setActiveSlide, totalSlides]);
+  }, [localIndex, totalSlides]);
 
   return (
     <section
