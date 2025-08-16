@@ -1,6 +1,31 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import EditorJS, { OutputData } from '@editorjs/editorjs';
+// @ts-ignore
+import Header from '@editorjs/header';
+// @ts-ignore
+import List from '@editorjs/list';
+// @ts-ignore
+import Paragraph from '@editorjs/paragraph';
+// @ts-ignore
+import Image from '@editorjs/image';
+// @ts-ignore
+import Quote from '@editorjs/quote';
+// @ts-ignore
+import Delimiter from '@editorjs/delimiter';
+// @ts-ignore
+import Table from '@editorjs/table';
+// @ts-ignore
+import CodeTool from '@editorjs/code';
+// @ts-ignore
+import LinkTool from '@editorjs/link';
+// @ts-ignore
+import Embed from '@editorjs/embed';
+// @ts-ignore
+import Marker from '@editorjs/marker';
+// @ts-ignore
+import InlineCode from '@editorjs/inline-code';
 
 interface RichTextEditorProps {
   value: string;
@@ -9,541 +34,610 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
-  const [isResizing, setIsResizing] = useState(false);
-  const [resizeHandle, setResizeHandle] = useState<string | null>(null);
+  const editorRef = useRef<EditorJS | null>(null);
+  const holderRef = useRef<HTMLDivElement>(null);
+  const [isReady, setIsReady] = useState(false);
 
-  const execCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
-    }
-  };
-
-  const handleInput = () => {
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
-    }
-  };
-
-  const insertImage = () => {
-    const url = prompt('Enter image URL:');
-    if (url) {
-      const img = document.createElement('img');
-      img.src = url;
-      img.style.width = '300px'; // Set initial width
-      img.style.height = 'auto';
-      img.style.cursor = 'pointer';
-      img.className = 'resizable-image';
-      img.draggable = false; // Prevent default drag behavior
-
-      // Insert image at cursor position
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        range.insertNode(img);
-        range.collapse(false);
-      } else if (editorRef.current) {
-        editorRef.current.appendChild(img);
-      }
-
-      handleInput();
-    }
-  };
-
-  const handleImageClick = (e: Event) => {
-    const target = e.target as HTMLImageElement;
-    if (target.tagName === 'IMG' && !target.classList.contains('has-wrapper')) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      // Remove any existing wrappers
-      removeAllResizeWrappers();
-
-      // Remove selected class from all images
-      const allImages = editorRef.current?.querySelectorAll('img');
-      allImages?.forEach(img => img.classList.remove('selected'));
-
-      // Add selected class to clicked image
-      target.classList.add('selected');
-      setSelectedImage(target);
-
-      // Wrap image with resize container
-      wrapImageWithResizeHandles(target);
-    }
-  };
-
-  const removeAllResizeWrappers = () => {
-    const existingWrappers = document.querySelectorAll('.image-resize-wrapper');
-    existingWrappers.forEach(wrapper => {
-      const img = wrapper.querySelector('img');
-      if (img) {
-        img.classList.remove('has-wrapper');
-        wrapper.parentNode?.insertBefore(img, wrapper);
-      }
-      wrapper.remove();
-    });
-  };
-
-  const wrapImageWithResizeHandles = (img: HTMLImageElement) => {
-    // Create wrapper
-    const wrapper = document.createElement('div');
-    wrapper.className = 'image-resize-wrapper';
-    wrapper.style.position = 'relative';
-    wrapper.style.display = 'inline-block';
-    wrapper.style.border = '1px dashed #3b82f6';
-    wrapper.style.background = 'rgba(59, 130, 246, 0.05)';
-
-    // Insert wrapper before image
-    img.parentNode?.insertBefore(wrapper, img);
-    wrapper.appendChild(img);
-    img.classList.add('has-wrapper');
-
-    // Create resize handles
-    const handles = ['se']; // Start with just one handle for simplicity
-
-    handles.forEach(position => {
-      const handle = document.createElement('div');
-      handle.className = `resize-handle resize-handle-${position}`;
-      handle.style.position = 'absolute';
-      handle.style.width = '12px';
-      handle.style.height = '12px';
-      handle.style.backgroundColor = '#3b82f6';
-      handle.style.border = '2px solid white';
-      handle.style.borderRadius = '2px';
-      handle.style.cursor = 'se-resize';
-      handle.style.bottom = '-6px';
-      handle.style.right = '-6px';
-      handle.style.zIndex = '1000';
-
-      // Add resize functionality
-      handle.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const startWidth = img.offsetWidth;
-        const startHeight = img.offsetHeight;
-        const aspectRatio = startWidth / startHeight;
-
-        const handleMouseMove = (e: MouseEvent) => {
-          const deltaX = e.clientX - startX;
-          const deltaY = e.clientY - startY;
-
-          const newWidth = Math.max(50, startWidth + deltaX);
-          const newHeight = newWidth / aspectRatio;
-
-          img.style.width = `${newWidth}px`;
-          img.style.height = `${newHeight}px`;
-        };
-
-        const handleMouseUp = () => {
-          document.removeEventListener('mousemove', handleMouseMove);
-          document.removeEventListener('mouseup', handleMouseUp);
-          handleInput();
-        };
-
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-      });
-
-      wrapper.appendChild(handle);
-    });
-  };
-
-  const resizeImage = (size: string) => {
-    if (selectedImage) {
-      const editorWidth = editorRef.current?.offsetWidth || 400;
-      let newWidth: number;
-
-      switch (size) {
-        case 'small':
-          newWidth = editorWidth * 0.25;
-          break;
-        case 'medium':
-          newWidth = editorWidth * 0.5;
-          break;
-        case 'large':
-          newWidth = editorWidth * 0.75;
-          break;
-        case 'full':
-          newWidth = editorWidth * 0.95;
-          break;
-        default:
-          newWidth = 300;
-      }
-
-      selectedImage.style.width = `${newWidth}px`;
-      selectedImage.style.height = 'auto';
-      selectedImage.style.maxWidth = 'none';
-
-      // No need to update handle positions with wrapper approach
-
-      handleInput();
-    }
-  };
-
-  const alignImage = (alignment: string) => {
-    if (selectedImage) {
-      const wrapper = selectedImage.closest('.image-resize-wrapper') as HTMLElement;
-      const targetElement = wrapper || selectedImage;
-
-      // Reset all alignment styles
-      targetElement.style.display = 'block';
-      targetElement.style.marginLeft = '';
-      targetElement.style.marginRight = '';
-      targetElement.style.float = '';
-      targetElement.style.textAlign = '';
-
-      // Apply new alignment
-      switch (alignment) {
-        case 'left':
-          targetElement.style.marginLeft = '0';
-          targetElement.style.marginRight = 'auto';
-          targetElement.style.display = 'block';
-          break;
-        case 'center':
-          targetElement.style.marginLeft = 'auto';
-          targetElement.style.marginRight = 'auto';
-          targetElement.style.display = 'block';
-          break;
-        case 'right':
-          targetElement.style.marginLeft = 'auto';
-          targetElement.style.marginRight = '0';
-          targetElement.style.display = 'block';
-          break;
-        case 'float-left':
-          targetElement.style.float = 'left';
-          targetElement.style.marginRight = '15px';
-          targetElement.style.marginBottom = '10px';
-          targetElement.style.display = 'block';
-          break;
-        case 'float-right':
-          targetElement.style.float = 'right';
-          targetElement.style.marginLeft = '15px';
-          targetElement.style.marginBottom = '10px';
-          targetElement.style.display = 'block';
-          break;
-      }
-      handleInput();
-    }
-  };
-
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (editor) {
-      editor.addEventListener('click', handleImageClick);
-      return () => {
-        editor.removeEventListener('click', handleImageClick);
+  // Convert HTML to Editor.js format
+  const htmlToEditorJS = (html: string): OutputData => {
+    if (!html || html.trim() === '') {
+      return {
+        time: Date.now(),
+        blocks: [],
+        version: '2.28.2'
       };
     }
-  }, []);
+
+    // Simple HTML to blocks conversion
+    const blocks = [];
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+
+    const elements = tempDiv.children;
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
+
+      if (element.tagName === 'H1') {
+        blocks.push({
+          type: 'header',
+          data: { text: element.textContent, level: 1 }
+        });
+      } else if (element.tagName === 'H2') {
+        blocks.push({
+          type: 'header',
+          data: { text: element.textContent, level: 2 }
+        });
+      } else if (element.tagName === 'H3') {
+        blocks.push({
+          type: 'header',
+          data: { text: element.textContent, level: 3 }
+        });
+      } else if (element.tagName === 'UL') {
+        const items = Array.from(element.querySelectorAll('li')).map(li => li.textContent);
+        blocks.push({
+          type: 'list',
+          data: { style: 'unordered', items }
+        });
+      } else if (element.tagName === 'OL') {
+        const items = Array.from(element.querySelectorAll('li')).map(li => li.textContent);
+        blocks.push({
+          type: 'list',
+          data: { style: 'ordered', items }
+        });
+      } else if (element.tagName === 'IMG') {
+        blocks.push({
+          type: 'image',
+          data: {
+            file: { url: (element as HTMLImageElement).src },
+            caption: (element as HTMLImageElement).alt || '',
+            withBorder: false,
+            withBackground: false,
+            stretched: false
+          }
+        });
+      } else if (element.tagName === 'BLOCKQUOTE') {
+        blocks.push({
+          type: 'quote',
+          data: { text: element.textContent, caption: '' }
+        });
+      } else {
+        // Default to paragraph
+        if (element.textContent?.trim()) {
+          blocks.push({
+            type: 'paragraph',
+            data: { text: element.innerHTML }
+          });
+        }
+      }
+    }
+
+    // If no blocks were created, create a default paragraph
+    if (blocks.length === 0 && html.trim()) {
+      blocks.push({
+        type: 'paragraph',
+        data: { text: html }
+      });
+    }
+
+    return {
+      time: Date.now(),
+      blocks,
+      version: '2.28.2'
+    };
+  };
+
+  // Convert Editor.js format to HTML
+  const editorJSToHtml = (data: OutputData): string => {
+    if (!data.blocks || data.blocks.length === 0) {
+      return '';
+    }
+
+    return data.blocks.map(block => {
+      switch (block.type) {
+        case 'header':
+          const level = block.data.level || 1;
+          return `<h${level}>${block.data.text}</h${level}>`;
+
+        case 'paragraph':
+          return `<p>${block.data.text}</p>`;
+
+        case 'list':
+          const tag = block.data.style === 'ordered' ? 'ol' : 'ul';
+          const items = block.data.items.map((item: string) => `<li>${item}</li>`).join('');
+          return `<${tag}>${items}</${tag}>`;
+
+        case 'image':
+          const img = block.data.file?.url || block.data.url;
+          const caption = block.data.caption ? `<figcaption>${block.data.caption}</figcaption>` : '';
+          return `<figure><img src="${img}" alt="${block.data.caption || ''}" />${caption}</figure>`;
+
+        case 'quote':
+          const cite = block.data.caption ? `<cite>${block.data.caption}</cite>` : '';
+          return `<blockquote>${block.data.text}${cite}</blockquote>`;
+
+        case 'delimiter':
+          return '<hr>';
+
+        case 'code':
+          return `<pre><code>${block.data.code}</code></pre>`;
+
+        case 'table':
+          const rows = block.data.content.map((row: string[]) =>
+            `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`
+          ).join('');
+          return `<table><tbody>${rows}</tbody></table>`;
+
+        default:
+          return `<p>${block.data.text || ''}</p>`;
+      }
+    }).join('');
+  };
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
+    if (!holderRef.current || editorRef.current) return;
 
-      // Don't deselect if clicking on resize handles or wrapper
-      if (target.classList.contains('resize-handle') ||
-        target.classList.contains('image-resize-wrapper') ||
-        target.closest('.image-resize-wrapper')) {
-        return;
+    const editor = new EditorJS({
+      holder: holderRef.current,
+      placeholder: placeholder || 'Start writing your content...',
+      data: htmlToEditorJS(value),
+      tools: {
+        header: {
+          class: Header,
+          config: {
+            levels: [1, 2, 3, 4, 5, 6],
+            defaultLevel: 2
+          }
+        },
+        paragraph: {
+          class: Paragraph,
+          inlineToolbar: true
+        },
+        list: {
+          class: List,
+          inlineToolbar: true,
+          config: {
+            defaultStyle: 'unordered'
+          }
+        },
+        image: {
+          class: Image,
+          config: {
+            endpoints: {
+              byFile: '/api/upload-image',
+              byUrl: '/api/fetch-image'
+            },
+            field: 'image',
+            types: 'image/*',
+            captionPlaceholder: 'Enter image caption...',
+            buttonContent: 'Select an Image',
+            uploader: {
+              uploadByUrl: async (url: string) => {
+                try {
+                  const response = await fetch('/api/fetch-image', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url }),
+                  });
+
+                  const result = await response.json();
+                  return result;
+                } catch (error) {
+                  console.error('Error uploading by URL:', error);
+                  return {
+                    success: 0,
+                    message: 'Failed to upload image'
+                  };
+                }
+              },
+              uploadByFile: async (file: File) => {
+                try {
+                  const formData = new FormData();
+                  formData.append('image', file);
+
+                  const response = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    body: formData,
+                  });
+
+                  const result = await response.json();
+                  return result;
+                } catch (error) {
+                  console.error('Error uploading file:', error);
+                  return {
+                    success: 0,
+                    message: 'Failed to upload image'
+                  };
+                }
+              }
+            },
+            actions: [
+              {
+                name: 'new_button',
+                icon: '<svg width="17" height="15" viewBox="0 0 336 276" xmlns="http://www.w3.org/2000/svg"><path d="M291 150V79c0-19-15-34-34-34H79c-19 0-34 15-34 34v42l67-44 81 72 56-29 42 30zm0 52l-43-30-56 30-81-67-67 49v23c0 19 15 34 34 34h178c17 0 31-13 34-29zM79 0h178c44 0 79 35 79 79v118c0 44-35 79-79 79H79c-44 0-79-35-79-79V79C0 35 35 0 79 0z"/></svg>',
+                title: 'New Image',
+                toggle: true,
+                action: (name: string) => {
+                  // Custom action for new image
+                  console.log('New image action:', name);
+                }
+              }
+            ],
+            // Enable image resizing with handles
+            withBorder: true,
+            withBackground: true,
+            stretched: true,
+            // Custom CSS classes for styling
+            class: {
+              wrapper: 'image-tool-wrapper',
+              image: 'image-tool-image',
+              caption: 'image-tool-caption'
+            }
+          }
+        },
+        quote: {
+          class: Quote,
+          inlineToolbar: true,
+          config: {
+            quotePlaceholder: 'Enter a quote',
+            captionPlaceholder: 'Quote author'
+          }
+        },
+        marker: {
+          class: Marker
+        },
+        inlineCode: {
+          class: InlineCode
+        },
+        delimiter: Delimiter,
+        table: {
+          class: Table,
+          inlineToolbar: true,
+          config: {
+            rows: 2,
+            cols: 3
+          }
+        },
+        code: {
+          class: CodeTool,
+          config: {
+            placeholder: 'Enter code here...'
+          }
+        },
+        linkTool: {
+          class: LinkTool,
+          config: {
+            endpoint: '/api/fetch-url' // You'll need to implement this
+          }
+        },
+        embed: {
+          class: Embed,
+          config: {
+            services: {
+              youtube: true,
+              coub: true,
+              codepen: true,
+              imgur: true
+            }
+          }
+        }
+      },
+      onChange: async () => {
+        if (editorRef.current) {
+          try {
+            const outputData = await editorRef.current.save();
+            const html = editorJSToHtml(outputData);
+            onChange(html);
+          } catch (error) {
+            console.error('Error saving editor data:', error);
+          }
+        }
+      },
+      onReady: () => {
+        setIsReady(true);
       }
+    });
 
-      if (selectedImage && !selectedImage.contains(target) && !isResizing) {
-        selectedImage.classList.remove('selected');
-        removeAllResizeWrappers();
-        setSelectedImage(null);
+    editorRef.current = editor;
+
+    return () => {
+      if (editorRef.current && editorRef.current.destroy) {
+        editorRef.current.destroy();
+        editorRef.current = null;
       }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [selectedImage, isResizing]);
-
-  // Cleanup resize wrappers on unmount
-  useEffect(() => {
-    return () => {
-      removeAllResizeWrappers();
     };
   }, []);
+
+  // Update editor content when value prop changes
+  useEffect(() => {
+    if (isReady && editorRef.current && value !== undefined) {
+      const currentData = htmlToEditorJS(value);
+      editorRef.current.render(currentData);
+    }
+  }, [value, isReady]);
 
   return (
-    <div className="border border-gray-300 rounded-md">
-      {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 p-2 border-b border-gray-200 bg-gray-50">
-        <button
-          type="button"
-          onClick={() => execCommand('bold')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
-          title="Bold"
-        >
-          <strong>B</strong>
-        </button>
-        <button
-          type="button"
-          onClick={() => execCommand('italic')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
-          title="Italic"
-        >
-          <em>I</em>
-        </button>
-        <button
-          type="button"
-          onClick={() => execCommand('underline')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
-          title="Underline"
-        >
-          <u>U</u>
-        </button>
-
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
-
-        <button
-          type="button"
-          onClick={() => execCommand('justifyLeft')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 active:bg-blue-100"
-          title="Align Left"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 3h18v2H3V3zm0 4h12v2H3V7zm0 4h18v2H3v-2zm0 4h12v2H3v-2zm0 4h18v2H3v-2z" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => execCommand('justifyCenter')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 active:bg-blue-100"
-          title="Align Center"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 3h18v2H3V3zm3 4h12v2H6V7zm-3 4h18v2H3v-2zm3 4h12v2H6v-2zm-3 4h18v2H3v-2z" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => execCommand('justifyRight')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 active:bg-blue-100"
-          title="Align Right"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 3h18v2H3V3zm6 4h12v2H9V7zm-6 4h18v2H3v-2zm6 4h12v2H9v-2zm-6 4h18v2H3v-2z" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => execCommand('justifyFull')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 active:bg-blue-100"
-          title="Justify"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h18v2H3v-2zm0 4h18v2H3v-2zm0 4h18v2H3v-2z" />
-          </svg>
-        </button>
-
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
-
-        <button
-          type="button"
-          onClick={() => execCommand('insertUnorderedList')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
-          title="Bullet List"
-        >
-          •
-        </button>
-        <button
-          type="button"
-          onClick={() => execCommand('insertOrderedList')}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
-          title="Numbered List"
-        >
-          1.
-        </button>
-
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
-
-        <button
-          type="button"
-          onClick={insertImage}
-          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
-          title="Insert Image"
-        >
-          🖼
-        </button>
-
-        {selectedImage && (
-          <>
-            <div className="w-px h-6 bg-gray-300 mx-1"></div>
-
-            {/* Image Size Controls */}
-            <div className="flex gap-1">
-              <button
-                type="button"
-                onClick={() => resizeImage('small')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Small Image (25%)"
-              >
-                S
-              </button>
-              <button
-                type="button"
-                onClick={() => resizeImage('medium')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Medium Image (50%)"
-              >
-                M
-              </button>
-              <button
-                type="button"
-                onClick={() => resizeImage('large')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Large Image (75%)"
-              >
-                L
-              </button>
-              <button
-                type="button"
-                onClick={() => resizeImage('full')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Full Width (100%)"
-              >
-                XL
-              </button>
-            </div>
-
-            <div className="w-px h-6 bg-gray-300 mx-1"></div>
-
-            {/* Image Alignment Controls */}
-            <div className="flex gap-1">
-              <button
-                type="button"
-                onClick={() => alignImage('left')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Align Left"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M3 3h18v2H3V3zm0 4h12v2H3V7zm0 4h18v2H3v-2zm0 4h12v2H3v-2zm0 4h18v2H3v-2z" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => alignImage('center')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Center"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M3 3h18v2H3V3zm3 4h12v2H6V7zm-3 4h18v2H3v-2zm3 4h12v2H6v-2zm-3 4h18v2H3v-2z" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => alignImage('right')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Align Right"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M3 3h18v2H3V3zm6 4h12v2H9V7zm-6 4h18v2H3v-2zm6 4h12v2H9v-2zm-6 4h18v2H3v-2z" />
-                </svg>
-              </button>
-
-              <div className="w-px h-4 bg-gray-300 mx-1"></div>
-
-              <button
-                type="button"
-                onClick={() => alignImage('float-left')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Float Left (text wraps around)"
-              >
-                📄⬅
-              </button>
-              <button
-                type="button"
-                onClick={() => alignImage('float-right')}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
-                title="Float Right (text wraps around)"
-              >
-                ➡📄
-              </button>
-            </div>
-          </>
-        )}
-
-        <select
-          onChange={(e) => execCommand('fontSize', e.target.value)}
-          className="px-2 py-1 text-sm border border-gray-300 rounded"
-          defaultValue="3"
-        >
-          <option value="1">Small</option>
-          <option value="3">Normal</option>
-          <option value="5">Large</option>
-          <option value="7">Extra Large</option>
-        </select>
-      </div>
-
-      {/* Editor */}
+    <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
       <div
-        ref={editorRef}
-        contentEditable
-        onInput={handleInput}
-        dangerouslySetInnerHTML={{ __html: value }}
-        className="min-h-32 p-3 focus:outline-none"
-        style={{ minHeight: '120px' }}
-        data-placeholder={placeholder}
+        ref={holderRef}
+        className="min-h-[300px] p-4"
+        style={{ minHeight: '300px' }}
       />
 
       <style jsx global>{`
-        [contenteditable]:empty:before {
-          content: attr(data-placeholder);
-          color: #9ca3af;
-          pointer-events: none;
+        .codex-editor {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
         
-        .resizable-image {
-          border: 2px solid transparent;
-          transition: border-color 0.2s ease;
-          position: relative;
+        .codex-editor__redactor {
+          padding: 0 !important;
+        }
+        
+        .ce-block__content {
           max-width: none !important;
+          margin: 0 !important;
+        }
+        
+        .ce-paragraph {
+          line-height: 1.6;
+          margin: 0.5em 0;
+        }
+        
+        .ce-header {
+          margin: 1em 0 0.5em 0;
+          font-weight: 600;
+        }
+        
+        .ce-toolbar__plus {
+          color: #388ae5;
+        }
+        
+        .ce-toolbar__settings-btn {
+          color: #388ae5;
+        }
+        
+        .ce-inline-toolbar {
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ce-conversion-toolbar {
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ce-settings {
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ce-popover {
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ce-block--selected .ce-block__content {
+          background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .cdx-quote {
+          border-left: 4px solid #3b82f6;
+          padding-left: 1rem;
+          margin: 1rem 0;
+          font-style: italic;
+        }
+        
+        .cdx-list {
+          margin: 0.5rem 0;
+        }
+        
+        .cdx-list__item {
+          line-height: 1.6;
+          margin: 0.25rem 0;
+        }
+        
+        .image-tool {
+          margin: 1rem 0;
+          position: relative;
+        }
+        
+        .image-tool-wrapper {
+          position: relative;
+          display: inline-block;
+          max-width: 100%;
+        }
+        
+        .image-tool__image {
+          border-radius: 8px;
+          max-width: 100%;
+          height: auto;
           display: block;
+          transition: all 0.3s ease;
         }
         
-        .resizable-image:hover {
+        .image-tool__image:hover {
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .image-tool__caption {
+          text-align: center;
+          font-style: italic;
+          color: #6b7280;
+          margin-top: 0.5rem;
+          font-size: 0.875rem;
+          line-height: 1.4;
+        }
+        
+        .image-tool__caption:empty::before {
+          content: 'Enter image caption...';
+          color: #9ca3af;
+        }
+        
+        /* Image tool settings */
+        .image-tool--withBorder .image-tool__image {
+          border: 1px solid #e5e7eb;
+          padding: 4px;
+        }
+        
+        .image-tool--withBackground .image-tool__image {
+          background: #f9fafb;
+          padding: 8px;
+        }
+        
+        .image-tool--stretched .image-tool__image {
+          width: 100%;
+          max-width: none;
+        }
+        
+        /* Image resize handles */
+        .image-tool:hover .image-resize-handle {
+          opacity: 1;
+        }
+        
+        .image-resize-handle {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          background: #3b82f6;
+          border: 1px solid white;
+          border-radius: 2px;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          cursor: pointer;
+          z-index: 10;
+        }
+        
+        .image-resize-handle:hover {
+          background: #1d4ed8;
+          transform: scale(1.2);
+        }
+        
+        .image-resize-handle--nw {
+          top: -4px;
+          left: -4px;
+          cursor: nw-resize;
+        }
+        
+        .image-resize-handle--ne {
+          top: -4px;
+          right: -4px;
+          cursor: ne-resize;
+        }
+        
+        .image-resize-handle--sw {
+          bottom: -4px;
+          left: -4px;
+          cursor: sw-resize;
+        }
+        
+        .image-resize-handle--se {
+          bottom: -4px;
+          right: -4px;
+          cursor: se-resize;
+        }
+        
+        /* Image upload area */
+        .image-tool__image-preloader {
+          background: #f3f4f6;
+          border: 2px dashed #d1d5db;
+          border-radius: 8px;
+          padding: 2rem;
+          text-align: center;
+          color: #6b7280;
+          min-height: 200px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+        }
+        
+        .image-tool__image-preloader:hover {
           border-color: #3b82f6;
+          background: #eff6ff;
         }
         
-        .resizable-image.selected {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        .image-tool__upload-button {
+          background: #3b82f6;
+          color: white;
+          border: none;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 0.875rem;
+          margin-top: 0.5rem;
+          transition: background 0.2s ease;
         }
         
-        .image-resize-wrapper {
-          margin: 2px;
+        .image-tool__upload-button:hover {
+          background: #1d4ed8;
         }
         
-        .image-resize-wrapper[style*="float: left"] {
-          margin-right: 15px !important;
-          margin-bottom: 10px !important;
+        /* Image tool tune buttons */
+        .image-tool__tune {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
         }
         
-        .image-resize-wrapper[style*="float: right"] {
-          margin-left: 15px !important;
-          margin-bottom: 10px !important;
-        }
-        
-        .resize-handle {
+        .image-tool__tune-button {
+          background: #f3f4f6;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+          cursor: pointer;
           transition: all 0.2s ease;
         }
         
-        .resize-handle:hover {
-          background-color: #1d4ed8 !important;
-          transform: scale(1.1);
+        .image-tool__tune-button:hover {
+          background: #e5e7eb;
         }
         
-        body.resizing {
-          user-select: none;
-          cursor: inherit;
+        .image-tool__tune-button--active {
+          background: #3b82f6;
+          color: white;
+          border-color: #3b82f6;
+        }
+        
+        .cdx-table {
+          margin: 1rem 0;
+        }
+        
+        .tc-table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        .tc-table td {
+          border: 1px solid #e5e7eb;
+          padding: 0.5rem;
+        }
+        
+        .cdx-code {
+          background: #f3f4f6;
+          border-radius: 6px;
+          padding: 1rem;
+          margin: 1rem 0;
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          font-size: 0.875rem;
+          line-height: 1.5;
+        }
+        
+        .ce-delimiter {
+          margin: 2rem 0;
+          text-align: center;
+        }
+        
+        .ce-delimiter::before {
+          content: '***';
+          font-size: 1.5rem;
+          color: #9ca3af;
         }
       `}</style>
     </div>
