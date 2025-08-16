@@ -1,0 +1,113 @@
+import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
+import { SiteSettings } from '@/types';
+
+const sitePath = path.join(process.cwd(), 'data', 'site.json');
+
+function readSiteSettings(): SiteSettings {
+  try {
+    const data = fs.readFileSync(sitePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    // Return default settings if file doesn't exist
+    return {
+      siteTitle: "University Memories",
+      logo: "/logo.png",
+      navLinks: [
+        { label: "Home", href: "/" },
+        { label: "Gallery", href: "/gallery" },
+        { label: "About", href: "/about" }
+      ],
+      hero: {
+        title: "Capturing College Memories",
+        subtitle: "Preserving the moments that define our academic journey",
+        backgroundImage: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=600&fit=crop",
+        ctaText: "Explore Gallery",
+        ctaLink: "/gallery"
+      },
+      about: {
+        title: "About Our College",
+        content: "Our institution has been a beacon of academic excellence.",
+        image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&h=400&fit=crop",
+        stats: [
+          { label: "Students", value: "15,000+" },
+          { label: "Faculty", value: "800+" }
+        ]
+      },
+      contact: {
+        address: "123 University Avenue\nCollege Town, ST 12345",
+        phone: "(555) 123-4567",
+        email: "info@university.edu",
+        officeHours: "Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM"
+      },
+      homepage: {
+        sections: [
+          { id: "hero", name: "Hero Section", enabled: true, order: 1 },
+          { id: "about", name: "About Section", enabled: true, order: 2 },
+          { id: "placements", name: "Placements Section", enabled: true, order: 3 },
+          { id: "achievements", name: "Achievements Section", enabled: true, order: 4 },
+          { id: "featured-collages", name: "Featured Collages", enabled: true, order: 5 }
+        ]
+      },
+      footer: {
+        text: "© 2025 University Memories. All rights reserved.",
+        socialLinks: [
+          { label: "Facebook", href: "https://facebook.com/university" }
+        ]
+      }
+    };
+  }
+}
+
+function writeSiteSettings(settings: SiteSettings): void {
+  fs.writeFileSync(sitePath, JSON.stringify(settings, null, 2));
+}
+
+export async function GET() {
+  try {
+    const settings = readSiteSettings();
+    return NextResponse.json(settings);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to read site settings' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    
+    // Validate the structure
+    if (!body.siteTitle || !body.navLinks || !body.footer) {
+      return NextResponse.json({ error: 'Invalid data structure' }, { status: 400 });
+    }
+
+    // Ensure contact field exists
+    if (!body.contact) {
+      body.contact = {
+        address: "123 University Avenue\nCollege Town, ST 12345",
+        phone: "(555) 123-4567",
+        email: "info@university.edu",
+        officeHours: "Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM"
+      };
+    }
+
+    // Ensure homepage field exists
+    if (!body.homepage) {
+      body.homepage = {
+        sections: [
+          { id: "hero", name: "Hero Section", enabled: true, order: 1 },
+          { id: "about", name: "About Section", enabled: true, order: 2 },
+          { id: "placements", name: "Placements Section", enabled: true, order: 3 },
+          { id: "achievements", name: "Achievements Section", enabled: true, order: 4 },
+          { id: "featured-collages", name: "Featured Collages", enabled: true, order: 5 }
+        ]
+      };
+    }
+
+    writeSiteSettings(body);
+    return NextResponse.json(body);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update site settings' }, { status: 500 });
+  }
+}

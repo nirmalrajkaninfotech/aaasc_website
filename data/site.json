@@ -1,0 +1,251 @@
+{
+  "siteTitle": "University Memories",
+  "logo": "https://images.unsplash.com/photo-1562774053-701939374585?w=100&h=100&fit=crop&crop=center",
+  "navLinks": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Gallery",
+      "href": "/gallery"
+    },
+    {
+      "label": "Facilities",
+      "href": "/facilities"
+    },
+    {
+      "label": "Categories",
+      "href": "/categories"
+    },
+    {
+      "label": "About",
+      "href": "/about"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact"
+    }
+  ],
+  "hero": {
+    "title": "Capturing College Memories",
+    "subtitle": "Preserving the moments that define our academic journey and campus life",
+    "backgroundImage": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=600&fit=crop",
+    "ctaText": "Explore Gallery",
+    "ctaLink": "/gallery"
+  },
+  "about": {
+    "title": "About Our College",
+    "content": "Our institution has been a beacon of academic excellence and personal growth for over decades. We pride ourselves on fostering an environment where students can thrive academically, socially, and personally. Through our comprehensive programs and vibrant campus life, we prepare students for successful careers and meaningful contributions to society.",
+    "image": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&h=400&fit=crop",
+    "stats": [
+      {
+        "label": "Students",
+        "value": "15,000+"
+      },
+      {
+        "label": "Faculty",
+        "value": "800+"
+      },
+      {
+        "label": "Programs",
+        "value": "120+"
+      },
+      {
+        "label": "Years of Excellence",
+        "value": "75+"
+      }
+    ]
+  },
+  "placements": {
+    "title": "Student Placements",
+    "subtitle": "Our graduates excel in top companies worldwide",
+    "items": [
+      {
+        "id": "placement-1",
+        "title": "Tech Industry Success",
+        "content": "<p><strong>95% placement rate</strong> in leading technology companies including <em>Google, Microsoft, Amazon</em>, and innovative startups.</p><p>Our computer science and engineering graduates are highly sought after for their technical expertise and problem-solving abilities.</p>",
+        "image": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop",
+        "alignment": "left",
+        "order": 1,
+        "published": true
+      },
+      {
+        "id": "placement-2",
+        "title": "Global Opportunities",
+        "content": "<p style='text-align: center;'><strong>International placements</strong> across 25+ countries</p><p style='text-align: center;'>Students secure positions in multinational corporations, contributing to global projects and gaining invaluable international experience.</p>",
+        "image": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&h=400&fit=crop",
+        "alignment": "center",
+        "order": 2,
+        "published": true
+      }
+    ]
+  },
+  "achievements": {
+    "title": "Our Achievements",
+    "subtitle": "Recognition and excellence in education and research",
+    "items": [
+      {
+        "id": "achievement-1",
+        "title": "Academic Excellence",
+        "content": "<p><strong>Ranked #1</strong> in the region for academic excellence</p><ul><li>Outstanding faculty with <em>international recognition</em></li><li>State-of-the-art research facilities</li><li>Innovative curriculum design</li></ul>",
+        "image": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&h=400&fit=crop",
+        "alignment": "left",
+        "order": 1,
+        "published": true
+      },
+      {
+        "id": "achievement-2",
+        "title": "Research Impact",
+        "content": "<p style='text-align: right;'><strong>500+ research publications</strong> in top-tier journals</p><p style='text-align: right;'>Our research contributes to solving real-world problems in <em>healthcare, technology, and sustainability</em>.</p>",
+        "image": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&h=400&fit=crop",
+        "alignment": "right",
+        "order": 2,
+        "published": true
+      }
+    ]
+  },
+  "facilities": {
+    "title": "Our Facilities",
+    "subtitle": "State-of-the-art infrastructure supporting academic excellence",
+    "items": [
+      {
+        "id": "exam-cell",
+        "name": "Exam Cell",
+        "description": "Centralized examination management system ensuring fair and efficient conduct of all academic assessments.",
+        "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&h=400&fit=crop",
+        "category": "Academic",
+        "features": ["Online Exam Management", "Result Processing", "Certificate Verification", "Academic Records"],
+        "published": true,
+        "order": 1
+      },
+      {
+        "id": "administrative-office",
+        "name": "Administrative Office",
+        "description": "Central hub for all administrative services, student support, and institutional management.",
+        "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
+        "category": "Administrative",
+        "features": ["Student Services", "Document Processing", "Fee Management", "General Inquiries"],
+        "published": true,
+        "order": 2
+      },
+      {
+        "id": "computer-lab",
+        "name": "Computer Lab",
+        "description": "Modern computing facility with latest hardware and software for programming, research, and digital learning.",
+        "image": "https://images.unsplash.com/photo-1562774053-701939374585?w=600&h=400&fit=crop",
+        "category": "Academic",
+        "features": ["High-Speed Internet", "Latest Software", "Programming Tools", "Research Facilities"],
+        "published": true,
+        "order": 3
+      },
+      {
+        "id": "library",
+        "name": "Library",
+        "description": "Comprehensive library with vast collection of books, journals, and digital resources for academic research.",
+        "image": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=400&fit=crop",
+        "category": "Academic",
+        "features": ["Digital Library", "Research Journals", "Study Spaces", "Book Collection"],
+        "published": true,
+        "order": 4
+      },
+      {
+        "id": "sports-complex",
+        "name": "Sports Complex",
+        "description": "Multi-purpose sports facility promoting physical fitness and competitive sports among students.",
+        "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
+        "category": "Recreation",
+        "features": ["Indoor Courts", "Outdoor Fields", "Fitness Center", "Sports Equipment"],
+        "published": true,
+        "order": 5
+      },
+      {
+        "id": "anti-ragging-club",
+        "name": "Anti-Ragging Club",
+        "description": "Dedicated committee ensuring a safe and harassment-free environment for all students.",
+        "image": "https://images.unsplash.com/photo-1529390079861-591de354faf5?w=600&h=400&fit=crop",
+        "category": "Student Welfare",
+        "features": ["24/7 Helpline", "Counseling Services", "Awareness Programs", "Complaint Resolution"],
+        "published": true,
+        "order": 6
+      },
+      {
+        "id": "fine-arts-club",
+        "name": "Fine Arts Club",
+        "description": "Creative space for artistic expression, cultural activities, and talent development.",
+        "image": "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=400&fit=crop",
+        "category": "Cultural",
+        "features": ["Art Studios", "Performance Spaces", "Cultural Events", "Skill Development"],
+        "published": true,
+        "order": 7
+      }
+    ]
+  },
+  "contact": {
+    "address": "123 University Avenue\nCollege Town, ST ",
+    "phone": "(555) 123-4567",
+    "email": "info@university.edu",
+    "officeHours": "Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM"
+  },
+  "homepage": {
+    "sections": [
+      {
+        "id": "hero",
+        "name": "Hero Section",
+        "enabled": true,
+        "order": 1
+      },
+      {
+        "id": "about",
+        "name": "About Section",
+        "enabled": true,
+        "order": 2
+      },
+      {
+        "id": "placements",
+        "name": "Placements Section",
+        "enabled": true,
+        "order": 3
+      },
+      {
+        "id": "achievements",
+        "name": "Achievements Section",
+        "enabled": true,
+        "order": 4
+      },
+      {
+        "id": "facilities",
+        "name": "Facilities Section",
+        "enabled": true,
+        "order": 5
+      },
+      {
+        "id": "featured-collages",
+        "name": "Featured Collages",
+        "enabled": true,
+        "order": 6
+      }
+    ]
+  },
+  "footer": {
+    "text": "© 2025 University Memories. All rights reserved.",
+    "socialLinks": [
+      {
+        "label": "Facebook",
+        "href": "https://facebook.com/university"
+      },
+      {
+        "label": "Instagram",
+        "href": "https://instagram.com/university"
+      },
+      {
+        "label": "Twitter",
+        "href": "https://twitter.com/university"
+      },
+      {
+        "label": "LinkedIn",
+        "href": "https://linkedin.com/university"
+      }
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "title": "Campus Life Memories",
+    "description": "A collection of beautiful moments from our campus life, featuring student activities, events, and daily experiences.",
+    "category": "Campus Life",
+    "date": "2024-12-15",
+    "featured": true,
+    "tags": ["campus", "students", "activities", "memories"],
+    "images": [
+      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=500&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1562774053-701939374585?w=500&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=500&fit=crop"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Academic Excellence",
+    "description": "Showcasing our academic achievements, graduation ceremonies, and scholarly pursuits.",
+    "category": "Academics",
+    "date": "2024-11-20",
+    "featured": true,
+    "tags": ["graduation", "academics", "achievement", "ceremony"],
+    "images": [
+      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=500&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=500&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=500&h=500&fit=crop"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Sports & Recreation",
+    "description": "Athletic achievements and recreational activities that showcase our vibrant sports culture.",
+    "category": "Sports",
+    "date": "2024-10-10",
+    "featured": false,
+    "tags": ["sports", "athletics", "recreation", "teamwork"],
+    "images": [
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=500&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=500&fit=crop"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Cultural Events",
+    "description": "Celebrating diversity through cultural festivals, performances, and artistic expressions.",
+    "category": "Culture",
+    "date": "2024-09-15",
+    "featured": false,
+    "tags": ["culture", "festivals", "diversity", "arts"],
+    "images": [
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=500&h=500&fit=crop",
+      "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&h=500&fit=crop"
+    ]
+  }
+]
