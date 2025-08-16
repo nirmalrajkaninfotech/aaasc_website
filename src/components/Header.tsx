@@ -30,13 +30,32 @@ export default function Header({ siteSettings }: HeaderProps) {
           
           <nav className="hidden md:flex space-x-6">
             {siteSettings.navLinks.map((link, index) => (
-              <Link
-                key={index}
-                href={link.href}
-                className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
-              >
-                {link.label}
-              </Link>
+              link.subLinks ? (
+                <div key={index} className="relative group">
+                  <span className="text-gray-600 hover:text-gray-900 transition-colors duration-200 cursor-pointer">
+                    {link.label}
+                  </span>
+                  <div className="absolute hidden group-hover:block bg-white shadow-lg rounded-md mt-2 py-2 w-48">
+                    {link.subLinks.map((subLink, subIndex) => (
+                      <Link
+                        key={subIndex}
+                        href={subLink.href}
+                        className="block px-4 py-2 text-gray-600 hover:bg-gray-100"
+                      >
+                        {subLink.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={index}
+                  href={link.href}
+                  className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
             <Link
               href="/admin"
@@ -61,13 +80,31 @@ export default function Header({ siteSettings }: HeaderProps) {
         <nav className="md:hidden mt-4 pt-4 border-t border-gray-200">
           <div className="flex flex-col space-y-2">
             {siteSettings.navLinks.map((link, index) => (
-              <Link
-                key={index}
-                href={link.href}
-                className="text-gray-600 hover:text-gray-900 py-2"
-              >
-                {link.label}
-              </Link>
+              <div key={index}>
+                {link.subLinks ? (
+                  <>
+                    <span className="text-gray-800 font-semibold py-2 block">{link.label}</span>
+                    <div className="flex flex-col space-y-2 pl-4">
+                      {link.subLinks.map((subLink, subIndex) => (
+                        <Link
+                          key={subIndex}
+                          href={subLink.href}
+                          className="text-gray-600 hover:text-gray-900 py-1"
+                        >
+                          {subLink.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <Link
+                    href={link.href}
+                    className="text-gray-600 hover:text-gray-900 py-2"
+                  >
+                    {link.label}
+                  </Link>
+                )}
+              </div>
             ))}
           </div>
         </nav>

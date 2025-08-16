@@ -12,6 +12,7 @@ export interface Collage {
 export interface NavLink {
   label: string;
   href: string;
+  subLinks?: NavLink[];
 }
 
 export interface SocialLink {
@@ -35,6 +36,17 @@ export interface AboutSection {
     label: string;
     value: string;
   }[];
+  committee?: AboutSubsection;
+  templeAdministration?: AboutSubsection;
+  secretaryMessage?: AboutSubsection;
+  principalMessage?: AboutSubsection;
+}
+
+export interface AboutSubsection {
+  title: string;
+  content: string;
+  image?: string;
+  alignment?: 'left' | 'right';
 }
 
 export interface ContactInfo {
@@ -42,6 +54,7 @@ export interface ContactInfo {
   phone: string;
   email: string;
   officeHours: string;
+  googleMapsUrl?: string;
 }
 
 export interface RichTextContent {

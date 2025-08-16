@@ -33,7 +33,42 @@ function readSiteSettings(): SiteSettings {
         stats: [
           { label: "Students", value: "15,000+" },
           { label: "Faculty", value: "800+" }
-        ]
+        ],
+        committee: {
+          title: "College Management Committee",
+          content: "",
+          image: ""
+        },
+        templeAdministration: {
+          title: "Temple Administration",
+          content: "",
+          image: ""
+        },
+        secretaryMessage: {
+          title: "Secretary Message",
+          content: "",
+          image: ""
+        },
+        principalMessage: {
+          title: "Principal Message",
+          content: "",
+          image: ""
+        }
+      },
+      placements: {
+        title: "Placements",
+        subtitle: "Our students succeed",
+        items: []
+      },
+      achievements: {
+        title: "Achievements",
+        subtitle: "Our milestones",
+        items: []
+      },
+      facilities: {
+        title: "Facilities",
+        subtitle: "What we offer",
+        items: []
       },
       contact: {
         address: "123 University Avenue\nCollege Town, ST 12345",

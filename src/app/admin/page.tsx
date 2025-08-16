@@ -11,7 +11,7 @@ import { Collage, SiteSettings, RichTextContent, HomepageSection } from '@/types
 export default function AdminPage() {
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
-    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'placements' | 'achievements' | 'homepage' | 'others'>('collages');
+    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'placements' | 'achievements' | 'homepage' | 'others'>('collages');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -44,6 +44,11 @@ export default function AdminPage() {
         published: true
     });
     const [editingAchievement, setEditingAchievement] = useState<RichTextContent | null>(null);
+
+    const [newAboutStat, setNewAboutStat] = useState<{ label: string; value: string }>({
+        label: '',
+        value: ''
+    });
 
     useEffect(() => {
         fetchData();
@@ -309,6 +314,37 @@ export default function AdminPage() {
         setSiteSettings(updatedSettings);
     };
 
+    // About management functions
+    const handleAddAboutStat = () => {
+        if (!newAboutStat.label.trim() || !newAboutStat.value.trim()) {
+            alert('Please enter both label and value');
+            return;
+        }
+
+        const updatedSettings = {
+            ...siteSettings!,
+            about: {
+                ...siteSettings!.about,
+                stats: [...siteSettings!.about.stats, { label: newAboutStat.label.trim(), value: newAboutStat.value.trim() }]
+            }
+        };
+
+        setSiteSettings(updatedSettings);
+        setNewAboutStat({ label: '', value: '' });
+    };
+
+    const handleRemoveAboutStat = (index: number) => {
+        if (!confirm('Remove this stat?')) return;
+        const updatedSettings = {
+            ...siteSettings!,
+            about: {
+                ...siteSettings!.about,
+                stats: siteSettings!.about.stats.filter((_, i) => i !== index)
+            }
+        };
+        setSiteSettings(updatedSettings);
+    };
+
     // Homepage layout management
     const handleHomepageSectionsChange = (sections: HomepageSection[]) => {
         const updatedSettings = {
@@ -371,6 +407,15 @@ export default function AdminPage() {
                             }`}
                     >
                         Contact Info
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('about')}
+                        className={`pb-2 px-1 ${activeTab === 'about'
+                            ? 'border-b-2 border-blue-600 text-blue-600'
+                            : 'text-gray-600'
+                            }`}
+                    >
+                        About
                     </button>
                     <button
                         onClick={() => setActiveTab('placements')}
@@ -618,6 +663,437 @@ export default function AdminPage() {
                     </div>
                 )}
 
+                {/* About Tab */}
+                {activeTab === 'about' && (
+                    <div className="space-y-8">
+                        {/* About Basics */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-semibold mb-4">About Section</h2>
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                                    <input
+                                        type="text"
+                                        value={siteSettings.about.title}
+                                        onChange={(e) => setSiteSettings({
+                                            ...siteSettings,
+                                            about: { ...siteSettings.about, title: e.target.value }
+                                        })}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                                    <RichTextEditor
+                                        value={siteSettings.about.content}
+                                        onChange={(content) => setSiteSettings({
+                                            ...siteSettings,
+                                            about: { ...siteSettings.about, content }
+                                        })}
+                                        placeholder="Write about your college..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <ImageUpload
+                                        value={siteSettings.about.image}
+                                        onChange={(image) => setSiteSettings({
+                                            ...siteSettings,
+                                            about: { ...siteSettings.about, image }
+                                        })}
+                                        label="About Image"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h3 className="text-lg font-semibold mb-4">Key Stats</h3>
+
+                            {siteSettings.about.stats.length === 0 ? (
+                                <p className="text-gray-500 mb-4">No stats yet.</p>
+                            ) : (
+                                <div className="space-y-3 mb-4">
+                                    {siteSettings.about.stats.map((stat, index) => (
+                                        <div key={index} className="grid grid-cols-1 md:grid-cols-7 gap-3 items-center">
+                                            <input
+                                                type="text"
+                                                value={stat.label}
+                                                onChange={(e) => {
+                                                    const newStats = [...siteSettings.about.stats];
+                                                    newStats[index] = { ...newStats[index], label: e.target.value };
+                                                    setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: { ...siteSettings.about, stats: newStats }
+                                                    });
+                                                }}
+                                                className="md:col-span-3 p-2 border border-gray-300 rounded-md"
+                                                placeholder="Label (e.g., Students)"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={stat.value}
+                                                onChange={(e) => {
+                                                    const newStats = [...siteSettings.about.stats];
+                                                    newStats[index] = { ...newStats[index], value: e.target.value };
+                                                    setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: { ...siteSettings.about, stats: newStats }
+                                                    });
+                                                }}
+                                                className="md:col-span-3 p-2 border border-gray-300 rounded-md"
+                                                placeholder="Value (e.g., 15,000+)"
+                                            />
+                                            <button
+                                                onClick={() => handleRemoveAboutStat(index)}
+                                                className="md:col-span-1 px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-1 md:grid-cols-7 gap-3 items-center">
+                                <input
+                                    type="text"
+                                    value={newAboutStat.label}
+                                    onChange={(e) => setNewAboutStat({ ...newAboutStat, label: e.target.value })}
+                                    className="md:col-span-3 p-2 border border-gray-300 rounded-md"
+                                    placeholder="New stat label"
+                                />
+                                <input
+                                    type="text"
+                                    value={newAboutStat.value}
+                                    onChange={(e) => setNewAboutStat({ ...newAboutStat, value: e.target.value })}
+                                    className="md:col-span-3 p-2 border border-gray-300 rounded-md"
+                                    placeholder="New stat value"
+                                />
+                                <button
+                                    onClick={handleAddAboutStat}
+                                    className="md:col-span-1 px-3 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800"
+                                >
+                                    Add
+                                </button>
+                            </div>
+
+                            {/* Subsections */}
+                            <div className="mt-10 space-y-10">
+                                {/* Committee */}
+                                <div className="border-t pt-8">
+                                    <h3 className="text-lg font-semibold mb-4">College Management Committee</h3>
+                                    <div className="space-y-4">
+                                        <input
+                                            type="text"
+                                            value={siteSettings.about.committee?.title || 'College Management Committee'}
+                                            onChange={(e) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    committee: {
+                                                        ...(siteSettings.about.committee || { title: '', content: '', image: '' }),
+                                                        title: e.target.value
+                                                    }
+                                                }
+                                            })}
+                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                            placeholder="Section title"
+                                        />
+                                        <RichTextEditor
+                                            value={siteSettings.about.committee?.content || ''}
+                                            onChange={(content) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    committee: {
+                                                        ...(siteSettings.about.committee || { title: 'College Management Committee', content: '', image: '' }),
+                                                        content
+                                                    }
+                                                }
+                                            })}
+                                            placeholder="Write committee details..."
+                                        />
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1">
+                                                <ImageUpload
+                                                    value={siteSettings.about.committee?.image || ''}
+                                                    onChange={(image) => setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: {
+                                                            ...siteSettings.about,
+                                                            committee: {
+                                                                ...(siteSettings.about.committee || { title: 'College Management Committee', content: '', image: '', alignment: 'left' }),
+                                                                image
+                                                            }
+                                                        }
+                                                    })}
+                                                    label="Committee Image (optional)"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Image Alignment</label>
+                                                <select
+                                                    value={siteSettings.about.committee?.alignment || 'left'}
+                                                    onChange={(e) => setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: {
+                                                            ...siteSettings.about,
+                                                            committee: {
+                                                                ...(siteSettings.about.committee || { title: 'College Management Committee', content: '', image: '', alignment: 'left' }),
+                                                                alignment: e.target.value as 'left' | 'right'
+                                                            }
+                                                        }
+                                                    })}
+                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                                >
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Temple Administration */}
+                                <div className="border-t pt-8">
+                                    <h3 className="text-lg font-semibold mb-4">Temple Administration</h3>
+                                    <div className="space-y-4">
+                                        <input
+                                            type="text"
+                                            value={siteSettings.about.templeAdministration?.title || 'Temple Administration'}
+                                            onChange={(e) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    templeAdministration: {
+                                                        ...(siteSettings.about.templeAdministration || { title: '', content: '', image: '' }),
+                                                        title: e.target.value
+                                                    }
+                                                }
+                                            })}
+                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                            placeholder="Section title"
+                                        />
+                                        <RichTextEditor
+                                            value={siteSettings.about.templeAdministration?.content || ''}
+                                            onChange={(content) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    templeAdministration: {
+                                                        ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', image: '' }),
+                                                        content
+                                                    }
+                                                }
+                                            })}
+                                            placeholder="Write temple administration details..."
+                                        />
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1">
+                                                <ImageUpload
+                                                    value={siteSettings.about.templeAdministration?.image || ''}
+                                                    onChange={(image) => setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: {
+                                                            ...siteSettings.about,
+                                                            templeAdministration: {
+                                                                ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', image: '', alignment: 'left' }),
+                                                                image
+                                                            }
+                                                        }
+                                                    })}
+                                                    label="Temple Administration Image (optional)"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Image Alignment</label>
+                                                <select
+                                                    value={siteSettings.about.templeAdministration?.alignment || 'left'}
+                                                    onChange={(e) => setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: {
+                                                            ...siteSettings.about,
+                                                            templeAdministration: {
+                                                                ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', image: '', alignment: 'left' }),
+                                                                alignment: e.target.value as 'left' | 'right'
+                                                            }
+                                                        }
+                                                    })}
+                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                                >
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Secretary Message */}
+                                <div className="border-t pt-8">
+                                    <h3 className="text-lg font-semibold mb-4">Secretary Message</h3>
+                                    <div className="space-y-4">
+                                        <input
+                                            type="text"
+                                            value={siteSettings.about.secretaryMessage?.title || 'Secretary Message'}
+                                            onChange={(e) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    secretaryMessage: {
+                                                        ...(siteSettings.about.secretaryMessage || { title: '', content: '', image: '' }),
+                                                        title: e.target.value
+                                                    }
+                                                }
+                                            })}
+                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                            placeholder="Section title"
+                                        />
+                                        <RichTextEditor
+                                            value={siteSettings.about.secretaryMessage?.content || ''}
+                                            onChange={(content) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    secretaryMessage: {
+                                                        ...(siteSettings.about.secretaryMessage || { title: 'Secretary Message', content: '', image: '' }),
+                                                        content
+                                                    }
+                                                }
+                                            })}
+                                            placeholder="Write secretary's message..."
+                                        />
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1">
+                                                <ImageUpload
+                                                    value={siteSettings.about.secretaryMessage?.image || ''}
+                                                    onChange={(image) => setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: {
+                                                            ...siteSettings.about,
+                                                            secretaryMessage: {
+                                                                ...(siteSettings.about.secretaryMessage || { title: 'Secretary Message', content: '', image: '', alignment: 'left' }),
+                                                                image
+                                                            }
+                                                        }
+                                                    })}
+                                                    label="Secretary Image (optional)"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Image Alignment</label>
+                                                <select
+                                                    value={siteSettings.about.secretaryMessage?.alignment || 'left'}
+                                                    onChange={(e) => setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: {
+                                                            ...siteSettings.about,
+                                                            secretaryMessage: {
+                                                                ...(siteSettings.about.secretaryMessage || { title: 'Secretary Message', content: '', image: '', alignment: 'left' }),
+                                                                alignment: e.target.value as 'left' | 'right'
+                                                            }
+                                                        }
+                                                    })}
+                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                                >
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Principal Message */}
+                                <div className="border-t pt-8">
+                                    <h3 className="text-lg font-semibold mb-4">Principal Message</h3>
+                                    <div className="space-y-4">
+                                        <input
+                                            type="text"
+                                            value={siteSettings.about.principalMessage?.title || 'Principal Message'}
+                                            onChange={(e) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    principalMessage: {
+                                                        ...(siteSettings.about.principalMessage || { title: '', content: '', image: '' }),
+                                                        title: e.target.value
+                                                    }
+                                                }
+                                            })}
+                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                            placeholder="Section title"
+                                        />
+                                        <RichTextEditor
+                                            value={siteSettings.about.principalMessage?.content || ''}
+                                            onChange={(content) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    principalMessage: {
+                                                        ...(siteSettings.about.principalMessage || { title: 'Principal Message', content: '', image: '' }),
+                                                        content
+                                                    }
+                                                }
+                                            })}
+                                            placeholder="Write principal's message..."
+                                        />
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1">
+                                                <ImageUpload
+                                                    value={siteSettings.about.principalMessage?.image || ''}
+                                                    onChange={(image) => setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: {
+                                                            ...siteSettings.about,
+                                                            principalMessage: {
+                                                                ...(siteSettings.about.principalMessage || { title: 'Principal Message', content: '', image: '', alignment: 'left' }),
+                                                                image
+                                                            }
+                                                        }
+                                                    })}
+                                                    label="Principal Image (optional)"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Image Alignment</label>
+                                                <select
+                                                    value={siteSettings.about.principalMessage?.alignment || 'left'}
+                                                    onChange={(e) => setSiteSettings({
+                                                        ...siteSettings,
+                                                        about: {
+                                                            ...siteSettings.about,
+                                                            principalMessage: {
+                                                                ...(siteSettings.about.principalMessage || { title: 'Principal Message', content: '', image: '', alignment: 'left' }),
+                                                                alignment: e.target.value as 'left' | 'right'
+                                                            }
+                                                        }
+                                                    })}
+                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                                >
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleSaveSiteSettings}
+                                disabled={saving}
+                                className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                            >
+                                {saving ? 'Saving...' : 'Save About Section'}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Site Settings Tab */}
                 {activeTab === 'site' && (
                     <div className="bg-white p-6 rounded-lg shadow">
@@ -696,74 +1172,6 @@ export default function AdminPage() {
                                     className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                                 >
                                     Add Nav Link
-                                </button>
-                            </div>
-
-                            {/* Others Links */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Others Links
-                                </label>
-                                {siteSettings.navLinks.find(link => link.label === 'Others')?.subLinks?.map((subLink, index) => (
-                                    <div key={index} className="flex gap-2 mb-2">
-                                        <input
-                                            type="text"
-                                            value={subLink.label}
-                                            onChange={(e) => {
-                                                const newNavLinks = [...siteSettings.navLinks];
-                                                const othersLink = newNavLinks.find(link => link.label === 'Others');
-                                                if (othersLink && othersLink.subLinks) {
-                                                    othersLink.subLinks[index] = { ...subLink, label: e.target.value };
-                                                    setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                                }
-                                            }}
-                                            className="flex-1 p-2 border border-gray-300 rounded-md"
-                                            placeholder="Label"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={subLink.href}
-                                            onChange={(e) => {
-                                                const newNavLinks = [...siteSettings.navLinks];
-                                                const othersLink = newNavLinks.find(link => link.label === 'Others');
-                                                if (othersLink && othersLink.subLinks) {
-                                                    othersLink.subLinks[index] = { ...subLink, href: e.target.value };
-                                                    setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                                }
-                                            }}
-                                            className="flex-1 p-2 border border-gray-300 rounded-md"
-                                            placeholder="URL"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                const newNavLinks = [...siteSettings.navLinks];
-                                                const othersLink = newNavLinks.find(link => link.label === 'Others');
-                                                if (othersLink && othersLink.subLinks) {
-                                                    othersLink.subLinks = othersLink.subLinks.filter((_, i) => i !== index);
-                                                    setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                                }
-                                            }}
-                                            className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                ))}
-                                <button
-                                    onClick={() => {
-                                        const newNavLinks = [...siteSettings.navLinks];
-                                        const othersLink = newNavLinks.find(link => link.label === 'Others');
-                                        if (othersLink) {
-                                            if (!othersLink.subLinks) {
-                                                othersLink.subLinks = [];
-                                            }
-                                            othersLink.subLinks.push({ label: '', href: '' });
-                                            setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                        }
-                                    }}
-                                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                                >
-                                    Add Other Link
                                 </button>
                             </div>
 
@@ -860,55 +1268,60 @@ export default function AdminPage() {
                 {/* Contact Info Tab */}
                 {activeTab === 'contact' && (
                     <div className="bg-white p-6 rounded-lg shadow">
-                        <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
+                        <h2 className="text-xl font-semibold mb-4">Contact Info</h2>
+                        <p className="text-gray-600 mb-6">Update contact details for your site.</p>
+
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Address
                                 </label>
                                 <textarea
-                                    value={siteSettings.contact?.address || ''}
-                                    onChange={(e) => setSiteSettings({
-                                        ...siteSettings,
-                                        contact: { ...siteSettings.contact, address: e.target.value }
-                                    })}
+                                    value={siteSettings.contact.address}
+                                    onChange={(e) =>
+                                        setSiteSettings({
+                                            ...siteSettings,
+                                            contact: { ...siteSettings.contact, address: e.target.value },
+                                        })
+                                    }
                                     className="w-full p-2 border border-gray-300 rounded-md"
                                     rows={3}
-                                    placeholder="123 University Avenue&#10;College Town, ST 12345"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">Use line breaks for multi-line addresses</p>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Phone Number
-                                </label>
-                                <input
-                                    type="text"
-                                    value={siteSettings.contact?.phone || ''}
-                                    onChange={(e) => setSiteSettings({
-                                        ...siteSettings,
-                                        contact: { ...siteSettings.contact, phone: e.target.value }
-                                    })}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    placeholder="(555) 123-4567"
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    value={siteSettings.contact?.email || ''}
-                                    onChange={(e) => setSiteSettings({
-                                        ...siteSettings,
-                                        contact: { ...siteSettings.contact, email: e.target.value }
-                                    })}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    placeholder="info@university.edu"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Phone Number
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={siteSettings.contact.phone}
+                                        onChange={(e) =>
+                                            setSiteSettings({
+                                                ...siteSettings,
+                                                contact: { ...siteSettings.contact, phone: e.target.value },
+                                            })
+                                        }
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={siteSettings.contact.email}
+                                        onChange={(e) =>
+                                            setSiteSettings({
+                                                ...siteSettings,
+                                                contact: { ...siteSettings.contact, email: e.target.value },
+                                            })
+                                        }
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
                             </div>
 
                             <div>
@@ -916,16 +1329,34 @@ export default function AdminPage() {
                                     Office Hours
                                 </label>
                                 <textarea
-                                    value={siteSettings.contact?.officeHours || ''}
-                                    onChange={(e) => setSiteSettings({
-                                        ...siteSettings,
-                                        contact: { ...siteSettings.contact, officeHours: e.target.value }
-                                    })}
+                                    value={siteSettings.contact.officeHours}
+                                    onChange={(e) =>
+                                        setSiteSettings({
+                                            ...siteSettings,
+                                            contact: { ...siteSettings.contact, officeHours: e.target.value },
+                                        })
+                                    }
                                     className="w-full p-2 border border-gray-300 rounded-md"
-                                    rows={3}
-                                    placeholder="Monday - Friday: 9:00 AM - 5:00 PM&#10;Saturday: 10:00 AM - 2:00 PM"
+                                    rows={2}
                                 />
-                                <p className="text-xs text-gray-500 mt-1">Use line breaks for multi-line hours</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Google Maps Embed URL
+                                </label>
+                                <input
+                                    type="text"
+                                    value={siteSettings.contact.googleMapsUrl || ''}
+                                    onChange={(e) =>
+                                        setSiteSettings({
+                                            ...siteSettings,
+                                            contact: { ...siteSettings.contact, googleMapsUrl: e.target.value },
+                                        })
+                                    }
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    placeholder="Enter Google Maps embed URL"
+                                />
                             </div>
 
                             <button
@@ -1402,7 +1833,7 @@ export default function AdminPage() {
                                 {siteSettings.homepage?.sections
                                     ?.filter(section => section.enabled)
                                     ?.sort((a, b) => a.order - b.order)
-                                    ?.map((section, index) => (
+                                    ?.map((section: HomepageSection, index: number) => (
                                         <div
                                             key={section.id}
                                             className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
@@ -1434,7 +1865,7 @@ export default function AdminPage() {
                                     <div className="flex flex-wrap gap-2">
                                         {siteSettings.homepage.sections
                                             .filter(section => !section.enabled)
-                                            .map(section => (
+                                            .map((section: HomepageSection) => (
                                                 <span
                                                     key={section.id}
                                                     className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded"
@@ -1446,6 +1877,83 @@ export default function AdminPage() {
                                 </div>
                             )}
                         </div>
+                    </div>
+                )}
+
+                {/* Others Tab */}
+                {activeTab === 'others' && (
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Manage Others Links</h2>
+                        <div className="space-y-6">
+                            {siteSettings.navLinks.find(link => link.label === 'Others')?.subLinks?.map((subLink, index) => (
+                                <div key={index} className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        value={subLink.label}
+                                        onChange={(e) => {
+                                            const newNavLinks = [...siteSettings.navLinks];
+                                            const othersLink = newNavLinks.find(link => link.label === 'Others');
+                                            if (othersLink && othersLink.subLinks) {
+                                                othersLink.subLinks[index] = { ...subLink, label: e.target.value };
+                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+                                            }
+                                        }}
+                                        className="flex-1 p-2 border border-gray-300 rounded-md"
+                                        placeholder="Label"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={subLink.href}
+                                        onChange={(e) => {
+                                            const newNavLinks = [...siteSettings.navLinks];
+                                            const othersLink = newNavLinks.find(link => link.label === 'Others');
+                                            if (othersLink && othersLink.subLinks) {
+                                                othersLink.subLinks[index] = { ...subLink, href: e.target.value };
+                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+                                            }
+                                        }}
+                                        className="flex-1 p-2 border border-gray-300 rounded-md"
+                                        placeholder="URL"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            const newNavLinks = [...siteSettings.navLinks];
+                                            const othersLink = newNavLinks.find(link => link.label === 'Others');
+                                            if (othersLink && othersLink.subLinks) {
+                                                othersLink.subLinks = othersLink.subLinks.filter((_, i) => i !== index);
+                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+                                            }
+                                        }}
+                                        className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                onClick={() => {
+                                    const newNavLinks = [...siteSettings.navLinks];
+                                    const othersLink = newNavLinks.find(link => link.label === 'Others');
+                                    if (othersLink) {
+                                        if (!othersLink.subLinks) {
+                                            othersLink.subLinks = [];
+                                        }
+                                        othersLink.subLinks.push({ label: '', href: '' });
+                                        setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+                                    }
+                                }}
+                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                            >
+                                Add Other Link
+                            </button>
+                        </div>
+                         <button
+                                onClick={handleSaveSiteSettings}
+                                disabled={saving}
+                                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                            >
+                                {saving ? 'Saving...' : 'Save All Changes'}
+                            </button>
                     </div>
                 )}
             </main>
