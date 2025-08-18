@@ -42,11 +42,21 @@ export interface AboutSection {
   principalMessage?: AboutSubsection;
 }
 
+export interface ImageWithAlignment {
+  url: string;
+  alignment: 'left' | 'right';
+  caption?: string;
+  subCaption?: string;
+}
+
+export type ImageOrString = string | ImageWithAlignment;
+
 export interface AboutSubsection {
   title: string;
   content: string;
-  image?: string;
+  images?: ImageOrString[];
   alignment?: 'left' | 'right';
+  image?: string; // Keeping for backward compatibility
 }
 
 export interface ContactInfo {
@@ -74,6 +84,12 @@ export interface PlacementsSection {
 }
 
 export interface AchievementsSection {
+  title: string;
+  subtitle: string;
+  items: RichTextContent[];
+}
+
+export interface AlumniSection {
   title: string;
   subtitle: string;
   items: RichTextContent[];
@@ -115,6 +131,7 @@ export interface SiteSettings {
   about: AboutSection;
   placements: PlacementsSection;
   achievements: AchievementsSection;
+  alumni?: AlumniSection;
   facilities: FacilitiesSection;
   contact: ContactInfo;
   homepage: HomepageLayout;

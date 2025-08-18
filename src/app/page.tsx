@@ -4,6 +4,7 @@ import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
 import PlacementsSection from '@/components/PlacementsSection';
 import AchievementsSection from '@/components/AchievementsSection';
+import AlumniSection from '@/components/AlumniSection';
 import FacilitiesSection from '@/components/FacilitiesSection';
 import FeaturedCollages from '@/components/FeaturedCollages';
 import { Collage, SiteSettings } from '@/types';
@@ -21,7 +22,8 @@ async function getSiteSettings(): Promise<SiteSettings> {
       navLinks: [
         { label: "Home", href: "/" },
         { label: "Gallery", href: "/gallery" },
-        { label: "About", href: "/about" }
+        { label: "About", href: "/about" },
+        { label: "Alumni", href: "/alumni-association" }
       ],
       hero: {
         title: "Capturing College Memories",
@@ -39,8 +41,45 @@ async function getSiteSettings(): Promise<SiteSettings> {
           { label: "Faculty", value: "800+" }
         ]
       },
+      placements: {
+        title: "Placements",
+        subtitle: "Our students succeed",
+        items: []
+      },
+      achievements: {
+        title: "Achievements",
+        subtitle: "Our milestones",
+        items: []
+      },
+      alumni: {
+        title: "Alumni Association",
+        subtitle: "Stay connected with our alumni network",
+        items: []
+      },
+      facilities: {
+        title: "Facilities",
+        subtitle: "What we offer",
+        items: []
+      },
+      contact: {
+        address: "",
+        phone: "",
+        email: "",
+        officeHours: ""
+      },
+      homepage: {
+        sections: [
+          { id: 'hero', name: 'Hero Section', enabled: true, order: 1 },
+          { id: 'about', name: 'About Section', enabled: true, order: 2 },
+          { id: 'placements', name: 'Placements', enabled: false, order: 3 },
+          { id: 'achievements', name: 'Achievements', enabled: false, order: 4 },
+          { id: 'alumni', name: 'Alumni Association', enabled: false, order: 5 },
+          { id: 'facilities', name: 'Facilities', enabled: false, order: 6 },
+          { id: 'featured-collages', name: 'Featured Collages', enabled: false, order: 7 }
+        ]
+      },
       footer: {
-        text: "© 2025 University Memories. All rights reserved.",
+        text: " 2025 University Memories. All rights reserved.",
         socialLinks: [
           { label: "Facebook", href: "https://facebook.com/university" }
         ]
@@ -84,6 +123,10 @@ export default async function Home() {
         return <PlacementsSection key="placements" placements={siteSettings.placements} />;
       case 'achievements':
         return <AchievementsSection key="achievements" achievements={siteSettings.achievements} />;
+      case 'alumni':
+        return siteSettings.alumni ? (
+          <AlumniSection key="alumni" alumni={siteSettings.alumni} />
+        ) : null;
       case 'facilities':
         return <FacilitiesSection key="facilities" facilities={siteSettings.facilities} />;
       case 'featured-collages':

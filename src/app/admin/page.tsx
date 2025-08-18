@@ -6,14 +6,134 @@ import Footer from '@/components/Footer';
 import RichTextEditor from '@/components/RichTextEditor';
 import ImageUpload from '@/components/ImageUpload';
 import SortableSection from '@/components/SortableSection';
-import { Collage, SiteSettings, RichTextContent, HomepageSection } from '@/types';
+import { Collage, SiteSettings, RichTextContent, HomepageSection, ImageWithAlignment, ImageOrString } from '@/types';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// Sortable Navigation Item Component
+function SortableNavItem({ 
+    link, 
+    index, 
+    onUpdate, 
+    onRemove 
+}: { 
+    link: { label: string; href: string }, 
+    index: number, 
+    onUpdate: (index: number, field: 'label' | 'href', value: string) => void,
+    onRemove: (index: number) => void 
+}) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: `nav-${index}` });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`flex gap-2 mb-2 p-2 bg-white border rounded-md ${isDragging ? 'shadow-lg' : 'shadow-sm'}`}
+        >
+            <div
+                {...attributes}
+                {...listeners}
+                className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded cursor-grab active:cursor-grabbing hover:bg-gray-200"
+            >
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                </svg>
+            </div>
+            <input
+                type="text"
+                value={link.label}
+                onChange={(e) => onUpdate(index, 'label', e.target.value)}
+                className="flex-1 p-2 border border-gray-300 rounded-md"
+                placeholder="Label"
+            />
+            <input
+                type="text"
+                value={link.href}
+                onChange={(e) => onUpdate(index, 'href', e.target.value)}
+                className="flex-1 p-2 border border-gray-300 rounded-md"
+                placeholder="URL"
+            />
+            <button
+                onClick={() => onRemove(index)}
+                className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            >
+                Remove
+            </button>
+        </div>
+    );
+}
 
 export default function AdminPage() {
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
-    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'placements' | 'achievements' | 'homepage' | 'others'>('collages');
+    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'temple' | 'placements' | 'achievements' | 'alumni' | 'homepage' | 'others'>('collages');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+
+    // Drag and drop sensors
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    // Handle drag end for navigation links
+    const handleNavDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (active.id !== over?.id && siteSettings) {
+            const activeIndex = parseInt(active.id.toString().replace('nav-', ''));
+            const overIndex = parseInt(over?.id.toString().replace('nav-', '') || '0');
+
+            const newNavLinks = arrayMove(siteSettings.navLinks, activeIndex, overIndex);
+            setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+        }
+    };
+
+    // Navigation link helper functions
+    const handleNavUpdate = (index: number, field: 'label' | 'href', value: string) => {
+        if (!siteSettings) return;
+        const newNavLinks = [...siteSettings.navLinks];
+        newNavLinks[index] = { ...newNavLinks[index], [field]: value };
+        setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+    };
+
+    const handleNavRemove = (index: number) => {
+        if (!siteSettings) return;
+        const newNavLinks = siteSettings.navLinks.filter((_, i) => i !== index);
+        setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+    };
 
     // Collage form state
     const [newCollage, setNewCollage] = useState({
@@ -44,6 +164,15 @@ export default function AdminPage() {
         published: true
     });
     const [editingAchievement, setEditingAchievement] = useState<RichTextContent | null>(null);
+
+    const [newAlumni, setNewAlumni] = useState<Partial<RichTextContent>>({
+        title: '',
+        content: '',
+        image: '',
+        alignment: 'left',
+        published: true
+    });
+    const [editingAlumni, setEditingAlumni] = useState<RichTextContent | null>(null);
 
     const [newAboutStat, setNewAboutStat] = useState<{ label: string; value: string }>({
         label: '',
@@ -314,6 +443,69 @@ export default function AdminPage() {
         setSiteSettings(updatedSettings);
     };
 
+    // Alumni management functions
+    const handleCreateAlumni = () => {
+        if (!newAlumni.title?.trim()) {
+            alert('Please enter a title');
+            return;
+        }
+
+        const item: RichTextContent = {
+            id: `alumni-${Date.now()}`,
+            title: newAlumni.title!,
+            content: newAlumni.content || '',
+            image: newAlumni.image,
+            alignment: newAlumni.alignment || 'left',
+            order: ((siteSettings?.alumni?.items.length) || 0) + 1,
+            published: newAlumni.published || true
+        };
+
+        const updatedSettings = {
+            ...siteSettings!,
+            alumni: {
+                title: siteSettings!.alumni?.title || 'Alumni Association',
+                subtitle: siteSettings!.alumni?.subtitle || 'Stay connected with our alumni network',
+                items: [...(siteSettings!.alumni?.items || []), item]
+            }
+        };
+
+        setSiteSettings(updatedSettings);
+        setNewAlumni({ title: '', content: '', image: '', alignment: 'left', published: true });
+    };
+
+    const handleUpdateAlumni = () => {
+        if (!editingAlumni) return;
+
+        const updatedSettings = {
+            ...siteSettings!,
+            alumni: {
+                title: siteSettings!.alumni?.title || 'Alumni Association',
+                subtitle: siteSettings!.alumni?.subtitle || 'Stay connected with our alumni network',
+                items: (siteSettings!.alumni?.items || []).map(item =>
+                    item.id === editingAlumni.id ? editingAlumni : item
+                )
+            }
+        };
+
+        setSiteSettings(updatedSettings);
+        setEditingAlumni(null);
+    };
+
+    const handleDeleteAlumni = (id: string) => {
+        if (!confirm('Are you sure you want to delete this alumni item?')) return;
+
+        const updatedSettings = {
+            ...siteSettings!,
+            alumni: {
+                title: siteSettings!.alumni?.title || 'Alumni Association',
+                subtitle: siteSettings!.alumni?.subtitle || 'Stay connected with our alumni network',
+                items: (siteSettings!.alumni?.items || []).filter(item => item.id !== id)
+            }
+        };
+
+        setSiteSettings(updatedSettings);
+    };
+
     // About management functions
     const handleAddAboutStat = () => {
         if (!newAboutStat.label.trim() || !newAboutStat.value.trim()) {
@@ -418,6 +610,15 @@ export default function AdminPage() {
                         About
                     </button>
                     <button
+                        onClick={() => setActiveTab('temple')}
+                        className={`pb-2 px-1 ${activeTab === 'temple'
+                            ? 'border-b-2 border-blue-600 text-blue-600'
+                            : 'text-gray-600'
+                            }`}
+                    >
+                        Temple Admin
+                    </button>
+                    <button
                         onClick={() => setActiveTab('placements')}
                         className={`pb-2 px-1 ${activeTab === 'placements'
                             ? 'border-b-2 border-blue-600 text-blue-600'
@@ -434,6 +635,15 @@ export default function AdminPage() {
                             }`}
                     >
                         Achievements
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('alumni')}
+                        className={`pb-2 px-1 ${activeTab === 'alumni'
+                            ? 'border-b-2 border-blue-600 text-blue-600'
+                            : 'text-gray-600'
+                            }`}
+                    >
+                        Alumni
                     </button>
                     <button
                         onClick={() => setActiveTab('homepage')}
@@ -454,6 +664,356 @@ export default function AdminPage() {
                         Others
                     </button>
                 </div>
+
+                {/* Temple Admin Tab */}
+                {activeTab === 'temple' && siteSettings && (
+                    <div className="space-y-8">
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-semibold mb-4">Temple Administration</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Title
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={siteSettings.about.templeAdministration?.title || ''}
+                                        onChange={(e) => setSiteSettings({
+                                            ...siteSettings,
+                                            about: {
+                                                ...siteSettings.about,
+                                                templeAdministration: {
+                                                    ...(siteSettings.about.templeAdministration || { title: '', content: '' }),
+                                                    title: e.target.value
+                                                }
+                                            }
+                                        })}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Content
+                                    </label>
+                                    <RichTextEditor
+                                        value={siteSettings.about.templeAdministration?.content || ''}
+                                        onChange={(content) => setSiteSettings({
+                                            ...siteSettings,
+                                            about: {
+                                                ...siteSettings.about,
+                                                templeAdministration: {
+                                                    ...(siteSettings.about.templeAdministration || { title: '', content: '' }),
+                                                    content
+                                                }
+                                            }
+                                        })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Images
+                                    </label>
+                                    <div className="space-y-2">
+                                        {(siteSettings.about.templeAdministration?.images || []).map((img, index) => (
+                                            <div key={index} className="flex gap-2 items-center">
+                                                <input
+                                                    type="text"
+                                                    value={img}
+                                                    onChange={(e) => {
+                                                        const newImages = [...(siteSettings.about.templeAdministration?.images || [])];
+                                                        newImages[index] = e.target.value;
+                                                        setSiteSettings({
+                                                            ...siteSettings,
+                                                            about: {
+                                                                ...siteSettings.about,
+                                                                templeAdministration: {
+                                                                    ...(siteSettings.about.templeAdministration || { title: '', content: '' }),
+                                                                    images: newImages
+                                                                }
+                                                            }
+                                                        });
+                                                    }}
+                                                    className="flex-1 p-2 border border-gray-300 rounded-md"
+                                                    placeholder="Image URL"
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        const newImages = (siteSettings.about.templeAdministration?.images || []).filter((_, i) => i !== index);
+                                                        setSiteSettings({
+                                                            ...siteSettings,
+                                                            about: {
+                                                                ...siteSettings.about,
+                                                                templeAdministration: {
+                                                                    ...(siteSettings.about.templeAdministration || { title: '', content: '' }),
+                                                                    images: newImages
+                                                                }
+                                                            }
+                                                        });
+                                                    }}
+                                                    className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            onClick={() => {
+                                                const currentImages = siteSettings.about.templeAdministration?.images || [];
+                                                setSiteSettings({
+                                                    ...siteSettings,
+                                                    about: {
+                                                        ...siteSettings.about,
+                                                        templeAdministration: {
+                                                            ...(siteSettings.about.templeAdministration || { title: '', content: '' }),
+                                                            images: [...currentImages, '']
+                                                        }
+                                                    }
+                                                });
+                                            }}
+                                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                        >
+                                            Add Another Image
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Image Alignment
+                                    </label>
+                                    <select
+                                        value={siteSettings.about.templeAdministration?.alignment || 'left'}
+                                        onChange={(e) => setSiteSettings({
+                                            ...siteSettings,
+                                            about: {
+                                                ...siteSettings.about,
+                                                templeAdministration: {
+                                                    ...(siteSettings.about.templeAdministration || { title: '', content: '' }),
+                                                    alignment: e.target.value as 'left' | 'right'
+                                                }
+                                            }
+                                        })}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    >
+                                        <option value="left">Left</option>
+                                        <option value="right">Right</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Alumni Tab */}
+                {activeTab === 'alumni' && (
+                    <div className="space-y-8">
+                        {/* Section Settings */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-semibold mb-4">Alumni Section Settings</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Section Title
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={siteSettings.alumni?.title || ''}
+                                        onChange={(e) => setSiteSettings({
+                                            ...siteSettings,
+                                            alumni: { ...(siteSettings.alumni || { title: '', subtitle: '', items: [] }), title: e.target.value }
+                                        })}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Section Subtitle
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={siteSettings.alumni?.subtitle || ''}
+                                        onChange={(e) => setSiteSettings({
+                                            ...siteSettings,
+                                            alumni: { ...(siteSettings.alumni || { title: '', subtitle: '', items: [] }), subtitle: e.target.value }
+                                        })}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Create New Alumni Item */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-semibold mb-4">Create New Alumni Item</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Title
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newAlumni.title || ''}
+                                        onChange={(e) => setNewAlumni({ ...newAlumni, title: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                        placeholder="Enter alumni item title"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Content
+                                    </label>
+                                    <RichTextEditor
+                                        value={newAlumni.content || ''}
+                                        onChange={(content) => setNewAlumni({ ...newAlumni, content })}
+                                        placeholder="Enter alumni content with rich formatting..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <ImageUpload
+                                        value={newAlumni.image || ''}
+                                        onChange={(image) => setNewAlumni({ ...newAlumni, image })}
+                                        label="Alumni Image"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Text Alignment
+                                        </label>
+                                        <select
+                                            value={newAlumni.alignment || 'left'}
+                                            onChange={(e) => setNewAlumni({ ...newAlumni, alignment: e.target.value as 'left' | 'center' | 'right' })}
+                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                        >
+                                            <option value="left">Left</option>
+                                            <option value="center">Center</option>
+                                            <option value="right">Right</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id="alumni-published"
+                                            checked={newAlumni.published || false}
+                                            onChange={(e) => setNewAlumni({ ...newAlumni, published: e.target.checked })}
+                                            className="mr-2"
+                                        />
+                                        <label htmlFor="alumni-published" className="text-sm font-medium text-gray-700">
+                                            Published
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleCreateAlumni}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Create Alumni Item
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Existing Alumni Items */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-semibold mb-4">Existing Alumni Items</h2>
+                            {(siteSettings.alumni?.items || []).length === 0 ? (
+                                <p className="text-gray-500">No alumni items yet.</p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {(siteSettings.alumni?.items || []).map((item) => (
+                                        <div key={item.id} className="border border-gray-200 p-4 rounded-md">
+                                            {editingAlumni?.id === item.id ? (
+                                                <div className="space-y-4">
+                                                    <input
+                                                        type="text"
+                                                        value={editingAlumni.title}
+                                                        onChange={(e) => setEditingAlumni({ ...editingAlumni, title: e.target.value })}
+                                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                                    />
+                                                    <RichTextEditor
+                                                        value={editingAlumni.content}
+                                                        onChange={(content) => setEditingAlumni({ ...editingAlumni, content })}
+                                                    />
+                                                    <ImageUpload
+                                                        value={editingAlumni.image || ''}
+                                                        onChange={(image) => setEditingAlumni({ ...editingAlumni, image })}
+                                                    />
+                                                    <div className="flex gap-2">
+                                                        <select
+                                                            value={editingAlumni.alignment}
+                                                            onChange={(e) => setEditingAlumni({ ...editingAlumni, alignment: e.target.value as 'left' | 'center' | 'right' })}
+                                                            className="p-2 border border-gray-300 rounded-md"
+                                                        >
+                                                            <option value="left">Left</option>
+                                                            <option value="center">Center</option>
+                                                            <option value="right">Right</option>
+                                                        </select>
+                                                        <label className="flex items-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={editingAlumni.published}
+                                                                onChange={(e) => setEditingAlumni({ ...editingAlumni, published: e.target.checked })}
+                                                                className="mr-2"
+                                                            />
+                                                            Published
+                                                        </label>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={handleUpdateAlumni}
+                                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                                                        >
+                                                            Save
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setEditingAlumni(null)}
+                                                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <h3 className="font-semibold">{item.title}</h3>
+                                                        <p className="text-sm text-gray-600">
+                                                            {item.alignment} aligned • {item.published ? 'Published' : 'Draft'}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => setEditingAlumni(item)}
+                                                            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteAlumni(item.id)}
+                                                            className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            <button
+                                onClick={handleSaveSiteSettings}
+                                disabled={saving}
+                                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                            >
+                                {saving ? 'Saving...' : 'Save All Changes'}
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Collages Tab */}
                 {activeTab === 'collages' && (
@@ -891,22 +1451,174 @@ export default function AdminPage() {
                                             })}
                                             placeholder="Write temple administration details..."
                                         />
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1">
-                                                <ImageUpload
-                                                    value={siteSettings.about.templeAdministration?.image || ''}
-                                                    onChange={(image) => setSiteSettings({
-                                                        ...siteSettings,
-                                                        about: {
-                                                            ...siteSettings.about,
-                                                            templeAdministration: {
-                                                                ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', image: '', alignment: 'left' }),
-                                                                image
-                                                            }
-                                                        }
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Temple Images</label>
+                                                <div className="space-y-4">
+                                                    {(siteSettings.about.templeAdministration?.images || []).map((img, index) => {
+                                                        const imageData: { url: string; alignment: 'left' | 'right'; caption?: string; subCaption?: string } =
+                                                            typeof img === 'string'
+                                                                ? { url: img, alignment: 'left', caption: '', subCaption: '' }
+                                                                : {
+                                                                    url: img.url || '',
+                                                                    alignment: (img.alignment || 'left') as 'left' | 'right',
+                                                                    caption: img.caption || '',
+                                                                    subCaption: img.subCaption || ''
+                                                                  };
+                                                        
+                                                        return (
+                                                            <div key={index} className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                                                                <div className="flex items-start gap-3">
+                                                                    <div className="flex-1">
+                                                                        <ImageUpload
+                                                                            value={imageData.url}
+                                                                            onChange={(newImage) => {
+                                                                                const currentImages = [...(siteSettings.about.templeAdministration?.images || [])] as ImageOrString[];
+                                                                                currentImages[index] = {
+                                                                                    ...imageData,
+                                                                                    url: newImage,
+                                                                                } as ImageWithAlignment;
+                                                                                setSiteSettings({
+                                                                                    ...siteSettings,
+                                                                                    about: {
+                                                                                        ...siteSettings.about,
+                                                                                        templeAdministration: {
+                                                                                            ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', images: [] }),
+                                                                                            images: currentImages
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                            }}
+                                                                            label={`Image ${index + 1}`}
+                                                                        />
+                                                                    </div>
+                                                                    <div className="flex flex-col gap-3 w-56">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Align:</label>
+                                                                            <select
+                                                                                value={imageData.alignment}
+                                                                                onChange={(e) => {
+                                                                                    const currentImages = [...(siteSettings.about.templeAdministration?.images || [])] as ImageOrString[];
+                                                                                    currentImages[index] = {
+                                                                                        ...imageData,
+                                                                                        alignment: e.target.value as 'left' | 'right',
+                                                                                    } as ImageWithAlignment;
+                                                                                    setSiteSettings({
+                                                                                        ...siteSettings,
+                                                                                        about: {
+                                                                                            ...siteSettings.about,
+                                                                                            templeAdministration: {
+                                                                                                ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', images: [] }),
+                                                                                                images: currentImages
+                                                                                            }
+                                                                                        }
+                                                                                    });
+                                                                                }}
+                                                                                className="block w-full pl-2 pr-8 py-1 text-sm border-gray-300 rounded-md"
+                                                                            >
+                                                                                <option value="left">Left</option>
+                                                                                <option value="right">Right</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="block text-xs text-gray-600 mb-1">Caption</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                value={(typeof (siteSettings.about.templeAdministration?.images?.[index]) === 'object' && (siteSettings.about.templeAdministration?.images?.[index] as ImageWithAlignment).caption) || ''}
+                                                                                onChange={(e) => {
+                                                                                    const currentImages = [...(siteSettings.about.templeAdministration?.images || [])] as ImageOrString[];
+                                                                                    currentImages[index] = {
+                                                                                        ...imageData,
+                                                                                        caption: e.target.value,
+                                                                                    } as ImageWithAlignment;
+                                                                                    setSiteSettings({
+                                                                                        ...siteSettings,
+                                                                                        about: {
+                                                                                            ...siteSettings.about,
+                                                                                            templeAdministration: {
+                                                                                                ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', images: [] }),
+                                                                                                images: currentImages
+                                                                                            }
+                                                                                        }
+                                                                                    });
+                                                                                }}
+                                                                                className="block w-full p-2 text-sm border border-gray-300 rounded-md"
+                                                                                placeholder="Enter caption"
+                                                                            />
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="block text-xs text-gray-600 mb-1">Sub-caption</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                value={(typeof (siteSettings.about.templeAdministration?.images?.[index]) === 'object' && (siteSettings.about.templeAdministration?.images?.[index] as ImageWithAlignment).subCaption) || ''}
+                                                                                onChange={(e) => {
+                                                                                    const currentImages = [...(siteSettings.about.templeAdministration?.images || [])] as ImageOrString[];
+                                                                                    currentImages[index] = {
+                                                                                        ...imageData,
+                                                                                        subCaption: e.target.value,
+                                                                                    } as ImageWithAlignment;
+                                                                                    setSiteSettings({
+                                                                                        ...siteSettings,
+                                                                                        about: {
+                                                                                            ...siteSettings.about,
+                                                                                            templeAdministration: {
+                                                                                                ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', images: [] }),
+                                                                                                images: currentImages
+                                                                                            }
+                                                                                        }
+                                                                                    });
+                                                                                }}
+                                                                                className="block w-full p-2 text-sm border border-gray-300 rounded-md"
+                                                                                placeholder="Enter sub-caption"
+                                                                            />
+                                                                        </div>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                const updatedImages = (siteSettings.about.templeAdministration?.images || []).filter((_, i) => i !== index);
+                                                                                setSiteSettings({
+                                                                                    ...siteSettings,
+                                                                                    about: {
+                                                                                        ...siteSettings.about,
+                                                                                        templeAdministration: {
+                                                                                            ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', images: [] }),
+                                                                                            images: updatedImages
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                            }}
+                                                                            className="px-3 py-1 bg-red-100 text-red-600 rounded-md hover:bg-red-200 text-sm font-medium"
+                                                                        >
+                                                                            Remove
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
                                                     })}
-                                                    label="Temple Administration Image (optional)"
-                                                />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const currentImages = (siteSettings.about.templeAdministration?.images || []) as ImageOrString[];
+                                                            setSiteSettings({
+                                                                ...siteSettings,
+                                                                about: {
+                                                                    ...siteSettings.about,
+                                                                    templeAdministration: {
+                                                                        ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', images: [], alignment: 'left' }),
+                                                                        images: [...currentImages, { url: '', alignment: 'left', caption: '', subCaption: '' } as ImageWithAlignment]
+                                                                    }
+                                                                }
+                                                            });
+                                                        }}
+                                                        className="mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                    >
+                                                        <svg className="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                        </svg>
+                                                        Add Another Image
+                                                    </button>
+                                                </div>
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">Image Alignment</label>
@@ -917,7 +1629,7 @@ export default function AdminPage() {
                                                         about: {
                                                             ...siteSettings.about,
                                                             templeAdministration: {
-                                                                ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', image: '', alignment: 'left' }),
+                                                                ...(siteSettings.about.templeAdministration || { title: 'Temple Administration', content: '', images: [], alignment: 'left' }),
                                                                 alignment: e.target.value as 'left' | 'right'
                                                             }
                                                         }
@@ -1128,48 +1840,34 @@ export default function AdminPage() {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Navigation Links
+                                    <span className="text-xs text-gray-500 ml-2">(Drag to reorder)</span>
                                 </label>
-                                {siteSettings.navLinks.map((link, index) => (
-                                    <div key={index} className="flex gap-2 mb-2">
-                                        <input
-                                            type="text"
-                                            value={link.label}
-                                            onChange={(e) => {
-                                                const newNavLinks = [...siteSettings.navLinks];
-                                                newNavLinks[index] = { ...link, label: e.target.value };
-                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                            }}
-                                            className="flex-1 p-2 border border-gray-300 rounded-md"
-                                            placeholder="Label"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={link.href}
-                                            onChange={(e) => {
-                                                const newNavLinks = [...siteSettings.navLinks];
-                                                newNavLinks[index] = { ...link, href: e.target.value };
-                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                            }}
-                                            className="flex-1 p-2 border border-gray-300 rounded-md"
-                                            placeholder="URL"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                const newNavLinks = siteSettings.navLinks.filter((_, i) => i !== index);
-                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                            }}
-                                            className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                ))}
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={handleNavDragEnd}
+                                >
+                                    <SortableContext
+                                        items={siteSettings.navLinks.map((_, index) => `nav-${index}`)}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        {siteSettings.navLinks.map((link, index) => (
+                                            <SortableNavItem
+                                                key={`nav-${index}`}
+                                                link={link}
+                                                index={index}
+                                                onUpdate={handleNavUpdate}
+                                                onRemove={handleNavRemove}
+                                            />
+                                        ))}
+                                    </SortableContext>
+                                </DndContext>
                                 <button
                                     onClick={() => {
                                         const newNavLinks = [...siteSettings.navLinks, { label: '', href: '' }];
                                         setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
                                     }}
-                                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 mt-2"
                                 >
                                     Add Nav Link
                                 </button>

@@ -65,6 +65,11 @@ function readSiteSettings(): SiteSettings {
         subtitle: "Our milestones",
         items: []
       },
+      alumni: {
+        title: "Alumni Association",
+        subtitle: "Stay connected with our alumni network",
+        items: []
+      },
       facilities: {
         title: "Facilities",
         subtitle: "What we offer",
@@ -82,7 +87,8 @@ function readSiteSettings(): SiteSettings {
           { id: "about", name: "About Section", enabled: true, order: 2 },
           { id: "placements", name: "Placements Section", enabled: true, order: 3 },
           { id: "achievements", name: "Achievements Section", enabled: true, order: 4 },
-          { id: "featured-collages", name: "Featured Collages", enabled: true, order: 5 }
+          { id: "alumni", name: "Alumni Association", enabled: true, order: 5 },
+          { id: "featured-collages", name: "Featured Collages", enabled: true, order: 6 }
         ]
       },
       footer: {
