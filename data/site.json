@@ -25,6 +25,10 @@
     {
       "label": "Contact",
       "href": "/contact"
+    },
+    {
+      "label": "Alumni Association",
+      "href": "/alumni-association"
     }
   ],
   "hero": {
@@ -221,52 +225,98 @@
       }
     ]
   },
+  "carousel": {
+    "title": "Main Carousel",
+    "subtitle": "Featured Images",
+    "items": [
+      {
+        "id": "1755495635908",
+        "image": "/uploads/1755495635857_AAASC.png",
+        "order": 1,
+        "title": "Slide 1",
+        "description": "",
+        "published": true
+      }
+    ]
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "Our photo collection",
+    "items": [
+      {
+        "image": "/uploads/1755502154868_WhatsApp-Image-2024-07-30-at-10.27.57-AM.jpeg",
+        "title": "",
+        "description": "",
+        "published": true,
+        "id": "1755502158986",
+        "order": 1,
+        "homepage_image": false
+      }
+    ]
+  },
+  "homepage": {
+    "sections": [
+      {
+        "id": "carousel",
+        "name": "Carousel",
+        "enabled": true,
+        "order": 1
+      },
+      {
+        "id": "gallery",
+        "name": "Gallery",
+        "enabled": true,
+        "order": 2
+      },
+      {
+        "id": "hero",
+        "name": "Hero Section",
+        "enabled": false,
+        "order": 3
+      },
+      {
+        "id": "placements",
+        "name": "Placements Section",
+        "enabled": false,
+        "order": 4
+      },
+      {
+        "id": "achievements",
+        "name": "Achievements Section",
+        "enabled": false,
+        "order": 5
+      },
+      {
+        "id": "about",
+        "name": "About Section",
+        "enabled": false,
+        "order": 6
+      },
+      {
+        "id": "facilities",
+        "name": "Facilities Section",
+        "enabled": false,
+        "order": 7
+      },
+      {
+        "id": "featured-collages",
+        "name": "Featured Collages",
+        "enabled": false,
+        "order": 8
+      }
+    ]
+  },
+  "homepage_image": {
+    "image": "",
+    "title": "",
+    "description": ""
+  },
   "contact": {
     "address": "Arulmigu Arthanareeswarar Arts and Science College,  Chittalandhur-Po,Tiruchengode-Tk, Namakkal (DT.) - 637201",
     "phone": "04288 - 260333",
     "email": "aaascollege2021@gmail.com",
     "officeHours": "Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM",
     "googleMapsUrl": "https://maps.google.com/maps?q=8WQ2%2BMX%2C%20Tiruchengode%2C%20Tamil%20Nadu%20637211%2C%20India&amp;t=m&amp;z=10&amp;output=embed&amp;iwloc=near"
-  },
-  "homepage": {
-    "sections": [
-      {
-        "id": "hero",
-        "name": "Hero Section",
-        "enabled": true,
-        "order": 1
-      },
-      {
-        "id": "about",
-        "name": "About Section",
-        "enabled": true,
-        "order": 2
-      },
-      {
-        "id": "placements",
-        "name": "Placements Section",
-        "enabled": true,
-        "order": 3
-      },
-      {
-        "id": "achievements",
-        "name": "Achievements Section",
-        "enabled": true,
-        "order": 4
-      },
-      {
-        "id": "facilities",
-        "name": "Facilities Section",
-        "enabled": false,
-        "order": 5
-      },
-      {
-        "id": "featured-collages",
-        "name": "Featured Collages",
-        "enabled": false,
-        "order": 6
-      }
-    ]
   },
   "footer": {
     "text": "© 2025 University Memories. All rights reserved.",

@@ -107,6 +107,23 @@ export interface FacilitiesSection {
   items: Facility[];
 }
 
+export interface CarouselItem {
+  id: string;
+  image: string;
+  title: string;
+  description?: string;
+  caption?: string;  // Alternative to title
+  link?: string;     // Alternative to description
+  order: number;
+  published: boolean;
+}
+
+export interface CarouselSection {
+  title: string;
+  subtitle: string;
+  items: CarouselItem[];
+}
+
 export interface SiteSettings {
   siteTitle: string;
   logo: string;
@@ -116,10 +133,23 @@ export interface SiteSettings {
   placements: PlacementsSection;
   achievements: AchievementsSection;
   facilities: FacilitiesSection;
+  carousel: CarouselSection;
   contact: ContactInfo;
   homepage: HomepageLayout;
   footer: {
     text: string;
     socialLinks: SocialLink[];
   };
+}
+
+export interface AlumniAssociation {
+  title: string;
+  content: string;
+  image?: string;
+  members?: Array<{
+    name: string;
+    year: string;
+    description?: string;
+    image?: string;
+  }>;
 }

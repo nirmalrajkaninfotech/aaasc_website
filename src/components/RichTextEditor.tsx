@@ -203,10 +203,10 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
           class: Image,
           config: {
             endpoints: {
-              byFile: '/api/upload-image',
+              byFile: '/api/upload',  // Changed from '/api/upload-image' to '/api/upload'
               byUrl: '/api/fetch-image'
             },
-            field: 'image',
+            field: 'file',  // Changed from 'image' to 'file' to match the ImageUpload component
             types: 'image/*',
             captionPlaceholder: 'Enter image caption...',
             buttonContent: 'Select an Image',
@@ -234,15 +234,21 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
               uploadByFile: async (file: File) => {
                 try {
                   const formData = new FormData();
-                  formData.append('image', file);
+                  formData.append('file', file);  // Changed from 'image' to 'file'
 
-                  const response = await fetch('/api/upload-image', {
+                  const response = await fetch('/api/upload', {  // Changed from '/api/upload-image' to '/api/upload'
                     method: 'POST',
                     body: formData,
                   });
 
                   const result = await response.json();
-                  return result;
+                  // Transform the response to match what Editor.js expects
+                  return {
+                    success: 1,
+                    file: {
+                      url: result.url
+                    }
+                  };
                 } catch (error) {
                   console.error('Error uploading file:', error);
                   return {

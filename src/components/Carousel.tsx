@@ -3,57 +3,117 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
+import { CarouselItem } from '@/types';
+import { getImageUrl } from '@/config';
 
 interface CarouselProps {
   isTamil: boolean;
+  items: CarouselItem[];
 }
 
-export default function Carousel({ isTamil }: CarouselProps) {
+export default function Carousel({ isTamil, items = [] }: CarouselProps) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [localIndex, setLocalIndex] = useState(1);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [imageStates, setImageStates] = useState<Record<string, 'loading' | 'loaded' | 'error'>>({});
 
-  const slides = [
-    {
-      id: 1,
-      image: '/img/1.jpg',
-      title: isTamil 
-        ? 'நாடுகள் கடந்தாலும், நம்ம தையல் கலாச்சாரம் கடந்ததில்லை – திருப்பூர் வாழ்க' 
-        : 'Even as the years pass, our tailoring tradition remains timeless – Long live Tiruppur.',
-      description: ''
-    },
-
-  ];
+  // Filter published items, sort by order, and ensure proper URLs
+  const slides = (Array.isArray(items) ? items : [])
+    .filter((item: CarouselItem) => item?.published !== false)
+    .map(item => {
+      // Get the image URL, using the direct path as it's already in the public directory
+      const imagePath = item.image.startsWith('/') ? item.image : `/${item.image}`;
+      return {
+        ...item,
+        image: imagePath, // Store the path relative to public directory
+        title: item.title || item.caption || '',
+        description: item.description || item.link || ''
+      };
+    })
+    .sort((a: CarouselItem, b: CarouselItem) => (a.order || 0) - (b.order || 0));
 
   const totalSlides = slides.length;
-  const extendedSlides = [slides[totalSlides - 1], ...slides, slides[0]];
+  const extendedSlides = totalSlides > 0 
+    ? [slides[totalSlides - 1], ...slides, slides[0]]
+    : [];
+
+  // Initialize image states - only update when slides change
+  useEffect(() => {
+    const newImageStates: Record<string, 'loading' | 'loaded' | 'error'> = {};
+    let needsUpdate = false;
+    
+    // Check if we have new images that aren't in our state yet
+    const newImages: string[] = [];
+    
+    slides.forEach(slide => {
+      // The image URL is already resolved in the slides mapping
+      if (imageStates[slide.image] === undefined) {
+        newImageStates[slide.image] = 'loading';
+        newImages.push(slide.image);
+        needsUpdate = true;
+      } else {
+        newImageStates[slide.image] = imageStates[slide.image];
+      }
+    });
+
+    // Only update state if we have new images to track
+    if (needsUpdate) {
+      console.log('📷 New images detected:', newImages);
+      console.log('🔄 Current image states:', imageStates);
+      setImageStates(prev => ({
+        ...prev,
+        ...newImageStates
+      }));
+    }
+  }, [slides.map(s => s.image).join()]); // Only re-run when image URLs change
+
+  const handleImageLoad = (src: string) => {
+    console.log('✅ Image loaded successfully:', src);
+    setImageStates(prev => {
+      console.log('🔄 Updating state: image', src, 'loaded');
+      return { ...prev, [src]: 'loaded' };
+    });
+  };
+
+  const handleImageError = (src: string) => {
+    console.error('❌ Failed to load image:', src);
+    setImageStates(prev => {
+      console.log('🔄 Updating state: image', src, 'error');
+      return { ...prev, [src]: 'error' };
+    });
+  };
 
   const nextSlide = useCallback(() => {
-    if (!transitioning) {
+    if (!transitioning && totalSlides > 0) {
       setTransitioning(true);
       setLocalIndex((prev) => prev + 1);
     }
-  }, [transitioning]);
+  }, [transitioning, totalSlides]);
 
   const prevSlide = useCallback(() => {
-    if (!transitioning) {
+    if (!transitioning && totalSlides > 0) {
       setTransitioning(true);
       setLocalIndex((prev) => prev - 1);
     }
-  }, [transitioning]);
+  }, [transitioning, totalSlides]);
 
   const goToSlide = useCallback((index: number) => {
-    setTransitioning(true);
-    setLocalIndex(index + 1); // Because of the cloned first slide
-  }, []);
+    if (totalSlides > 0) {
+      setTransitioning(true);
+      setLocalIndex(index + 1); // Because of the cloned first slide
+    }
+  }, [totalSlides]);
 
   const startAutoScroll = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      nextSlide();
-    }, 1000);
-  }, [nextSlide]);
+    if (totalSlides > 0) {
+      intervalRef.current = setInterval(() => {
+        nextSlide();
+      }, 5000); // 5 seconds per slide
+    }
+  }, [nextSlide, totalSlides]);
 
   const stopAutoScroll = useCallback(() => {
     if (intervalRef.current) {
@@ -86,6 +146,15 @@ export default function Carousel({ isTamil }: CarouselProps) {
     }
   }, [localIndex, totalSlides]);
 
+  // If no slides, show placeholder
+  if (totalSlides === 0) {
+    return (
+      <section className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-gray-900 flex items-center justify-center text-white">
+        <p className="text-xl">No carousel items available</p>
+      </section>
+    );
+  }
+
   return (
     <section
       className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-gray-900 overflow-hidden shadow-2xl"
@@ -99,79 +168,72 @@ export default function Carousel({ isTamil }: CarouselProps) {
         style={{ transform: `translateX(-${localIndex * 100}%)`, transition: transitioning ? 'transform 0.7s ease' : 'none' }}
         onTransitionEnd={handleTransitionEnd}
       >
-        {extendedSlides.map((slide, index) => (
-          <div
-            key={`${slide.id}-${index}`}
-            className="w-full h-full flex-shrink-0 relative"
-            style={{ minWidth: '100%' }}
-            aria-hidden={localIndex !== index}
-          >
-            <img
-              src={slide.image}
-              alt={slide.title || `Slide ${((index - 1 + totalSlides) % totalSlides) + 1}`}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            {(slide.title || slide.description) && (
-              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-12 text-white">
-                {slide.title && (
-                  <h3
-                    className="text-xl sm:text-2xl md:text-4xl font-bold mb-2 md:mb-4"
-                    style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
-                  >
-                    {slide.title}
-                  </h3>
-                )}
+        {extendedSlides.map((slide, index) => {
+          const imageState = imageStates[slide.image] || 'loading';
+          return (
+            <div key={index} className="w-full h-full flex-shrink-0 relative">
+              {imageState === 'loading' && (
+                <div className="absolute inset-0 bg-gray-700 animate-pulse" />
+              )}
+              {imageState === 'error' && (
+                <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                  <span className="text-white">Failed to load image</span>
+                </div>
+              )}
+              <div className="absolute inset-0 w-full h-full">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  className="object-cover"
+                  onLoadingComplete={() => handleImageLoad(slide.image)}
+                  onError={() => handleImageError(slide.image)}
+                  priority={index === 0} // Only preload the first image
+                  unoptimized={process.env.NODE_ENV !== 'production'}
+                />
+              </div>
+              <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-white p-8">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4">
+                  {slide.title}
+                </h2>
                 {slide.description && (
-                  <p
-                    className="text-sm sm:text-base md:text-lg"
-                    style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
-                  >
+                  <p className="text-base sm:text-lg md:text-xl text-center max-w-3xl">
                     {slide.description}
                   </p>
                 )}
               </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Navigation Arrows */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white text-gray-900 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center z-10"
-        aria-label={isTamil ? 'முந்தைய ஸ்லைடு' : 'Previous slide'}
-      >
-        <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
-      </button>
-      <button
-        onClick={nextSlide}
-        className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white text-gray-900 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center z-10"
-        aria-label={isTamil ? 'அடுத்த ஸ்லைடு' : 'Next slide'}
-      >
-        <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
-      </button>
-
-      {/* Dot Indicators */}
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex space-x-3 z-10">
-        {slides.map((_, index) => {
-          // Calculate if this dot should be active
-          const isActive = localIndex === index + 1 || 
-                         (localIndex === 0 && index === totalSlides - 1) || // First clone case
-                         (localIndex === totalSlides + 1 && index === 0);   // Last clone case
-          
-          return (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full ring-1 ring-white/50 transition-all duration-300 ${
-                isActive ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white'
-              }`}
-              aria-label={isTamil ? `ஸ்லைடு ${index + 1} க்கு செல்ல` : `Go to slide ${index + 1}`}
-              aria-current={isActive ? 'true' : 'false'}
-            />
+            </div>
           );
         })}
+      </div>
+
+      {/* Navigation arrows */}
+      <button
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white w-10 h-10 rounded-full flex items-center justify-center focus:outline-none hover:bg-opacity-75 transition-opacity"
+        onClick={prevSlide}
+        aria-label="Previous slide"
+      >
+        <FontAwesomeIcon icon={faChevronLeft} />
+      </button>
+      <button
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white w-10 h-10 rounded-full flex items-center justify-center focus:outline-none hover:bg-opacity-75 transition-opacity"
+        onClick={nextSlide}
+        aria-label="Next slide"
+      >
+        <FontAwesomeIcon icon={faChevronRight} />
+      </button>
+
+      {/* Indicators */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            className={`w-3 h-3 rounded-full focus:outline-none ${index === activeSlide ? 'bg-white' : 'bg-white bg-opacity-50'}`}
+            onClick={() => goToSlide(index)}
+            aria-label={`Go to slide ${index + 1}`}
+            aria-current={index === activeSlide ? 'true' : 'false'}
+          />
+        ))}
       </div>
     </section>
   );
