@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+
 import { SiteSettings } from '@/types';
 
 type FormState = {
@@ -130,8 +129,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <Header siteSettings={siteSettings} />
-
+   
       <main className="flex-1">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-12">
@@ -330,7 +328,7 @@ export default function ContactPage() {
         </div>
       </main>
 
-      <Footer siteSettings={siteSettings} />
+
     </div>
   );
 }

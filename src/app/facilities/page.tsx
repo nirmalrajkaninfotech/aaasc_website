@@ -1,5 +1,3 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import FacilitiesSection from '@/components/FacilitiesSection';
 import { SiteSettings } from '@/types';
 
@@ -19,14 +17,8 @@ export default async function FacilitiesPage() {
   const siteSettings = await getSiteSettings();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header siteSettings={siteSettings} />
-      
-      <main className="flex-1">
-        <FacilitiesSection facilities={siteSettings.facilities} />
-      </main>
-
-      <Footer siteSettings={siteSettings} />
-    </div>
+    <main className="flex-1">
+      <FacilitiesSection facilities={siteSettings.facilities} />
+    </main>
   );
 }

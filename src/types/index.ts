@@ -136,10 +136,31 @@ export interface SiteSettings {
   carousel: CarouselSection;
   contact: ContactInfo;
   homepage: HomepageLayout;
+  homepage_image?: {
+    image: string;
+    title?: string;
+    description?: string;
+  };
+  gallery?: {
+    title: string;
+    subtitle?: string;
+    items: Array<{
+      id?: string;
+      image: string;
+      title?: string;
+      description?: string;
+      published?: boolean;
+      order?: number;
+      homepage_image?: boolean;
+    }>;
+  };
   footer: {
     text: string;
     socialLinks: SocialLink[];
   };
+  examCell: ExamCellSection;
+  others: OthersSection;
+  faculty: FacultySection;
 }
 
 export interface AlumniAssociation {
@@ -152,4 +173,80 @@ export interface AlumniAssociation {
     description?: string;
     image?: string;
   }>;
+}
+
+export interface PlacementSection {
+  title: string;
+  subtitle: string;
+  items: Array<{
+    id: string;
+    title: string;
+    content: string;
+    images?: string[]; // <-- support multiple images
+    alignment?: 'left' | 'center' | 'right';
+    order?: number;
+    published?: boolean;
+  }>;
+}
+
+export interface GalleryItem {
+  id?: string;
+  image: string;
+  title?: string;
+  description?: string;
+  order?: number;
+  published?: boolean;
+  homepage_image?: boolean;
+}
+
+export interface AcademicProgram {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  eligibility: string;
+  syllabus: string;
+  careerProspects: string[];
+  image?: string;
+  order: number;
+  published: boolean;
+}
+
+export interface AcademicSection {
+  title: string;
+  subtitle: string;
+  programs: AcademicProgram[];
+  additionalInfo?: string;
+}
+
+export interface ExamCellSection {
+  title: string;
+  subtitle: string;
+  content: string;
+}
+
+export interface OthersSubSection {
+  title: string;
+  subtitle: string;
+  content: string;
+}
+
+export interface OthersSection {
+  aishe: OthersSubSection;
+  academicCoordinator: OthersSubSection;
+}
+
+export interface FacultyItem {
+  id: string;          // unique id
+  slug: string;        // URL slug
+  title: string;       // display title
+  content: string;     // HTML content
+  image?: string;      // optional cover image
+  order: number;       // ordering index
+  published: boolean;  // visibility
+}
+
+export interface FacultySection {
+  title: string;
+  items: FacultyItem[];
 }

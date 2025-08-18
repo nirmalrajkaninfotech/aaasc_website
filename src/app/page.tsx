@@ -1,5 +1,3 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
 import PlacementsSection from '@/components/PlacementsSection';
@@ -15,42 +13,7 @@ async function getSiteSettings(): Promise<SiteSettings> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
     cache: 'no-store'
   });
-  
-  if (!res.ok) {
-    // Return default settings if API fails
-    return {
-      siteTitle: "University Memories",
-      logo: "/logo.png",
-      navLinks: [
-        { label: "Home", href: "/" },
-        { label: "Gallery", href: "/gallery" },
-        { label: "About", href: "/about" }
-      ],
-      hero: {
-        title: "Capturing College Memories",
-        subtitle: "Preserving the moments that define our academic journey",
-        backgroundImage: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=600&fit=crop",
-        ctaText: "Explore Gallery",
-        ctaLink: "/gallery"
-      },
-      about: {
-        title: "About Our College",
-        content: "Our institution has been a beacon of academic excellence.",
-        image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&h=400&fit=crop",
-        stats: [
-          { label: "Students", value: "15,000+" },
-          { label: "Faculty", value: "800+" }
-        ]
-      },
-      footer: {
-        text: "© 2025 University Memories. All rights reserved.",
-        socialLinks: [
-          { label: "Facebook", href: "https://facebook.com/university" }
-        ]
-      }
-    };
-  }
-  
+  if (!res.ok) throw new Error('Failed to fetch site settings');
   return res.json();
 }
 
@@ -103,8 +66,6 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
-      <Header siteSettings={siteSettings} />
-
       {/* Homepage Image Section */}
       {siteSettings.homepage_image?.image && (
         <section className="w-full flex flex-col items-center justify-center bg-gray-100 py-8">
@@ -129,8 +90,6 @@ export default async function Home() {
       <main>
         {enabledSections.map(section => renderSection(section.id))}
       </main>
-
-      <Footer siteSettings={siteSettings} />
     </div>
   );
 }

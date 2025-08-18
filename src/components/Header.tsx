@@ -9,12 +9,15 @@ interface HeaderProps {
 }
 
 export default function Header({ siteSettings }: HeaderProps) {
+  if (!siteSettings) {
+    return null;
+  }
   return (
     <header className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3">
-            {siteSettings.logo && (
+           {/* {siteSettings.logo && (
               <Image
                 src={siteSettings.logo}
                 alt="Logo"
@@ -25,14 +28,14 @@ export default function Header({ siteSettings }: HeaderProps) {
             )}
             <h1 className="text-2xl font-bold text-gray-800">
               {siteSettings.siteTitle}
-            </h1>
+            </h1>*/}
           </Link>
           
           <nav className="hidden md:flex space-x-6">
             {siteSettings.navLinks.map((link, index) => (
               link.subLinks ? (
                 <div key={index} className="relative group">
-                  <span className="text-gray-600 hover:text-gray-900 transition-colors duration-200 cursor-pointer">
+                  <span className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 cursor-pointer">
                     {link.label}
                   </span>
                   <div className="absolute hidden group-hover:block bg-white shadow-lg rounded-md mt-2 py-2 w-48">
@@ -51,7 +54,7 @@ export default function Header({ siteSettings }: HeaderProps) {
                 <Link
                   key={index}
                   href={link.href}
-                  className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
                 >
                   {link.label}
                 </Link>
@@ -83,13 +86,13 @@ export default function Header({ siteSettings }: HeaderProps) {
               <div key={index}>
                 {link.subLinks ? (
                   <>
-                    <span className="text-gray-800 font-semibold py-2 block">{link.label}</span>
+                    <span className="text-sm text-gray-800 font-semibold py-2 block">{link.label}</span>
                     <div className="flex flex-col space-y-2 pl-4">
                       {link.subLinks.map((subLink, subIndex) => (
                         <Link
                           key={subIndex}
                           href={subLink.href}
-                          className="text-gray-600 hover:text-gray-900 py-1"
+                          className="text-sm text-gray-600 hover:text-gray-900 py-1"
                         >
                           {subLink.label}
                         </Link>
@@ -99,7 +102,7 @@ export default function Header({ siteSettings }: HeaderProps) {
                 ) : (
                   <Link
                     href={link.href}
-                    className="text-gray-600 hover:text-gray-900 py-2"
+                    className="text-sm text-gray-600 hover:text-gray-900 py-2"
                   >
                     {link.label}
                   </Link>

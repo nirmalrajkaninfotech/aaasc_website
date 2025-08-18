@@ -1,5 +1,4 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+
 import AlumniSection from '@/components/AlumniSection';
 import { SiteSettings } from '@/types';
 
@@ -22,11 +21,11 @@ export default async function AlumniPage() {
   ]);
   return (
     <div className="flex flex-col min-h-screen">
-      <Header siteSettings={siteSettings} />
+
       <main>
         <AlumniSection alumni={alumni} />
       </main>
-      <Footer siteSettings={siteSettings} />
+
     </div>
   );
 }

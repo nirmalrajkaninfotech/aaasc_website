@@ -1,18 +1,169 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import RichTextEditor from '@/components/RichTextEditor';
+import dynamic from 'next/dynamic';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { SortableNavItem } from '@/components/SortableNavItem';
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 import ImageUpload from '@/components/ImageUpload';
 import SortableSection from '@/components/SortableSection';
 import MultiImageUpload from '@/components/MultiImageUpload';
 import { Collage, SiteSettings, RichTextContent, HomepageSection, CarouselItem, AlumniAssociation } from '@/types';
 
+// Placement state type
+interface AdminPlacement {
+  id: string;
+  title: string;
+  content: string;
+  images: string[];
+  alignment: 'left' | 'center' | 'right';
+  order?: number;
+  published?: boolean;
+}
+
 export default function AdminPage() {
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
-    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni'>('collages');
+    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'examCell' | 'faculty'>('collages');
+  const [newNavItem, setNewNavItem] = useState({ label: '', href: '' });
+  const [editingNavItem, setEditingNavItem] = useState<{ index: number; item: { label: string; href: string } } | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const saveSiteSettings = async (updatedSettings: SiteSettings) => {
+    try {
+      setSaving(true);
+      const response = await fetch('/api/site', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedSettings),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save navigation changes');
+      }
+
+      // Update local state with the saved settings
+      const savedSettings = await response.json();
+      setSiteSettings(savedSettings);
+      return savedSettings;
+    } catch (error) {
+      console.error('Error saving navigation:', error);
+      alert('Failed to save navigation changes. Please try again.');
+      return null;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (active.id !== over?.id && siteSettings) {
+      const oldIndex = siteSettings.navLinks.findIndex(item => item.label === active.id);
+      const newIndex = siteSettings.navLinks.findIndex(item => item.label === over?.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newNavLinks = arrayMove([...siteSettings.navLinks], oldIndex, newIndex);
+        const updatedSettings = {
+          ...siteSettings,
+          navLinks: newNavLinks
+        };
+        
+        // Save the changes to the backend
+        const savedSettings = await saveSiteSettings(updatedSettings);
+        if (savedSettings) {
+          setSiteSettings(savedSettings);
+        }
+      }
+    }
+  };
+
+  const handleAddNavItem = async () => {
+    if (!newNavItem.label || !newNavItem.href || !siteSettings) return;
+    
+    try {
+      setSaving(true);
+      let updatedNavLinks;
+      
+      if (editingNavItem) {
+        // Update existing item
+        updatedNavLinks = [...siteSettings.navLinks];
+        updatedNavLinks[editingNavItem.index] = { ...newNavItem };
+        setEditingNavItem(null);
+      } else {
+        // Add new item
+        updatedNavLinks = [...siteSettings.navLinks, { ...newNavItem }];
+      }
+      
+      // Save to backend
+      const updatedSettings = {
+        ...siteSettings,
+        navLinks: updatedNavLinks
+      };
+      
+      const savedSettings = await saveSiteSettings(updatedSettings);
+      if (savedSettings) {
+        setSiteSettings(savedSettings);
+        setNewNavItem({ label: '', href: '' });
+      }
+    } catch (error) {
+      console.error('Error saving navigation item:', error);
+      alert('Failed to save navigation item. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEditNavItem = (index: number) => {
+    const item = siteSettings?.navLinks[index];
+    if (item) {
+      setNewNavItem({ ...item });
+      setEditingNavItem({ index, item });
+    }
+  };
+
+  const handleRemoveNavItem = async (index: number) => {
+    if (!siteSettings) return;
+    
+    if (!confirm('Are you sure you want to remove this navigation item?')) {
+      return;
+    }
+    
+    try {
+      setSaving(true);
+      const updatedNavLinks = [...siteSettings.navLinks];
+      updatedNavLinks.splice(index, 1);
+      
+      const updatedSettings = {
+        ...siteSettings,
+        navLinks: updatedNavLinks
+      };
+      
+      const savedSettings = await saveSiteSettings(updatedSettings);
+      if (savedSettings) {
+        setSiteSettings(savedSettings);
+      }
+    } catch (error) {
+      console.error('Error removing navigation item:', error);
+      alert('Failed to remove navigation item. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -28,14 +179,15 @@ export default function AdminPage() {
     const [editingCollage, setEditingCollage] = useState<Collage | null>(null);
 
     // Rich content form state
-    const [newPlacement, setNewPlacement] = useState<Partial<RichTextContent>>({
+    const [newPlacement, setNewPlacement] = useState<AdminPlacement>({
+        id: '',
         title: '',
         content: '',
-        image: '',
+        images: [],
         alignment: 'left',
-        published: true
+        published: true,
     });
-    const [editingPlacement, setEditingPlacement] = useState<RichTextContent | null>(null);
+    const [editingPlacement, setEditingPlacement] = useState<AdminPlacement | null>(null);
 
     const [newAchievement, setNewAchievement] = useState<Partial<RichTextContent>>({
         title: '',
@@ -57,6 +209,10 @@ export default function AdminPage() {
     const [uploading, setUploading] = useState(false);
     const [carouselOrder, setCarouselOrder] = useState<CarouselItem[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [placements, setPlacements] = useState<AdminPlacement[]>([]);
+    const [loadingPlacements, setLoadingPlacements] = useState(false);
+    const [placementError, setPlacementError] = useState<string | null>(null);
 
     const handleMultiGalleryUpload = async (urls: string[]) => {
       if (urls.length === 0) return;
@@ -96,6 +252,31 @@ export default function AdminPage() {
     const [alumniLoading, setAlumniLoading] = useState(false);
     const [alumniSaving, setAlumniSaving] = useState(false);
     const [alumniError, setAlumniError] = useState<string | null>(null);
+
+    // Add state for examCell and others
+    const [examCell, setExamCell] = useState<{ title: string; subtitle: string; content: string }>({ title: '', subtitle: '', content: '' });
+    const [others, setOthers] = useState({
+      aishe: { title: '', subtitle: '', content: '' },
+      academicCoordinator: { title: '', subtitle: '', content: '' }
+    });
+
+    const [faculty, setFaculty] = useState(siteSettings?.faculty || { title: 'Faculty', items: [] });
+    const [editingFacultyItem, setEditingFacultyItem] = useState<any | null>(null);
+    const [newFacultyItem, setNewFacultyItem] = useState({ title: '', slug: '', content: '', order: 1, published: true });
+
+    useEffect(() => {
+      if (siteSettings) {
+        setExamCell(siteSettings.examCell || { title: '', subtitle: '', content: '' });
+        setOthers(siteSettings.others || {
+          aishe: { title: '', subtitle: '', content: '' },
+          academicCoordinator: { title: '', subtitle: '', content: '' }
+        });
+      }
+    }, [siteSettings]);
+
+    useEffect(() => {
+      if (siteSettings?.faculty) setFaculty(siteSettings.faculty);
+    }, [siteSettings]);
 
     // Fetch carousel items
     useEffect(() => {
@@ -344,63 +525,44 @@ export default function AdminPage() {
     };
 
     // Placement management functions
-    const handleCreatePlacement = () => {
-        if (!newPlacement.title?.trim()) {
-            alert('Please enter a title');
-            return;
-        }
-
-        const placement: RichTextContent = {
-            id: `placement-${Date.now()}`,
-            title: newPlacement.title,
-            content: newPlacement.content || '',
-            image: newPlacement.image,
-            alignment: newPlacement.alignment || 'left',
-            order: (siteSettings?.placements.items.length || 0) + 1,
-            published: newPlacement.published || true
+    const handleCreatePlacement = async () => {
+        const id = `placement-${Date.now()}`;
+        const newItem: AdminPlacement = {
+            ...newPlacement,
+            id,
+            images: newPlacement.images || [],
         };
-
-        const updatedSettings = {
-            ...siteSettings!,
-            placements: {
-                ...siteSettings!.placements,
-                items: [...siteSettings!.placements.items, placement]
-            }
-        };
-
-        setSiteSettings(updatedSettings);
-        setNewPlacement({ title: '', content: '', image: '', alignment: 'left', published: true });
+        const updated = [...placements, newItem];
+        setPlacements(updated);
+        setNewPlacement({ id: '', title: '', content: '', images: [], alignment: 'left', published: true });
+        await fetch('/api/placements', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: 'Student Placements', subtitle: '', items: updated }),
+        });
     };
 
-    const handleUpdatePlacement = () => {
+    const handleUpdatePlacement = async () => {
         if (!editingPlacement) return;
-
-        const updatedSettings = {
-            ...siteSettings!,
-            placements: {
-                ...siteSettings!.placements,
-                items: siteSettings!.placements.items.map(item =>
-                    item.id === editingPlacement.id ? editingPlacement : item
-                )
-            }
-        };
-
-        setSiteSettings(updatedSettings);
+        const updated = placements.map(item => item.id === editingPlacement.id ? editingPlacement : item);
+        setPlacements(updated);
         setEditingPlacement(null);
+        await fetch('/api/placements', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: 'Student Placements', subtitle: '', items: updated }),
+        });
     };
 
-    const handleDeletePlacement = (id: string) => {
-        if (!confirm('Are you sure you want to delete this placement?')) return;
-
-        const updatedSettings = {
-            ...siteSettings!,
-            placements: {
-                ...siteSettings!.placements,
-                items: siteSettings!.placements.items.filter(item => item.id !== id)
-            }
-        };
-
-        setSiteSettings(updatedSettings);
+    const handleDeletePlacement = async (id: string) => {
+        if (!window.confirm('Delete this placement?')) return;
+        const updated = placements.filter(item => item.id !== id);
+        setPlacements(updated);
+        await fetch('/api/placements', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: 'Student Placements', subtitle: '', items: updated }),
+        });
     };
 
     // Achievement management functions
@@ -713,6 +875,25 @@ export default function AdminPage() {
         }
     };
 
+    // Fetch placements from API
+    useEffect(() => {
+      if (activeTab === 'placements') {
+        setLoadingPlacements(true);
+        fetch('/api/placements')
+          .then(res => res.json())
+          .then(data => setPlacements(data.items || []))
+          .catch(() => setPlacementError('Failed to load placements'))
+          .finally(() => setLoadingPlacements(false));
+      }
+    }, [activeTab]);
+
+    const handleSaveFaculty = async () => {
+      if (!siteSettings) return;
+      const updated: SiteSettings = { ...siteSettings, faculty } as SiteSettings;
+      const saved = await saveSiteSettings(updated);
+      if (saved) setFaculty(saved.faculty);
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -731,7 +912,6 @@ export default function AdminPage() {
 
     return (
         <div className="min-h-screen flex flex-col">
-            <Header siteSettings={siteSettings} />
 
             <main className="flex-1 container mx-auto px-4 py-8">
                 <h1 className="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
@@ -799,222 +979,336 @@ export default function AdminPage() {
                         Gallery
                     </a>
                     <button
-                        onClick={() => setActiveTab('homepage_image')}
-                        className={`px-4 py-2 rounded ${activeTab === 'homepage_image' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        onClick={() => setActiveTab('navigation')}
+                        className={`px-4 py-2 rounded ${activeTab === 'navigation' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
                     >
-                        Homepage Image
+                        Navigation
                     </button>
-                    <button onClick={() => setActiveTab('alumni')} className={`px-4 py-2 rounded ${activeTab === 'alumni' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}>Alumni Association</button>
+                    <button
+                        onClick={() => setActiveTab('examCell')}
+                        className={`px-4 py-2 rounded ${activeTab === 'examCell' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    >
+                        Exam Cell
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('faculty')}
+                        className={`px-4 py-2 rounded ${activeTab === 'faculty' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    >
+                        Faculty
+                    </button>
                 </nav>
 
-                {/* Collages Tab */}
-                {activeTab === 'collages' && (
-                    <div className="space-y-8">
-                        {/* Create New Collage */}
+                {/* Navigation Management Tab */}
+                {activeTab === 'navigation' && siteSettings && (
+                    <div className="space-y-6">
                         <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Create New Collage</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newCollage.title}
-                                        onChange={(e) => setNewCollage({ ...newCollage, title: e.target.value })}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                        placeholder="Enter collage title"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        value={newCollage.description}
-                                        onChange={(e) => setNewCollage({ ...newCollage, description: e.target.value })}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                        placeholder="Enter collage description"
-                                        rows={3}
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <h2 className="text-xl font-semibold mb-4">Manage Navigation Links</h2>
+                            
+                            {/* Add/Edit Navigation Item Form */}
+                            <div className="bg-gray-50 p-4 rounded-md mb-6">
+                                <h3 className="text-lg font-medium mb-3">
+                                    {editingNavItem ? 'Edit Navigation Item' : 'Add New Navigation Item'}
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Category
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Label
                                         </label>
                                         <input
                                             type="text"
-                                            value={newCollage.category}
-                                            onChange={(e) => setNewCollage({ ...newCollage, category: e.target.value })}
+                                            value={newNavItem.label}
+                                            onChange={(e) => setNewNavItem({ ...newNavItem, label: e.target.value })}
                                             className="w-full p-2 border border-gray-300 rounded-md"
-                                            placeholder="e.g., Campus Life, Academics, Sports"
+                                            placeholder="e.g., Home, About"
                                         />
                                     </div>
-
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Tags (comma-separated)
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            URL Path
                                         </label>
-                                        <input
-                                            type="text"
-                                            value={newCollage.tags}
-                                            onChange={(e) => setNewCollage({ ...newCollage, tags: e.target.value })}
-                                            className="w-full p-2 border border-gray-300 rounded-md"
-                                            placeholder="e.g., campus, students, activities"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id="featured"
-                                        checked={newCollage.featured}
-                                        onChange={(e) => setNewCollage({ ...newCollage, featured: e.target.checked })}
-                                        className="mr-2"
-                                    />
-                                    <label htmlFor="featured" className="text-sm font-medium text-gray-700">
-                                        Mark as Featured
-                                    </label>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Image URLs
-                                    </label>
-                                    {newCollage.images.map((image, index) => (
-                                        <div key={index} className="flex gap-2 mb-2">
+                                        <div className="flex">
+                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                                /
+                                            </span>
                                             <input
                                                 type="text"
-                                                value={image}
-                                                onChange={(e) => {
-                                                    const newImages = [...newCollage.images];
-                                                    newImages[index] = e.target.value;
-                                                    setNewCollage({ ...newCollage, images: newImages });
-                                                }}
-                                                className="flex-1 p-2 border border-gray-300 rounded-md"
-                                                placeholder="Enter image URL"
+                                                value={newNavItem.href.replace(/^\//, '')}
+                                                onChange={(e) => setNewNavItem({ 
+                                                    ...newNavItem, 
+                                                    href: e.target.value ? `/${e.target.value}` : '' 
+                                                })}
+                                                className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300"
+                                                placeholder="about"
                                             />
-                                            <button
-                                                onClick={() => {
-                                                    const newImages = newCollage.images.filter((_, i) => i !== index);
-                                                    setNewCollage({ ...newCollage, images: newImages });
-                                                }}
-                                                className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                            >
-                                                Remove
-                                            </button>
                                         </div>
-                                    ))}
+                                    </div>
+                                </div>
+                                <div className="flex justify-end space-x-2">
+                                    {editingNavItem && (
+                                        <button
+                                            onClick={() => {
+                                                setNewNavItem({ label: '', href: '' });
+                                                setEditingNavItem(null);
+                                            }}
+                                            className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                                        >
+                                            Cancel
+                                        </button>
+                                    )}
                                     <button
-                                        onClick={() => setNewCollage({ ...newCollage, images: [...newCollage.images, ''] })}
-                                        className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                                        onClick={handleAddNavItem}
+                                        disabled={!newNavItem.label || !newNavItem.href}
+                                        className={`px-4 py-2 text-sm text-white rounded-md ${
+                                            !newNavItem.label || !newNavItem.href 
+                                                ? 'bg-blue-300 cursor-not-allowed' 
+                                                : 'bg-blue-600 hover:bg-blue-700'
+                                        }`}
                                     >
-                                        Add Image
+                                        {editingNavItem ? 'Update Item' : 'Add Item'}
                                     </button>
                                 </div>
-                                <button
-                                    onClick={handleCreateCollage}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Create Collage
-                                </button>
                             </div>
-                        </div>
 
-                        {/* Existing Collages */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Existing Collages</h2>
-                            {collages.length === 0 ? (
-                                <p className="text-gray-500">No collages yet.</p>
-                            ) : (
-                                <div className="space-y-4">
-                                    {collages.map((collage) => (
-                                        <div key={collage.id} className="border border-gray-200 p-4 rounded-md">
-                                            {editingCollage?.id === collage.id ? (
-                                                <div className="space-y-4">
-                                                    <input
-                                                        type="text"
-                                                        value={editingCollage.title}
-                                                        onChange={(e) => setEditingCollage({ ...editingCollage, title: e.target.value })}
-                                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                                    />
-                                                    {editingCollage.images.map((image, index) => (
-                                                        <div key={index} className="flex gap-2">
-                                                            <input
-                                                                type="text"
-                                                                value={image}
-                                                                onChange={(e) => {
-                                                                    const newImages = [...editingCollage.images];
-                                                                    newImages[index] = e.target.value;
-                                                                    setEditingCollage({ ...editingCollage, images: newImages });
-                                                                }}
-                                                                className="flex-1 p-2 border border-gray-300 rounded-md"
-                                                            />
-                                                            <button
-                                                                onClick={() => {
-                                                                    const newImages = editingCollage.images.filter((_, i) => i !== index);
-                                                                    setEditingCollage({ ...editingCollage, images: newImages });
-                                                                }}
-                                                                className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                                            >
-                                                                Remove
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => setEditingCollage({ ...editingCollage, images: [...editingCollage.images, ''] })}
-                                                            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                                                        >
-                                                            Add Image
-                                                        </button>
-                                                        <button
-                                                            onClick={handleUpdateCollage}
-                                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                                                        >
-                                                            Save
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setEditingCollage(null)}
-                                                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="font-semibold">{collage.title}</h3>
-                                                        <p className="text-sm text-gray-600">{collage.images.length} images</p>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => setEditingCollage(collage)}
-                                                            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteCollage(collage.id)}
-                                                            className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                            {/* Navigation Items List */}
+                            <div>
+                                <h3 className="text-lg font-medium mb-3">Navigation Items</h3>
+                                {siteSettings.navLinks.length === 0 ? (
+                                    <p className="text-gray-500 italic">No navigation items added yet.</p>
+                                ) : (
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragEnd={handleDragEnd}
+                                        modifiers={[restrictToVerticalAxis]}
+                                    >
+                                        <SortableContext 
+                                            items={siteSettings.navLinks.map(item => item.label)}
+                                            strategy={verticalListSortingStrategy}
+                                        >
+                                            <div className="space-y-2">
+                                                {siteSettings.navLinks.map((item, index) => (
+                                                    <SortableNavItem 
+                                                        key={`${item.label}-${index}`}
+                                                        id={item.label}
+                                                        onEdit={() => handleEditNavItem(index)}
+                                                        onRemove={() => handleRemoveNavItem(index)}
+                                                    >
+                                                        <span className="font-medium">{item.label}</span>
+                                                        <span className="text-sm text-gray-500 ml-2">{item.href}</span>
+                                                    </SortableNavItem>
+                                                ))}
+                                            </div>
+                                        </SortableContext>
+                                    </DndContext>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}
 
+                {/* Create New Collage
+                <div className="bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Create New Collage</h2>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Title
+                            </label>
+                            <input
+                                type="text"
+                                value={newCollage.title}
+                                onChange={(e) => setNewCollage({ ...newCollage, title: e.target.value })}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                                placeholder="Enter collage title"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                value={newCollage.description}
+                                onChange={(e) => setNewCollage({ ...newCollage, description: e.target.value })}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                                placeholder="Enter collage description"
+                                rows={3}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Category
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newCollage.category}
+                                    onChange={(e) => setNewCollage({ ...newCollage, category: e.target.value })}
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    placeholder="e.g., Campus Life, Academics, Sports"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Tags (comma-separated)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newCollage.tags}
+                                    onChange={(e) => setNewCollage({ ...newCollage, tags: e.target.value })}
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    placeholder="e.g., campus, students, activities"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="featured"
+                                checked={newCollage.featured}
+                                onChange={(e) => setNewCollage({ ...newCollage, featured: e.target.checked })}
+                                className="mr-2"
+                            />
+                            <label htmlFor="featured" className="text-sm font-medium text-gray-700">
+                                Mark as Featured
+                            </label>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Image URLs
+                            </label>
+                            {newCollage.images.map((image, index) => (
+                                <div key={index} className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        value={image}
+                                        onChange={(e) => {
+                                            const newImages = [...newCollage.images];
+                                            newImages[index] = e.target.value;
+                                            setNewCollage({ ...newCollage, images: newImages });
+                                        }}
+                                        className="flex-1 p-2 border border-gray-300 rounded-md"
+                                        placeholder="Enter image URL"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            const newImages = newCollage.images.filter((_, i) => i !== index);
+                                            setNewCollage({ ...newCollage, images: newImages });
+                                        }}
+                                        className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                onClick={() => setNewCollage({ ...newCollage, images: [...newCollage.images, ''] })}
+                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                            >
+                                Add Image
+                            </button>
+                        </div>
+                        <button
+                            onClick={handleCreateCollage}
+                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        >
+                            Create Collage
+                        </button>
+                    </div>
+                </div>*/}
+
+                {/* Existing Collages 
+                <div className="bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Existing Collages</h2>
+                    {collages.length === 0 ? (
+                        <p className="text-gray-500">No collages yet.</p>
+                    ) : (
+                        <div className="space-y-4">
+                            {collages.map((collage) => (
+                                <div key={collage.id} className="border border-gray-200 p-4 rounded-md">
+                                    {editingCollage?.id === collage.id ? (
+                                        <div className="space-y-4">
+                                            <input
+                                                type="text"
+                                                value={editingCollage.title}
+                                                onChange={(e) => setEditingCollage({ ...editingCollage, title: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-md"
+                                            />
+                                            {editingCollage.images.map((image, index) => (
+                                                <div key={index} className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={image}
+                                                        onChange={(e) => {
+                                                            const newImages = [...editingCollage.images];
+                                                            newImages[index] = e.target.value;
+                                                            setEditingCollage({ ...editingCollage, images: newImages });
+                                                        }}
+                                                        className="flex-1 p-2 border border-gray-300 rounded-md"
+                                                    />
+                                                    <button
+                                                        onClick={() => {
+                                                            const newImages = editingCollage.images.filter((_, i) => i !== index);
+                                                            setEditingCollage({ ...editingCollage, images: newImages });
+                                                        }}
+                                                        className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setEditingCollage({ ...editingCollage, images: [...editingCollage.images, ''] })}
+                                                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                                                >
+                                                    Add Image
+                                                </button>
+                                                <button
+                                                    onClick={handleUpdateCollage}
+                                                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    onClick={() => setEditingCollage(null)}
+                                                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h3 className="font-semibold">{collage.title}</h3>
+                                                <p className="text-sm text-gray-600">{collage.images.length} images</p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setEditingCollage(collage)}
+                                                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteCollage(collage.id)}
+                                                    className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                */}
                 {/* About Tab */}
                 {activeTab === 'about' && (
                     <div className="space-y-8">
@@ -1038,7 +1332,7 @@ export default function AdminPage() {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
                                     <RichTextEditor
-                                        value={siteSettings.about.content}
+                                        value={siteSettings.about.content || ''}
                                         onChange={(content) => setSiteSettings({
                                             ...siteSettings,
                                             about: { ...siteSettings.about, content }
@@ -1166,7 +1460,7 @@ export default function AdminPage() {
                                                     }
                                                 }
                                             })}
-                                            placeholder="Write committee details..."
+                                            placeholder="Write committee content..."
                                         />
                                         <div className="flex items-center gap-4">
                                             <div className="flex-1">
@@ -1241,7 +1535,7 @@ export default function AdminPage() {
                                                     }
                                                 }
                                             })}
-                                            placeholder="Write temple administration details..."
+                                            placeholder="Write temple administration content..."
                                         />
                                         <div className="flex items-center gap-4">
                                             <div className="flex-1">
@@ -1316,7 +1610,7 @@ export default function AdminPage() {
                                                     }
                                                 }
                                             })}
-                                            placeholder="Write secretary's message..."
+                                            placeholder="Write secretary message..."
                                         />
                                         <div className="flex items-center gap-4">
                                             <div className="flex-1">
@@ -1391,7 +1685,7 @@ export default function AdminPage() {
                                                     }
                                                 }
                                             })}
-                                            placeholder="Write principal's message..."
+                                            placeholder="Write principal message..."
                                         />
                                         <div className="flex items-center gap-4">
                                             <div className="flex-1">
@@ -1723,216 +2017,217 @@ export default function AdminPage() {
                 )}
 
                 {/* Placements Tab */}
-                {activeTab === 'placements' && (
-                    <div className="space-y-8">
-                        {/* Section Settings */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Placements Section Settings</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Section Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={siteSettings.placements?.title || ''}
-                                        onChange={(e) => setSiteSettings({
-                                            ...siteSettings,
-                                            placements: { ...siteSettings.placements, title: e.target.value }
-                                        })}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Section Subtitle
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={siteSettings.placements?.subtitle || ''}
-                                        onChange={(e) => setSiteSettings({
-                                            ...siteSettings,
-                                            placements: { ...siteSettings.placements, subtitle: e.target.value }
-                                        })}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                    />
-                                </div>
-                            </div>
+
+{/* Placements Tab */}
+{activeTab === 'placements' && (
+    <div className="space-y-8">
+        {/* Add New Placement */}
+        <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-xl font-semibold mb-4">Add New Placement</h2>
+            <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Title
+                    </label>
+                    <input
+                        type="text"
+                        value={newPlacement.title}
+                        onChange={(e) => setNewPlacement({ ...newPlacement, title: e.target.value })}
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        placeholder="Enter placement title"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Content
+                    </label>
+                    <RichTextEditor
+                        value={newPlacement.content}
+                        onChange={(content) => setNewPlacement({ ...newPlacement, content })}
+                        placeholder="Write placement content..."
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Images
+                    </label>
+                    <MultiImageUpload
+                        onUpload={(urls: string[]) => setNewPlacement(prev => ({ ...prev, images: [...(prev.images || []), ...urls] }))}
+                        label="Upload Images"
+                    />
+                    <div className="flex flex-wrap gap-3 mt-3">
+                      {newPlacement.images.map((img, idx) => (
+                        <div key={idx} className="relative w-24 h-24 group">
+                          <img src={img} alt="" className="object-cover w-full h-full rounded-md border border-gray-200" />
+                          <button
+                            type="button"
+                            className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setNewPlacement(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
+                          >×</button>
                         </div>
+                      ))}
+                    </div>
+                </div>
 
-                        {/* Create New Placement */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Create New Placement</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Title
-                                    </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Text Alignment
+                        </label>
+                        <select
+                            value={newPlacement.alignment || 'left'}
+                            onChange={(e) => setNewPlacement({ ...newPlacement, alignment: e.target.value as 'left' | 'center' | 'right' })}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-center">
+                        <input
+                            type="checkbox"
+                            id="placement-published"
+                            checked={newPlacement.published || false}
+                            onChange={(e) => setNewPlacement({ ...newPlacement, published: e.target.checked })}
+                            className="mr-2 h-5 w-5 text-blue-600"
+                        />
+                        <label htmlFor="placement-published" className="text-sm font-medium text-gray-700">
+                            Published
+                        </label>
+                    </div>
+                </div>
+
+                <button
+                    onClick={handleCreatePlacement}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                    Create Placement
+                </button>
+            </div>
+        </div>
+
+        {/* Existing Placements */}
+        <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-xl font-semibold mb-4">Existing Placements</h2>
+            {loadingPlacements ? (
+                <div className="py-8 text-center text-gray-500">Loading placements...</div>
+            ) : placements.length === 0 ? (
+                <div className="py-8 text-center text-gray-500">No placements yet.</div>
+            ) : (
+                <div className="space-y-6">
+                    {placements.map((placement) => (
+                        <div key={placement.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                            {editingPlacement?.id === placement.id ? (
+                                <div className="p-4 space-y-4 bg-gray-50">
                                     <input
                                         type="text"
-                                        value={newPlacement.title || ''}
-                                        onChange={(e) => setNewPlacement({ ...newPlacement, title: e.target.value })}
+                                        value={editingPlacement.title}
+                                        onChange={(e) => setEditingPlacement({ ...editingPlacement, title: e.target.value })}
                                         className="w-full p-2 border border-gray-300 rounded-md"
-                                        placeholder="Enter placement title"
                                     />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Content
-                                    </label>
                                     <RichTextEditor
-                                        value={newPlacement.content || ''}
-                                        onChange={(content) => setNewPlacement({ ...newPlacement, content })}
-                                        placeholder="Enter placement content with rich formatting..."
+                                        value={editingPlacement.content || ''}
+                                        onChange={(content) => setEditingPlacement({ ...editingPlacement, content })}
+                                        placeholder="Edit placement content..."
                                     />
-                                </div>
-
-                                <div>
-                                    <ImageUpload
-                                        value={newPlacement.image || ''}
-                                        onChange={(image) => setNewPlacement({ ...newPlacement, image })}
-                                        label="Placement Image"
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Text Alignment
+                                            Images
                                         </label>
+                                        <MultiImageUpload
+                                            onUpload={(urls: string[]) => setEditingPlacement(prev => prev ? { ...prev, images: [...(prev.images || []), ...urls] } : prev)}
+                                            label="Upload Images"
+                                        />
+                                        <div className="flex flex-wrap gap-3 mt-3">
+                                          {editingPlacement.images.map((img, idx) => (
+                                            <div key={idx} className="relative w-24 h-24 group">
+                                              <img src={img} alt="" className="object-cover w-full h-full rounded-md border border-gray-200" />
+                                              <button
+                                                type="button"
+                                                className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                onClick={() => setEditingPlacement(prev => prev ? { ...prev, images: prev.images.filter((_, i) => i !== idx) } : prev)}
+                                              >×</button>
+                                            </div>
+                                          ))}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-wrap gap-4">
                                         <select
-                                            value={newPlacement.alignment || 'left'}
-                                            onChange={(e) => setNewPlacement({ ...newPlacement, alignment: e.target.value as 'left' | 'center' | 'right' })}
-                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                            value={editingPlacement.alignment}
+                                            onChange={(e) => setEditingPlacement({ ...editingPlacement, alignment: e.target.value as 'left' | 'center' | 'right' })}
+                                            className="p-2 border border-gray-300 rounded-md"
                                         >
                                             <option value="left">Left</option>
                                             <option value="center">Center</option>
                                             <option value="right">Right</option>
                                         </select>
-                                    </div>
-
-                                    <div className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            id="placement-published"
-                                            checked={newPlacement.published || false}
-                                            onChange={(e) => setNewPlacement({ ...newPlacement, published: e.target.checked })}
-                                            className="mr-2"
-                                        />
-                                        <label htmlFor="placement-published" className="text-sm font-medium text-gray-700">
+                                        <label className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={editingPlacement.published}
+                                                onChange={(e) => setEditingPlacement({ ...editingPlacement, published: e.target.checked })}
+                                                className="mr-2 h-5 w-5 text-blue-600"
+                                            />
                                             Published
                                         </label>
                                     </div>
+                                    <div className="flex gap-2 pt-2">
+                                        <button
+                                            onClick={handleUpdatePlacement}
+                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                                        >
+                                            Save Changes
+                                        </button>
+                                        <button
+                                            onClick={() => setEditingPlacement(null)}
+                                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
                                 </div>
-
-                                <button
-                                    onClick={handleCreatePlacement}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Create Placement
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Existing Placements */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Existing Placements</h2>
-                            {siteSettings.placements?.items.length === 0 ? (
-                                <p className="text-gray-500">No placements yet.</p>
                             ) : (
-                                <div className="space-y-4">
-                                    {siteSettings.placements?.items.map((placement) => (
-                                        <div key={placement.id} className="border border-gray-200 p-4 rounded-md">
-                                            {editingPlacement?.id === placement.id ? (
-                                                <div className="space-y-4">
-                                                    <input
-                                                        type="text"
-                                                        value={editingPlacement.title}
-                                                        onChange={(e) => setEditingPlacement({ ...editingPlacement, title: e.target.value })}
-                                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                                    />
-                                                    <RichTextEditor
-                                                        value={editingPlacement.content}
-                                                        onChange={(content) => setEditingPlacement({ ...editingPlacement, content })}
-                                                    />
-                                                    <ImageUpload
-                                                        value={editingPlacement.image || ''}
-                                                        onChange={(image) => setEditingPlacement({ ...editingPlacement, image })}
-                                                    />
-                                                    <div className="flex gap-2">
-                                                        <select
-                                                            value={editingPlacement.alignment}
-                                                            onChange={(e) => setEditingPlacement({ ...editingPlacement, alignment: e.target.value as 'left' | 'center' | 'right' })}
-                                                            className="p-2 border border-gray-300 rounded-md"
-                                                        >
-                                                            <option value="left">Left</option>
-                                                            <option value="center">Center</option>
-                                                            <option value="right">Right</option>
-                                                        </select>
-                                                        <label className="flex items-center">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={editingPlacement.published}
-                                                                onChange={(e) => setEditingPlacement({ ...editingPlacement, published: e.target.checked })}
-                                                                className="mr-2"
-                                                            />
-                                                            Published
-                                                        </label>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={handleUpdatePlacement}
-                                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                                                        >
-                                                            Save
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setEditingPlacement(null)}
-                                                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="font-semibold">{placement.title}</h3>
-                                                        <p className="text-sm text-gray-600">
-                                                            {placement.alignment} aligned • {placement.published ? 'Published' : 'Draft'}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => setEditingPlacement(placement)}
-                                                            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeletePlacement(placement.id)}
-                                                            className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
+                                <div className="flex flex-col md:flex-row md:items-center">
+                                    <div className="p-4 flex-grow">
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="font-semibold text-lg">{placement.title}</h3>
+                                            <span className={`px-2 py-1 text-xs rounded-full ${placement.published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                {placement.published ? 'Published' : 'Draft'}
+                                            </span>
                                         </div>
-                                    ))}
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Alignment: {placement.alignment} • Images: {placement.images?.length || 0}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2 p-4 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200">
+                                        <button
+                                            onClick={() => setEditingPlacement(placement)}
+                                            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeletePlacement(placement.id)}
+                                            className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             )}
-                            <button
-                                onClick={handleSaveSiteSettings}
-                                disabled={saving}
-                                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                            >
-                                {saving ? 'Saving...' : 'Save All Changes'}
-                            </button>
                         </div>
-                    </div>
-                )}
+                    ))}
+                </div>
+            )}
+            {placementError && <div className="text-red-600 mb-2">{placementError}</div>}
+        </div>
+    </div>
+)}
+
 
                 {/* Achievements Tab */}
                 {activeTab === 'achievements' && (
@@ -2065,8 +2360,9 @@ export default function AdminPage() {
                                                         className="w-full p-2 border border-gray-300 rounded-md"
                                                     />
                                                     <RichTextEditor
-                                                        value={editingAchievement.content}
+                                                        value={editingAchievement.content || ''}
                                                         onChange={(content) => setEditingAchievement({ ...editingAchievement, content })}
+                                                        placeholder="Edit achievement content..."
                                                     />
                                                     <ImageUpload
                                                         value={editingAchievement.image || ''}
@@ -2318,78 +2614,77 @@ export default function AdminPage() {
 
                 {/* Others Tab */}
                 {activeTab === 'others' && (
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h2 className="text-xl font-semibold mb-4">Manage Others Links</h2>
-                        <div className="space-y-6">
-                            {siteSettings.navLinks.find(link => link.label === 'Others')?.subLinks?.map((subLink, index) => (
-                                <div key={index} className="flex gap-2 mb-2">
-                                    <input
-                                        type="text"
-                                        value={subLink.label}
-                                        onChange={(e) => {
-                                            const newNavLinks = [...siteSettings.navLinks];
-                                            const othersLink = newNavLinks.find(link => link.label === 'Others');
-                                            if (othersLink && othersLink.subLinks) {
-                                                othersLink.subLinks[index] = { ...subLink, label: e.target.value };
-                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                            }
-                                        }}
-                                        className="flex-1 p-2 border border-gray-300 rounded-md"
-                                        placeholder="Label"
-                                    />
-                                    <input
-                                        type="text"
-                                        value={subLink.href}
-                                        onChange={(e) => {
-                                            const newNavLinks = [...siteSettings.navLinks];
-                                            const othersLink = newNavLinks.find(link => link.label === 'Others');
-                                            if (othersLink && othersLink.subLinks) {
-                                                othersLink.subLinks[index] = { ...subLink, href: e.target.value };
-                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                            }
-                                        }}
-                                        className="flex-1 p-2 border border-gray-300 rounded-md"
-                                        placeholder="URL"
-                                    />
-                                    <button
-                                        onClick={() => {
-                                            const newNavLinks = [...siteSettings.navLinks];
-                                            const othersLink = newNavLinks.find(link => link.label === 'Others');
-                                            if (othersLink && othersLink.subLinks) {
-                                                othersLink.subLinks = othersLink.subLinks.filter((_, i) => i !== index);
-                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                            }
-                                        }}
-                                        className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            ))}
-                            <button
-                                onClick={() => {
-                                    const newNavLinks = [...siteSettings.navLinks];
-                                    const othersLink = newNavLinks.find(link => link.label === 'Others');
-                                    if (othersLink) {
-                                        if (!othersLink.subLinks) {
-                                            othersLink.subLinks = [];
-                                        }
-                                        othersLink.subLinks.push({ label: '', href: '' });
-                                        setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                    }
-                                }}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                            >
-                                Add Other Link
-                            </button>
+                    <div className="space-y-8">
+                        {/* AISHE Section */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                          <h2 className="text-xl font-semibold mb-4">AISHE Section</h2>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                              <input
+                                type="text"
+                                value={others.aishe.title}
+                                onChange={e => setOthers(o => ({ ...o, aishe: { ...o.aishe, title: e.target.value } }))}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
+                              <input
+                                type="text"
+                                value={others.aishe.subtitle}
+                                onChange={e => setOthers(o => ({ ...o, aishe: { ...o.aishe, subtitle: e.target.value } }))}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                              <RichTextEditor
+                                value={others.aishe.content}
+                                onChange={content => setOthers(o => ({ ...o, aishe: { ...o.aishe, content } }))}
+                                placeholder="Enter AISHE content with rich formatting..."
+                              />
+                            </div>
+                          </div>
                         </div>
-                         <button
-                                onClick={handleSaveSiteSettings}
-                                disabled={saving}
-                                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                            >
-                                {saving ? 'Saving...' : 'Save All Changes'}
-                            </button>
+                        {/* Academic Coordinator Section */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                          <h2 className="text-xl font-semibold mb-4">Academic Coordinator Section</h2>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                              <input
+                                type="text"
+                                value={others.academicCoordinator.title}
+                                onChange={e => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, title: e.target.value } }))}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
+                              <input
+                                type="text"
+                                value={others.academicCoordinator.subtitle}
+                                onChange={e => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, subtitle: e.target.value } }))}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                              <RichTextEditor
+                                value={others.academicCoordinator.content}
+                                onChange={content => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, content } }))}
+                                placeholder="Enter Academic Coordinator content with rich formatting..."
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleSaveOthers}
+                          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        >
+                          Save Others
+                        </button>
                     </div>
                 )}
 
@@ -2533,6 +2828,12 @@ export default function AdminPage() {
                         >Save Homepage Image</button>
                     </section>
                 )}
+                {activeTab === 'iqac' && (
+                    <section className="p-4 max-w-2xl mx-auto">
+                        <h2 className="text-2xl font-bold mb-4">IQAC Management</h2>
+                        <p className="text-gray-600">IQAC content will be managed here.</p>
+                    </section>
+                )}
                 {activeTab === 'alumni' && (
                     <section className="p-4 max-w-2xl mx-auto">
                         <h2 className="text-2xl font-bold mb-4">Alumni Association</h2>
@@ -2545,12 +2846,10 @@ export default function AdminPage() {
                                     value={alumni.title}
                                     onChange={e => handleAlumniChange('title', e.target.value)}
                                 />
-                                <textarea
-                                    className="border p-2 rounded w-full mb-2"
-                                    placeholder="Content (HTML allowed)"
-                                    rows={5}
+                                <RichTextEditor
                                     value={alumni.content}
-                                    onChange={e => handleAlumniChange('content', e.target.value)}
+                                    onChange={val => handleAlumniChange('content', val)}
+                                    placeholder="Content (HTML allowed)"
                                 />
                                 <input
                                     type="text"
@@ -2576,9 +2875,275 @@ export default function AdminPage() {
                         )}
                     </section>
                 )}
+                {/* Exam Cell Tab */}
+                {activeTab === 'examCell' && (
+                  <div className="space-y-8">
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h2 className="text-xl font-semibold mb-4">Exam Cell Section Settings</h2>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                          <input
+                            type="text"
+                            value={examCell.title}
+                            onChange={e => setExamCell({ ...examCell, title: e.target.value })}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
+                          <input
+                            type="text"
+                            value={examCell.subtitle}
+                            onChange={e => setExamCell({ ...examCell, subtitle: e.target.value })}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                          <RichTextEditor
+                            value={examCell.content}
+                            onChange={content => setExamCell({ ...examCell, content })}
+                            placeholder="Enter exam cell content with rich formatting..."
+                          />
+                        </div>
+                        <button
+                          onClick={handleSaveExamCell}
+                          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        >
+                          Save Exam Cell
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Others Tab */}
+                {activeTab === 'others' && (
+                  <div className="space-y-8">
+                    {/* AISHE Section */}
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h2 className="text-xl font-semibold mb-4">AISHE Section</h2>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                          <input
+                            type="text"
+                            value={others.aishe.title}
+                            onChange={e => setOthers(o => ({ ...o, aishe: { ...o.aishe, title: e.target.value } }))}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
+                          <input
+                            type="text"
+                            value={others.aishe.subtitle}
+                            onChange={e => setOthers(o => ({ ...o, aishe: { ...o.aishe, subtitle: e.target.value } }))}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                          <RichTextEditor
+                            value={others.aishe.content}
+                            onChange={content => setOthers(o => ({ ...o, aishe: { ...o.aishe, content } }))}
+                            placeholder="Enter AISHE content with rich formatting..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {/* Academic Coordinator Section */}
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h2 className="text-xl font-semibold mb-4">Academic Coordinator Section</h2>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                          <input
+                            type="text"
+                            value={others.academicCoordinator.title}
+                            onChange={e => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, title: e.target.value } }))}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
+                          <input
+                            type="text"
+                            value={others.academicCoordinator.subtitle}
+                            onChange={e => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, subtitle: e.target.value } }))}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                          <RichTextEditor
+                            value={others.academicCoordinator.content}
+                            onChange={content => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, content } }))}
+                            placeholder="Enter Academic Coordinator content with rich formatting..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleSaveOthers}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                      Save Others
+                    </button>
+                  </div>
+                )}
+                {activeTab === 'faculty' && (
+                  <div className="space-y-8">
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h2 className="text-xl font-semibold mb-4">Faculty Section</h2>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                        <input
+                          type="text"
+                          value={faculty.title}
+                          onChange={e => setFaculty({ ...faculty, title: e.target.value })}
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <h3 className="font-semibold mb-2">Items</h3>
+                      <div className="space-y-4">
+                        {faculty.items.map((item: any) => (
+                          <div key={item.id} className="border p-4 rounded-md">
+                            {editingFacultyItem?.id === item.id ? (
+                              <div className="space-y-3">
+                                <input
+                                  type="text"
+                                  value={editingFacultyItem.title}
+                                  onChange={e => setEditingFacultyItem({ ...editingFacultyItem, title: e.target.value })}
+                                  className="w-full p-2 border rounded"
+                                />
+                                <input
+                                  type="text"
+                                  value={editingFacultyItem.slug}
+                                  onChange={e => setEditingFacultyItem({ ...editingFacultyItem, slug: e.target.value })}
+                                  className="w-full p-2 border rounded"
+                                  placeholder="URL Slug"
+                                />
+                                <RichTextEditor
+                                  value={editingFacultyItem.content}
+                                  onChange={content => setEditingFacultyItem({ ...editingFacultyItem, content })}
+                                />
+                                <div className="flex gap-3 items-center">
+                                  <input
+                                    type="number"
+                                    value={editingFacultyItem.order}
+                                    onChange={e => setEditingFacultyItem({ ...editingFacultyItem, order: Number(e.target.value) })}
+                                    className="w-24 p-2 border rounded"
+                                  />
+                                  <label className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={editingFacultyItem.published}
+                                      onChange={e => setEditingFacultyItem({ ...editingFacultyItem, published: e.target.checked })}
+                                    />
+                                    Published
+                                  </label>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setFaculty(prev => ({
+                                        ...prev,
+                                        items: prev.items.map((f: any) => f.id === editingFacultyItem.id ? editingFacultyItem : f)
+                                      }));
+                                      setEditingFacultyItem(null);
+                                    }}
+                                    className="px-4 py-2 bg-green-600 text-white rounded"
+                                  >
+                                    Save Item
+                                  </button>
+                                  <button onClick={() => setEditingFacultyItem(null)} className="px-4 py-2 bg-gray-600 text-white rounded">Cancel</button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <div className="font-semibold">{item.title}</div>
+                                  <div className="text-sm text-gray-600">/{item.slug} • Order {item.order} • {item.published ? 'Published' : 'Draft'}</div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button onClick={() => setEditingFacultyItem(item)} className="px-3 py-1 bg-blue-500 text-white rounded text-sm">Edit</button>
+                                  <button onClick={() => setFaculty(prev => ({ ...prev, items: prev.items.filter((f: any) => f.id !== item.id) }))} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Delete</button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h3 className="text-lg font-semibold mb-3">Add New Faculty Item</h3>
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          value={newFacultyItem.title}
+                          onChange={e => setNewFacultyItem({ ...newFacultyItem, title: e.target.value })}
+                          className="w-full p-2 border rounded"
+                          placeholder="Title"
+                        />
+                        <input
+                          type="text"
+                          value={newFacultyItem.slug}
+                          onChange={e => setNewFacultyItem({ ...newFacultyItem, slug: e.target.value })}
+                          className="w-full p-2 border rounded"
+                          placeholder="Slug (e.g., computer-science)"
+                        />
+                        <RichTextEditor
+                          value={newFacultyItem.content}
+                          onChange={content => setNewFacultyItem({ ...newFacultyItem, content })}
+                        />
+                        <div className="flex gap-3 items-center">
+                          <input
+                            type="number"
+                            value={newFacultyItem.order}
+                            onChange={e => setNewFacultyItem({ ...newFacultyItem, order: Number(e.target.value) })}
+                            className="w-24 p-2 border rounded"
+                          />
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={newFacultyItem.published}
+                              onChange={e => setNewFacultyItem({ ...newFacultyItem, published: e.target.checked })}
+                            />
+                            Published
+                          </label>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const id = `${Date.now()}`;
+                            setFaculty(prev => ({
+                              ...prev,
+                              items: [...prev.items, { id, ...newFacultyItem }]
+                            }));
+                            setNewFacultyItem({ title: '', slug: '', content: '', order: 1, published: true });
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded"
+                        >
+                          Add Item
+                        </button>
+                      </div>
+                    </div>
+
+                    <button onClick={handleSaveFaculty} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save Faculty Changes</button>
+                  </div>
+                )}
             </main>
 
-            <Footer siteSettings={siteSettings} />
+
         </div>
     );
 }
+
+// Add handlers for saving examCell and others
+const handleSaveExamCell = async () => {
+  // Call API to update examCell in site.json
+};
+const handleSaveOthers = async () => {
+  // Call API to update others in site.json
+};

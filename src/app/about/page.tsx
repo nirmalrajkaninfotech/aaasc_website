@@ -1,5 +1,4 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+
 import AboutSection from '@/components/AboutSection';
 import { SiteSettings } from '@/types';
 
@@ -75,13 +74,12 @@ export default async function AboutPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header siteSettings={siteSettings} />
+    
 
       <main className="flex-1">
         <AboutSection about={siteSettings.about} />
       </main>
 
-      <Footer siteSettings={siteSettings} />
     </div>
   );
 }
