@@ -60,7 +60,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
     { id: 'activities', label: 'Activities', icon: '📊' },
     { id: 'reports', label: 'Reports', icon: '📄' },
     { id: 'practices', label: 'Best Practices', icon: '⭐' }
-  ].filter(tab => (iqacData.enabled ? iqacData.enabled[tab.id] !== false : true));
+  ].filter(tab => tab.id === 'committee' ? true : (iqacData.enabled ? iqacData.enabled[tab.id] !== false : true));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -155,7 +155,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
           </motion.div>
         )}
 
-        {activeTab === 'committee' && (iqacData.enabled ? iqacData.enabled.committee !== false : true) && (
+        {activeTab === 'committee' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

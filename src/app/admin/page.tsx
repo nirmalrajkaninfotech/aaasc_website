@@ -1049,6 +1049,12 @@ export default function AdminPage() {
                         Navigation
                     </button>
                     <button
+                        onClick={() => setActiveTab('iqac')}
+                        className={`px-4 py-2 rounded ${activeTab === 'iqac' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    >
+                        IQAC
+                    </button>
+                    <button
                         onClick={() => setActiveTab('examCell')}
                         className={`px-4 py-2 rounded ${activeTab === 'examCell' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
                     >
@@ -3126,6 +3132,86 @@ export default function AdminPage() {
                               <label className="block text-sm font-medium text-gray-700 mb-2">Vision Title</label>
                               <input className="w-full p-2 border rounded mb-2" value={iqac.vision?.title || ''} onChange={e => setIqac((prev:any)=>({ ...prev, vision: { ...(prev.vision||{}), title: e.target.value } }))} />
                               <RichTextEditor value={iqac.vision?.content || ''} onChange={content => setIqac((prev:any)=>({ ...prev, vision: { ...(prev.vision||{}), content } }))} />
+                            </div>
+                          </div>
+
+                          {/* Committee Editor */}
+                          <div className="border rounded-lg p-4">
+                            <h3 className="font-semibold mb-3">Committee</h3>
+                            <div className="mb-3">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Committee Title</label>
+                              <input
+                                type="text"
+                                className="w-full p-2 border rounded"
+                                value={iqac.committee?.title || ''}
+                                onChange={e => setIqac((prev:any)=>({ ...prev, committee: { ...(prev.committee||{}), title: e.target.value, members: (prev.committee?.members||[]) } }))}
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              {(iqac.committee?.members || []).map((m:any, idx:number) => (
+                                <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end bg-gray-50 p-3 rounded">
+                                  <div>
+                                    <label className="block text-xs text-gray-600 mb-1">Name</label>
+                                    <input type="text" className="w-full p-2 border rounded" value={m.name || ''} onChange={e => {
+                                      const next = { ...(iqac as any) };
+                                      const list = [ ...(next.committee?.members || []) ];
+                                      list[idx] = { ...list[idx], name: e.target.value };
+                                      next.committee = { ...(next.committee||{}), members: list };
+                                      setIqac(next);
+                                    }} />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-gray-600 mb-1">Position</label>
+                                    <input type="text" className="w-full p-2 border rounded" value={m.position || ''} onChange={e => {
+                                      const next = { ...(iqac as any) };
+                                      const list = [ ...(next.committee?.members || []) ];
+                                      list[idx] = { ...list[idx], position: e.target.value };
+                                      next.committee = { ...(next.committee||{}), members: list };
+                                      setIqac(next);
+                                    }} />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-gray-600 mb-1">Designation</label>
+                                    <input type="text" className="w-full p-2 border rounded" value={m.designation || ''} onChange={e => {
+                                      const next = { ...(iqac as any) };
+                                      const list = [ ...(next.committee?.members || []) ];
+                                      list[idx] = { ...list[idx], designation: e.target.value };
+                                      next.committee = { ...(next.committee||{}), members: list };
+                                      setIqac(next);
+                                    }} />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-gray-600 mb-1">Department</label>
+                                    <input type="text" className="w-full p-2 border rounded" value={m.department || ''} onChange={e => {
+                                      const next = { ...(iqac as any) };
+                                      const list = [ ...(next.committee?.members || []) ];
+                                      list[idx] = { ...list[idx], department: e.target.value };
+                                      next.committee = { ...(next.committee||{}), members: list };
+                                      setIqac(next);
+                                    }} />
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button type="button" className="px-3 py-2 bg-red-500 text-white rounded"
+                                      onClick={() => setIqac((prev:any)=>({
+                                        ...prev,
+                                        committee: {
+                                          ...(prev.committee||{ title: '', members: [] }),
+                                          members: (prev.committee?.members || []).filter((_:any, i:number) => i !== idx)
+                                        }
+                                      }))}
+                                    >Remove</button>
+                                  </div>
+                                </div>
+                              ))}
+                              <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded"
+                                onClick={() => setIqac((prev:any)=>({
+                                  ...prev,
+                                  committee: {
+                                    ...(prev.committee || { title: '', members: [] }),
+                                    members: [ ...((prev.committee?.members) || []), { name: '', position: '', designation: '', department: '' } ]
+                                  }
+                                }))}
+                              >Add Member</button>
                             </div>
                           </div>
 

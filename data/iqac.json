@@ -27,34 +27,46 @@
     "title": "IQAC Committee",
     "members": [
       {
-        "name": "Dr. A. Kumar",
+        "name": "Dr. S. Kanimozhi Suguna\t",
         "position": "Chairman",
-        "designation": "Principal",
-        "department": "Administration"
+        "designation": "",
+        "department": "Computer Applications"
       },
       {
-        "name": "Dr. B. Sharma",
+        "name": "Dr. S. Yazhini",
         "position": "Coordinator",
-        "designation": "Associate Professor",
-        "department": "Quality Assurance"
+        "designation": "",
+        "department": "Computer Applications"
       },
       {
-        "name": "Dr. C. Patel",
+        "name": "Dr. M. Balasubramani",
         "position": "Member",
-        "designation": "Professor",
-        "department": "Academic Affairs"
+        "designation": "",
+        "department": "Computer Applications"
       },
       {
-        "name": "Mr. D. Singh",
+        "name": "Dr. S. Muppidathi",
         "position": "Member",
-        "designation": "Administrative Officer",
-        "department": "Administration"
+        "designation": "",
+        "department": "Tamil"
       },
       {
-        "name": "Student Representative",
+        "name": "Dr. P. Saravanan",
         "position": "Member",
-        "designation": "Student",
-        "department": "Student Council"
+        "designation": "",
+        "department": "English\t"
+      },
+      {
+        "name": "Dr. S. Saranya",
+        "position": "Member",
+        "designation": "",
+        "department": "Mathematics\t"
+      },
+      {
+        "name": "\tMr. M. Chinusamy",
+        "position": "Member",
+        "designation": "",
+        "department": "Computer Science\t"
       }
     ]
   },
@@ -96,5 +108,10 @@
     "Industry-academia collaboration",
     "Research and innovation promotion",
     "Community engagement programs"
-  ]
+  ],
+  "enabled": {
+    "activities": false,
+    "practices": false,
+    "reports": false
+  }
 }
