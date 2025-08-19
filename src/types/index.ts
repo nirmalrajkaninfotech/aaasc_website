@@ -223,6 +223,12 @@ export interface ExamCellSection {
   title: string;
   subtitle: string;
   content: string;
+  showHero: boolean;
+  showFeatures: boolean;
+  showQuickLinks: boolean;
+  showCTA: boolean;
+  heroButtonText: string;
+  ctaButtonText: string;
 }
 
 export interface OthersSubSection {

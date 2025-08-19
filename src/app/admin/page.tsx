@@ -894,6 +894,20 @@ export default function AdminPage() {
       if (saved) setFaculty(saved.faculty);
     };
 
+    const handleSaveExamCell = async () => {
+      if (!siteSettings) return;
+      const updated: SiteSettings = { ...siteSettings, examCell } as SiteSettings;
+      const saved = await saveSiteSettings(updated);
+      if (saved) setExamCell(saved.examCell);
+    };
+
+    const handleSaveOthers = async () => {
+      if (!siteSettings) return;
+      const updated: SiteSettings = { ...siteSettings, others } as SiteSettings;
+      const saved = await saveSiteSettings(updated);
+      if (saved) setOthers(saved.others);
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -2900,19 +2914,91 @@ export default function AdminPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                          <RichTextEditor
-                            value={examCell.content}
-                            onChange={content => setExamCell({ ...examCell, content })}
-                            placeholder="Enter exam cell content with rich formatting..."
-                          />
-                        </div>
-                        <button
-                          onClick={handleSaveExamCell}
-                          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                        >
-                          Save Exam Cell
-                        </button>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                            <RichTextEditor
+                              value={examCell.content}
+                              onChange={content => setExamCell({ ...examCell, content })}
+                              placeholder="Enter exam cell content with rich formatting..."
+                            />
+                          </div>
+
+                          <div className="space-y-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Visibility</label>
+                              <div className="space-y-4">
+                                <label className="flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={examCell.showHero || false}
+                                    onChange={(e) => setExamCell(prev => ({ ...prev, showHero: e.target.checked }))}
+                                    className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                  />
+                                  <span className="text-sm text-gray-700">Show Hero Section</span>
+                                </label>
+                                
+                                <label className="flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={examCell.showFeatures || false}
+                                    onChange={(e) => setExamCell(prev => ({ ...prev, showFeatures: e.target.checked }))}
+                                    className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                  />
+                                  <span className="text-sm text-gray-700">Show Features Section</span>
+                                </label>
+                                
+                                <label className="flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={examCell.showQuickLinks || false}
+                                    onChange={(e) => setExamCell(prev => ({ ...prev, showQuickLinks: e.target.checked }))}
+                                    className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                  />
+                                  <span className="text-sm text-gray-700">Show Quick Links Section</span>
+                                </label>
+                                
+                                <label className="flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={examCell.showCTA || false}
+                                    onChange={(e) => setExamCell(prev => ({ ...prev, showCTA: e.target.checked }))}
+                                    className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                  />
+                                  <span className="text-sm text-gray-700">Show Call-to-Action Section</span>
+                                </label>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Hero Button Text</label>
+                                <input
+                                  type="text"
+                                  value={examCell.heroButtonText || ''}
+                                  onChange={(e) => setExamCell(prev => ({ ...prev, heroButtonText: e.target.value }))}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="View Schedule"
+                                />
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">CTA Button Text</label>
+                                <input
+                                  type="text"
+                                  value={examCell.ctaButtonText || ''}
+                                  onChange={(e) => setExamCell(prev => ({ ...prev, ctaButtonText: e.target.value }))}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Contact Exam Cell"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={handleSaveExamCell}
+                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                          >
+                            Save Exam Cell
+                          </button>
                       </div>
                     </div>
                   </div>
@@ -3140,10 +3226,4 @@ export default function AdminPage() {
     );
 }
 
-// Add handlers for saving examCell and others
-const handleSaveExamCell = async () => {
-  // Call API to update examCell in site.json
-};
-const handleSaveOthers = async () => {
-  // Call API to update others in site.json
-};
+// Handlers moved inside component
