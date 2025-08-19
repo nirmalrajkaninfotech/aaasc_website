@@ -124,6 +124,18 @@ export interface CarouselSection {
   items: CarouselItem[];
 }
 
+export interface Header2 {
+  image: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  noticeText?: string;
+  published: boolean;
+}
+
+// Added to SiteSettings
 export interface SiteSettings {
   siteTitle: string;
   logo: string;
@@ -161,6 +173,7 @@ export interface SiteSettings {
   examCell: ExamCellSection;
   others: OthersSection;
   faculty: FacultySection;
+  header2?: Header2;
 }
 
 export interface AlumniAssociation {
@@ -245,9 +258,20 @@ export interface OthersSection {
 export interface FacultyItem {
   id: string;          // unique id
   slug: string;        // URL slug
-  title: string;       // display title
-  content: string;     // HTML content
-  image?: string;      // optional cover image
+  title: string;       // display title (name)
+  subtitle?: string;   // additional title/qualification
+  designation: string;   // official position/designation
+  email?: string;      // contact email
+  phone?: string;      // contact phone
+  content: string;     // HTML content (bio/description)
+  image?: string;      // profile image
+  socialLinks?: {
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+    instagram?: string;
+    website?: string;
+  };
   order: number;       // ordering index
   published: boolean;  // visibility
 }

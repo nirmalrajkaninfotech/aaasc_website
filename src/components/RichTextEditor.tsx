@@ -454,6 +454,15 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                 <path d="M3 3h18v2H3V3zm6 4h12v2H9V7zm-6 4h18v2H3v-2zm6 4h12v2H9v-2zm-6 4h18v2H3v-2z" />
               </svg>
             </button>
+            <button
+              onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+              className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-100 text-blue-600' : ''}`}
+              title="Justify"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h18v2H3v-2zm0 4h18v2H3v-2zm0 4h18v2H3v-2z" />
+              </svg>
+            </button>
           </div>
 
           <div className="w-px h-8 bg-gray-300 mx-1"></div>

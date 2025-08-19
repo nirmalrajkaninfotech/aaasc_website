@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { SiteSettings } from '@/types';
 import { API_BASE_URL } from '@/config';
 import React from 'react';
+import Header2 from '@/components/Header2';
 
 async function getSiteSettings(): Promise<SiteSettings> {
   const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
@@ -26,7 +27,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-50 flex flex-col">
-        <Header siteSettings={siteSettings} />
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+          <Header2 header2Data={siteSettings.header2} />
+          <Header siteSettings={siteSettings} />
+        </div>
         <div className="flex-1 flex flex-col">
           {children}
         </div>
