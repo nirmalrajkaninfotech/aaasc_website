@@ -1,64 +1,79 @@
 'use client';
 
-import Image from 'next/image';
-import { Header2 as Header2Type } from '@/types';
+import Link from 'next/link';
+import { SiteSettings } from '@/types';
 
 interface Header2Props {
-  header2Data?: Header2Type;
+  siteSettings: SiteSettings;
 }
 
-export default function Header2({ header2Data }: Header2Props) {
-  if (!header2Data || !header2Data.published) {
+export default function Header2({ siteSettings }: Header2Props) {
+  if (!siteSettings) {
     return null;
   }
-
+  
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+    <header className="bg-gray-800 text-white shadow-md">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          {/* Left side - Image and Text */}
-          <div className="flex items-center space-x-4">
-            {header2Data.image && (
-              <div className="relative w-12 h-12">
-                <Image
-                  src={header2Data.image}
-                  alt={header2Data.title || 'College Logo'}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            )}
-            <div>
-              {header2Data.title && (
-                <h2 className="text-lg font-bold">{header2Data.title}</h2>
-              )}
-              {header2Data.subtitle && (
-                <p className="text-sm opacity-90">{header2Data.subtitle}</p>
-              )}
-              {header2Data.description && (
-                <p className="text-xs opacity-75">{header2Data.description}</p>
-              )}
-            </div>
+          <div className="flex items-center space-x-6">
+            <Link href="/admin" className="text-xl font-bold">
+              {siteSettings.siteTitle || 'Admin Panel'}
+            </Link>
+            
+            <nav className="hidden md:flex space-x-4">
+              <Link href="/admin/dashboard" className="hover:text-gray-300 px-3 py-2 rounded">
+                Dashboard
+              </Link>
+              <Link href="/admin/posts" className="hover:text-gray-300 px-3 py-2 rounded">
+                Posts
+              </Link>
+              <Link href="/admin/pages" className="hover:text-gray-300 px-3 py-2 rounded">
+                Pages
+              </Link>
+              <Link href="/admin/header" className="hover:text-gray-300 px-3 py-2 rounded">
+                Header
+              </Link>
+              <Link href="/admin/settings" className="hover:text-gray-300 px-3 py-2 rounded">
+                Settings
+              </Link>
+            </nav>
           </div>
-
-          {/* Right side - Contact and Notice */}
-          <div className="text-right">
-            {header2Data.noticeText && (
-              <div className="bg-yellow-500 text-black px-3 py-1 rounded text-sm font-semibold mb-1">
-                {header2Data.noticeText}
-              </div>
-            )}
-            <div className="text-sm">
-              {header2Data.contactPhone && (
-                <span className="mr-4">📞 {header2Data.contactPhone}</span>
-              )}
-              {header2Data.contactEmail && (
-                <span>✉️ {header2Data.contactEmail}</span>
-              )}
-            </div>
+          
+          <div className="flex items-center space-x-4">
+            <Link 
+              href="/" 
+              className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm font-medium transition-colors"
+            >
+              View Site
+            </Link>
+            <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm font-medium transition-colors">
+              Logout
+            </button>
+          </div>
+        </div>
+        
+        {/* Mobile menu */}
+        <div className="md:hidden mt-3 pt-3 border-t border-gray-700">
+          <div className="flex flex-col space-y-2">
+            <Link href="/admin/dashboard" className="block py-2 px-2 rounded hover:bg-gray-700">
+              Dashboard
+            </Link>
+            <Link href="/admin/posts" className="block py-2 px-2 rounded hover:bg-gray-700">
+              Posts
+            </Link>
+            <Link href="/admin/pages" className="block py-2 px-2 rounded hover:bg-gray-700">
+              Pages
+            </Link>
+            <Link href="/admin/header" className="block py-2 px-2 rounded hover:bg-gray-700">
+              Header
+            </Link>
+            <Link href="/admin/settings" className="block py-2 px-2 rounded hover:bg-gray-700">
+              Settings
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

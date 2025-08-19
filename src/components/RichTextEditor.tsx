@@ -11,11 +11,10 @@ import TextAlign from '@tiptap/extension-text-align';
 // import FontFamily from '@tiptap/extension-font-family';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
-// Table extensions temporarily disabled due to import issues
-// import Table from '@tiptap/extension-table';
-// import TableRow from '@tiptap/extension-table-row';
-// import TableCell from '@tiptap/extension-table-cell';
-// import TableHeader from '@tiptap/extension-table-header';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 import Youtube from '@tiptap/extension-youtube';
 import { useState, useCallback, useRef, useEffect } from 'react';
 // Temporarily disable Filerobot Image Editor due to import issues
@@ -90,13 +89,12 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         multicolor: true,
       }),
       Underline,
-      // Table extensions temporarily disabled
-      // Table.configure({
-      //   resizable: true,
-      // }),
-      // TableRow,
-      // TableHeader,
-      // TableCell,
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
       Youtube.configure({
         controls: false,
         nocookie: true,
@@ -174,7 +172,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       // Convert the edited image to blob
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
+      const img = new (typeof window !== 'undefined' ? window.Image : (globalThis as any).Image)();
       
       img.onload = async () => {
         canvas.width = img.width;
@@ -269,8 +267,8 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   }, [editor]);
 
   const insertTable = useCallback(() => {
-    // Table functionality temporarily disabled
-    alert('Table functionality is temporarily disabled due to import issues');
+    if (!editor) return;
+    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   }, [editor]);
 
   const applyImageStyles = useCallback((properties: typeof imageProperties) => {
@@ -696,6 +694,28 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
           {/* Advanced */}
           <div className="flex gap-1 mr-2">
+            {/* 2-Column Preset */}
+            <button
+              onClick={() => {
+                if (!editor) return;
+                const html = `
+<div class="rt-grid-2">
+  <div>
+    <h3>Left column</h3>
+    <p>Type content here...</p>
+  </div>
+  <div>
+    <h3>Right column</h3>
+    <p>Type content here...</p>
+  </div>
+</div>`;
+                editor.chain().focus().insertContent(html).run();
+              }}
+              className="p-2 rounded hover:bg-gray-200"
+              title="Insert 2-column block"
+            >
+              2⎮2
+            </button>
             <button
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
               className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('blockquote') ? 'bg-blue-100 text-blue-600' : ''}`}
@@ -1185,6 +1205,23 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         .tiptap-image.ProseMirror-selectednode {
           outline: 2px solid #3b82f6;
           outline-offset: 2px;
+        }
+
+        /* Responsive 2-column grid preset */
+        .rt-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.25rem;
+          align-items: start;
+        }
+        @media (min-width: 768px) {
+          .rt-grid-2 { grid-template-columns: 1fr 1fr; }
+        }
+        .rt-grid-2 > div {
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 0.5rem;
+          padding: 1rem;
         }
 
         /* Image resize handles */

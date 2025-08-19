@@ -8,6 +8,7 @@ interface IQACData {
   title: string;
   subtitle: string;
   heroImage: string;
+  enabled?: { [key: string]: boolean };
   mission: { title: string; content: string };
   vision: { title: string; content: string };
   objectives: string[];
@@ -59,7 +60,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
     { id: 'activities', label: 'Activities', icon: '📊' },
     { id: 'reports', label: 'Reports', icon: '📄' },
     { id: 'practices', label: 'Best Practices', icon: '⭐' }
-  ];
+  ].filter(tab => (iqacData.enabled ? iqacData.enabled[tab.id] !== false : true));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -110,7 +111,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
 
       {/* Content Sections */}
       <div className="container mx-auto px-4 py-12">
-        {activeTab === 'overview' && (
+        {activeTab === 'overview' && (iqacData.enabled ? iqacData.enabled.overview !== false : true) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -154,7 +155,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
           </motion.div>
         )}
 
-        {activeTab === 'committee' && (
+        {activeTab === 'committee' && (iqacData.enabled ? iqacData.enabled.committee !== false : true) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -181,7 +182,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
           </motion.div>
         )}
 
-        {activeTab === 'activities' && (
+        {activeTab === 'activities' && (iqacData.enabled ? iqacData.enabled.activities !== false : true) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -211,7 +212,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
           </motion.div>
         )}
 
-        {activeTab === 'reports' && (
+        {activeTab === 'reports' && (iqacData.enabled ? iqacData.enabled.reports !== false : true) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -238,7 +239,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
           </motion.div>
         )}
 
-        {activeTab === 'practices' && (
+        {activeTab === 'practices' && (iqacData.enabled ? iqacData.enabled.practices !== false : true) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

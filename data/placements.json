@@ -1,5 +1,22 @@
 {
   "title": "Student Placements",
   "subtitle": "",
-  "items": []
+  "items": [
+    {
+      "id": "placement-1755589856630",
+      "title": "",
+      "content": "<p>The placement Cell is an integral part of Arulmigu Arthanareeswarar Arts and Science College. It functions to ensure the best placements for the students graduating from Arulmigu Arthanareeswarar Arts and Science College. To remain competitive in today’s world, being adept in one area will not suffice. One has to be familiar with other domains too. Spearheaded by able professionals with guidance from the College Council members, Secretary, Principal and Faculty members, Placement Cell works round the year and closely coordinates with recruiting teams from leading corporate houses to make sure that every student gets suitable openings once they finish their courses. Placement Cell has a perfect understanding of how the corporate world works and this helps in organizing events and programs that provide avenues for the students to get exposed to the real world of work. At present, there is a great demand for knowledgeable, talented, and devoted people in the exposition. Placement Cell provides assistance to students and the ability to think out of the box as it conducts Webinars, Seminars, Workshops, Personality Development programs, Guest Lecturers, etc. regular affairs and the students get ample opportunities to closely interact with professionals from different industries. Placement Cell also arranges In-house Training, Projects, and Internships with corporate organizations so that the students may get a comprehensive industry orientation helpful in polishing their skills before they start their actual careers.</p><p></p>",
+      "images": [
+        "/uploads/1755589844391_WhatsApp-Image-2024-07-30-at-10.27.57-AM-1024x682.jpeg",
+        "/uploads/1755590080850_Placement1-1.png",
+        "/uploads/1755590085273_Placement2-1.png",
+        "/uploads/1755590088689_Placement3.png",
+        "/uploads/1755590092205_Placement4.png",
+        "/uploads/1755590096033_Placement5.png",
+        "/uploads/1755590099208_Placement6.png"
+      ],
+      "alignment": "center",
+      "published": true
+    }
+  ]
 }

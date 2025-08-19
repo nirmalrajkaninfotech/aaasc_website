@@ -23,11 +23,11 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
   const slides = (Array.isArray(items) ? items : [])
     .filter((item: CarouselItem) => item?.published !== false)
     .map(item => {
-      // Get the image URL, using the direct path as it's already in the public directory
-      const imagePath = item.image.startsWith('/') ? item.image : `/${item.image}`;
+      // Use the getImageUrl utility to ensure proper image paths
+      const imagePath = item.image ? getImageUrl(item.image) : '';
       return {
         ...item,
-        image: imagePath, // Store the path relative to public directory
+        image: imagePath,
         title: item.title || item.caption || '',
         description: item.description || item.link || ''
       };
@@ -41,6 +41,8 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
 
   // Initialize image states - only update when slides change
   useEffect(() => {
+    if (!slides.length) return;
+    
     const newImageStates: Record<string, 'loading' | 'loaded' | 'error'> = {};
     let needsUpdate = false;
     
@@ -48,7 +50,8 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
     const newImages: string[] = [];
     
     slides.forEach(slide => {
-      // The image URL is already resolved in the slides mapping
+      if (!slide.image) return;
+      
       if (imageStates[slide.image] === undefined) {
         newImageStates[slide.image] = 'loading';
         newImages.push(slide.image);
@@ -60,14 +63,12 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
 
     // Only update state if we have new images to track
     if (needsUpdate) {
-      console.log('📷 New images detected:', newImages);
-      console.log('🔄 Current image states:', imageStates);
       setImageStates(prev => ({
         ...prev,
         ...newImageStates
       }));
     }
-  }, [slides.map(s => s.image).join()]); // Only re-run when image URLs change
+  }, [slides.length > 0 ? slides.map(s => s.image).join('|') : '']); // Only re-run when image URLs change
 
   const handleImageLoad = (src: string) => {
     console.log('✅ Image loaded successfully:', src);
@@ -149,7 +150,7 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
   // If no slides, show placeholder
   if (totalSlides === 0) {
     return (
-      <section className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-gray-900 flex items-center justify-center text-white">
+      <section className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-white flex items-center justify-center text-gray-800">
         <p className="text-xl">No carousel items available</p>
       </section>
     );
@@ -157,7 +158,7 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
 
   return (
     <section
-      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-gray-900 overflow-hidden shadow-2xl"
+      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-white overflow-hidden shadow-2xl"
       onMouseEnter={stopAutoScroll}
       onMouseLeave={startAutoScroll}
       aria-roledescription="carousel"
@@ -176,23 +177,27 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
                 <div className="absolute inset-0 bg-gray-700 animate-pulse" />
               )}
               {imageState === 'error' && (
-                <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                  <span className="text-white">Failed to load image</span>
+                <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+                  <span className="text-gray-600">Failed to load image</span>
                 </div>
               )}
               <div className="absolute inset-0 w-full h-full">
-                <Image
-                  src={slide.image}
-                  alt={slide.title}
-                  fill
-                  className="object-cover"
-                  onLoadingComplete={() => handleImageLoad(slide.image)}
-                  onError={() => handleImageError(slide.image)}
-                  priority={index === 0} // Only preload the first image
-                  unoptimized={process.env.NODE_ENV !== 'production'}
-                />
+                {slide.image && (
+                  <Image
+                    src={slide.image}
+                    alt={slide.title || 'Carousel slide'}
+                    fill
+                    className="object-cover w-full h-full"
+                    onLoadingComplete={() => handleImageLoad(slide.image)}
+                    onError={() => handleImageError(slide.image)}
+                    priority={index < 2}
+                    quality={85}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+                    unoptimized={process.env.NODE_ENV !== 'production'}
+                  />
+                )}
               </div>
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-white p-8">
+              <div className="absolute inset-0 bg-white bg-opacity-70 flex flex-col justify-center items-center text-gray-800 p-8">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4">
                   {slide.title}
                 </h2>

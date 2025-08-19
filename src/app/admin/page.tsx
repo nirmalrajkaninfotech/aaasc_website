@@ -10,7 +10,7 @@ const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ss
 import ImageUpload from '@/components/ImageUpload';
 import SortableSection from '@/components/SortableSection';
 import MultiImageUpload from '@/components/MultiImageUpload';
-import { Collage, SiteSettings, RichTextContent, HomepageSection, CarouselItem, AlumniAssociation } from '@/types';
+import { Collage, SiteSettings, RichTextContent, HomepageSection, CarouselItem, AlumniAssociation, ExamCellSection } from '@/types';
 
 // Placement state type
 interface AdminPlacement {
@@ -26,7 +26,7 @@ interface AdminPlacement {
 export default function AdminPage() {
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
-    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'examCell' | 'faculty'>('collages');
+    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities'>('collages');
   const [newNavItem, setNewNavItem] = useState({ label: '', href: '' });
   const [editingNavItem, setEditingNavItem] = useState<{ index: number; item: { label: string; href: string } } | null>(null);
 
@@ -209,10 +209,15 @@ export default function AdminPage() {
     const [uploading, setUploading] = useState(false);
     const [carouselOrder, setCarouselOrder] = useState<CarouselItem[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const imageDragIndexRef = useRef<number | null>(null);
+    const facultyEditImageDragIndexRef = useRef<number | null>(null);
+    const facultyNewImageDragIndexRef = useRef<number | null>(null);
 
     const [placements, setPlacements] = useState<AdminPlacement[]>([]);
     const [loadingPlacements, setLoadingPlacements] = useState(false);
     const [placementError, setPlacementError] = useState<string | null>(null);
+    const [placementSectionTitle, setPlacementSectionTitle] = useState<string>('');
+    const [placementSectionSubtitle, setPlacementSectionSubtitle] = useState<string>('');
 
     const handleMultiGalleryUpload = async (urls: string[]) => {
       if (urls.length === 0) return;
@@ -254,15 +259,36 @@ export default function AdminPage() {
     const [alumniError, setAlumniError] = useState<string | null>(null);
 
     // Add state for examCell and others
-    const [examCell, setExamCell] = useState<{ title: string; subtitle: string; content: string }>({ title: '', subtitle: '', content: '' });
+    const [examCell, setExamCell] = useState<ExamCellSection>({
+      title: '',
+      subtitle: '',
+      content: '',
+      showHero: false,
+      showFeatures: false,
+      showQuickLinks: false,
+      showCTA: false,
+      heroButtonText: '',
+      ctaButtonText: ''
+    });
     const [others, setOthers] = useState({
       aishe: { title: '', subtitle: '', content: '' },
       academicCoordinator: { title: '', subtitle: '', content: '' }
     });
 
+    // IQAC state
+    const [iqac, setIqac] = useState<any | null>(null);
+    const [iqacLoading, setIqacLoading] = useState(false);
+    const [iqacSaving, setIqacSaving] = useState(false);
+
     const [faculty, setFaculty] = useState(siteSettings?.faculty || { title: 'Faculty', items: [] });
     const [editingFacultyItem, setEditingFacultyItem] = useState<any | null>(null);
     const [newFacultyItem, setNewFacultyItem] = useState({ title: '', slug: '', content: '', order: 1, published: true });
+
+    // Facilities state
+    const [facilities, setFacilities] = useState(siteSettings?.facilities || { title: 'Facilities', subtitle: '', items: [] });
+    const [editingFacilityIndex, setEditingFacilityIndex] = useState<number | null>(null);
+    const [newFacility, setNewFacility] = useState({ id: '', name: '', description: '', image: '', category: '', features: '', published: true, order: 1 });
+    const [newFacilityImages, setNewFacilityImages] = useState<string[]>([]);
 
     useEffect(() => {
       if (siteSettings) {
@@ -271,6 +297,9 @@ export default function AdminPage() {
           aishe: { title: '', subtitle: '', content: '' },
           academicCoordinator: { title: '', subtitle: '', content: '' }
         });
+        if (siteSettings.facilities) {
+          setFacilities(siteSettings.facilities as any);
+        }
       }
     }, [siteSettings]);
 
@@ -844,6 +873,17 @@ export default function AdminPage() {
         }
     }, [activeTab]);
 
+    // Fetch IQAC data
+    useEffect(() => {
+      if (activeTab === 'iqac') {
+        setIqacLoading(true);
+        fetch('/api/iqac')
+          .then(res => res.json())
+          .then(data => setIqac(data))
+          .finally(() => setIqacLoading(false));
+      }
+    }, [activeTab]);
+
     const handleAlumniChange = (field: keyof AlumniAssociation, value: any) => {
         setAlumni(prev => prev ? { ...prev, [field]: value } : prev);
     };
@@ -875,13 +915,17 @@ export default function AdminPage() {
         }
     };
 
-    // Fetch placements from API
+    // Fetch placements from API (and section meta)
     useEffect(() => {
       if (activeTab === 'placements') {
         setLoadingPlacements(true);
         fetch('/api/placements')
           .then(res => res.json())
-          .then(data => setPlacements(data.items || []))
+          .then(data => {
+            setPlacements(data.items || []);
+            setPlacementSectionTitle(data.title || '');
+            setPlacementSectionSubtitle(data.subtitle || '');
+          })
           .catch(() => setPlacementError('Failed to load placements'))
           .finally(() => setLoadingPlacements(false));
       }
@@ -961,6 +1005,12 @@ export default function AdminPage() {
                         className={`px-4 py-2 rounded ${activeTab === 'placements' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
                     >
                         Placements
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('facilities')}
+                        className={`px-4 py-2 rounded ${activeTab === 'facilities' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    >
+                        Facilities
                     </button>
                     <button
                         onClick={() => setActiveTab('achievements')}
@@ -2034,216 +2084,416 @@ export default function AdminPage() {
 
 {/* Placements Tab */}
 {activeTab === 'placements' && (
-    <div className="space-y-8">
-        {/* Add New Placement */}
-        <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Add New Placement</h2>
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Title
-                    </label>
-                    <input
-                        type="text"
-                        value={newPlacement.title}
-                        onChange={(e) => setNewPlacement({ ...newPlacement, title: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="Enter placement title"
-                    />
-                </div>
+  <div className="space-y-8">
+    {/* Section settings (single card) */}
+    <div className="bg-white p-6 rounded-lg shadow">
+      <h2 className="text-xl font-semibold mb-4">Placement Section</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+          <input
+            type="text"
+            value={placementSectionTitle}
+            onChange={(e) => setPlacementSectionTitle(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            placeholder="Student Placements"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
+          <input
+            type="text"
+            value={placementSectionSubtitle}
+            onChange={(e) => setPlacementSectionSubtitle(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            placeholder="Our graduates excel in top companies worldwide."
+          />
+        </div>
+      </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Content
-                    </label>
-                    <RichTextEditor
-                        value={newPlacement.content}
-                        onChange={(content) => setNewPlacement({ ...newPlacement, content })}
-                        placeholder="Write placement content..."
-                    />
-                </div>
+      <div className="mt-6 space-y-6">
+        {/* Single card editor for the placement content/images */}
+        {loadingPlacements ? (
+          <div className="py-8 text-center text-gray-500">Loading placement content...</div>
+        ) : (
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700">Main Description</label>
+            <RichTextEditor
+              value={placements[0]?.content || ''}
+              onChange={(content) => {
+                if (placements.length === 0) {
+                  setPlacements([{ id: crypto.randomUUID(), title: 'Placement', content, images: [], alignment: 'left', published: true }]);
+                } else {
+                  const updated = [...placements];
+                  updated[0] = { ...updated[0], content };
+                  setPlacements(updated);
+                }
+              }}
+              placeholder="Write placement description..."
+            />
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Images
-                    </label>
-                    <MultiImageUpload
-                        onUpload={(urls: string[]) => setNewPlacement(prev => ({ ...prev, images: [...(prev.images || []), ...urls] }))}
-                        label="Upload Images"
-                    />
-                    <div className="flex flex-wrap gap-3 mt-3">
-                      {newPlacement.images.map((img, idx) => (
-                        <div key={idx} className="relative w-24 h-24 group">
-                          <img src={img} alt="" className="object-cover w-full h-full rounded-md border border-gray-200" />
-                          <button
-                            type="button"
-                            className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => setNewPlacement(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
-                          >×</button>
-                        </div>
-                      ))}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Text Alignment
-                        </label>
-                        <select
-                            value={newPlacement.alignment || 'left'}
-                            onChange={(e) => setNewPlacement({ ...newPlacement, alignment: e.target.value as 'left' | 'center' | 'right' })}
-                            className="w-full p-2 border border-gray-300 rounded-md"
-                        >
-                            <option value="left">Left</option>
-                            <option value="center">Center</option>
-                            <option value="right">Right</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center">
-                        <input
-                            type="checkbox"
-                            id="placement-published"
-                            checked={newPlacement.published || false}
-                            onChange={(e) => setNewPlacement({ ...newPlacement, published: e.target.checked })}
-                            className="mr-2 h-5 w-5 text-blue-600"
-                        />
-                        <label htmlFor="placement-published" className="text-sm font-medium text-gray-700">
-                            Published
-                        </label>
-                    </div>
-                </div>
-
-                <button
-                    onClick={handleCreatePlacement}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                    Create Placement
-                </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
+              <MultiImageUpload
+                onUpload={(urls: string[]) => {
+                  if (placements.length === 0) {
+                    setPlacements([{ id: crypto.randomUUID(), title: 'Placement', content: '', images: urls, alignment: 'left', published: true }]);
+                  } else {
+                    const updated = [...placements];
+                    updated[0] = { ...updated[0], images: [...(updated[0].images || []), ...urls] };
+                    setPlacements(updated);
+                  }
+                }}
+                label="Upload Images"
+              />
+              <div className="flex flex-wrap gap-3 mt-3">
+                {(placements[0]?.images || []).map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="relative w-24 h-24 group cursor-move"
+                    draggable
+                    onDragStart={() => { imageDragIndexRef.current = idx; }}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const from = imageDragIndexRef.current;
+                      const to = idx;
+                      if (from === null || from === to) return;
+                      const current = placements[0]?.images || [];
+                      const reordered = [...current];
+                      const [moved] = reordered.splice(from, 1);
+                      reordered.splice(to, 0, moved);
+                      const updated = [...placements];
+                      updated[0] = { ...updated[0], images: reordered };
+                      setPlacements(updated);
+                      imageDragIndexRef.current = null;
+                    }}
+                  >
+                    <img src={img} alt="" className="object-cover w-full h-full rounded-md border border-gray-200" />
+                    <button
+                      type="button"
+                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => {
+                        const updated = [...placements];
+                        updated[0] = { ...updated[0], images: updated[0].images.filter((_, i) => i !== idx) };
+                        setPlacements(updated);
+                      }}
+                    >×</button>
+                  </div>
+                ))}
+              </div>
             </div>
-        </div>
 
-        {/* Existing Placements */}
-        <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Existing Placements</h2>
-            {loadingPlacements ? (
-                <div className="py-8 text-center text-gray-500">Loading placements...</div>
-            ) : placements.length === 0 ? (
-                <div className="py-8 text-center text-gray-500">No placements yet.</div>
-            ) : (
-                <div className="space-y-6">
-                    {placements.map((placement) => (
-                        <div key={placement.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                            {editingPlacement?.id === placement.id ? (
-                                <div className="p-4 space-y-4 bg-gray-50">
-                                    <input
-                                        type="text"
-                                        value={editingPlacement.title}
-                                        onChange={(e) => setEditingPlacement({ ...editingPlacement, title: e.target.value })}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                    />
-                                    <RichTextEditor
-                                        value={editingPlacement.content || ''}
-                                        onChange={(content) => setEditingPlacement({ ...editingPlacement, content })}
-                                        placeholder="Edit placement content..."
-                                    />
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Images
-                                        </label>
-                                        <MultiImageUpload
-                                            onUpload={(urls: string[]) => setEditingPlacement(prev => prev ? { ...prev, images: [...(prev.images || []), ...urls] } : prev)}
-                                            label="Upload Images"
-                                        />
-                                        <div className="flex flex-wrap gap-3 mt-3">
-                                          {editingPlacement.images.map((img, idx) => (
-                                            <div key={idx} className="relative w-24 h-24 group">
-                                              <img src={img} alt="" className="object-cover w-full h-full rounded-md border border-gray-200" />
-                                              <button
-                                                type="button"
-                                                className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                                onClick={() => setEditingPlacement(prev => prev ? { ...prev, images: prev.images.filter((_, i) => i !== idx) } : prev)}
-                                              >×</button>
-                                            </div>
-                                          ))}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-wrap gap-4">
-                                        <select
-                                            value={editingPlacement.alignment}
-                                            onChange={(e) => setEditingPlacement({ ...editingPlacement, alignment: e.target.value as 'left' | 'center' | 'right' })}
-                                            className="p-2 border border-gray-300 rounded-md"
-                                        >
-                                            <option value="left">Left</option>
-                                            <option value="center">Center</option>
-                                            <option value="right">Right</option>
-                                        </select>
-                                        <label className="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                checked={editingPlacement.published}
-                                                onChange={(e) => setEditingPlacement({ ...editingPlacement, published: e.target.checked })}
-                                                className="mr-2 h-5 w-5 text-blue-600"
-                                            />
-                                            Published
-                                        </label>
-                                    </div>
-                                    <div className="flex gap-2 pt-2">
-                                        <button
-                                            onClick={handleUpdatePlacement}
-                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                                        >
-                                            Save Changes
-                                        </button>
-                                        <button
-                                            onClick={() => setEditingPlacement(null)}
-                                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col md:flex-row md:items-center">
-                                    <div className="p-4 flex-grow">
-                                        <div className="flex items-center gap-3">
-                                            <h3 className="font-semibold text-lg">{placement.title}</h3>
-                                            <span className={`px-2 py-1 text-xs rounded-full ${placement.published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                                {placement.published ? 'Published' : 'Draft'}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                            Alignment: {placement.alignment} • Images: {placement.images?.length || 0}
-                                        </p>
-                                    </div>
-                                    <div className="flex gap-2 p-4 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200">
-                                        <button
-                                            onClick={() => setEditingPlacement(placement)}
-                                            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeletePlacement(placement.id)}
-                                            className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
-            {placementError && <div className="text-red-600 mb-2">{placementError}</div>}
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Card Title</label>
+                <input
+                  type="text"
+                  value={placements[0]?.title || ''}
+                  onChange={(e) => {
+                    if (placements.length === 0) {
+                      setPlacements([{ id: crypto.randomUUID(), title: e.target.value, content: '', images: [], alignment: 'left', published: true }]);
+                    } else {
+                      const updated = [...placements];
+                      updated[0] = { ...updated[0], title: e.target.value };
+                      setPlacements(updated);
+                    }
+                  }}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Text Alignment</label>
+                <select
+                  value={placements[0]?.alignment || 'left'}
+                  onChange={(e) => {
+                    if (placements.length === 0) return;
+                    const updated = [...placements];
+                    updated[0] = { ...updated[0], alignment: e.target.value as 'left' | 'center' | 'right' };
+                    setPlacements(updated);
+                  }}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="left">Left</option>
+                  <option value="center">Center</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="placement-single-published"
+                  checked={placements[0]?.published ?? true}
+                  onChange={(e) => {
+                    if (placements.length === 0) return;
+                    const updated = [...placements];
+                    updated[0] = { ...updated[0], published: e.target.checked };
+                    setPlacements(updated);
+                  }}
+                  className="mr-2 h-5 w-5 text-blue-600"
+                />
+                <label htmlFor="placement-single-published" className="text-sm font-medium text-gray-700">Published</label>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={async () => {
+                  try {
+                    setSaving(true);
+                    const body = {
+                      title: placementSectionTitle,
+                      subtitle: placementSectionSubtitle,
+                      items: placements,
+                    };
+                    await fetch('/api/placements', {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(body),
+                    });
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Save Section
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
+  </div>
 )}
 
 
                 {/* Achievements Tab */}
+                {/* Facilities Tab */}
+                {activeTab === 'facilities' && (
+                  <div className="space-y-8">
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h2 className="text-xl font-semibold mb-4">Facilities Section</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                          <input
+                            type="text"
+                            value={facilities.title}
+                            onChange={(e) => setFacilities({ ...facilities, title: e.target.value })}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
+                          <input
+                            type="text"
+                            value={facilities.subtitle}
+                            onChange={(e) => setFacilities({ ...facilities, subtitle: e.target.value })}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-6">
+                        <h3 className="font-semibold mb-2">Add Facility</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <input className="p-2 border rounded" placeholder="Name" value={newFacility.name} onChange={(e)=>setNewFacility({...newFacility,name:e.target.value})} />
+                          <input className="p-2 border rounded" placeholder="Category" value={newFacility.category} onChange={(e)=>setNewFacility({...newFacility,category:e.target.value})} />
+                          <ImageUpload
+                            value={newFacility.image}
+                            onChange={(url) => setNewFacility(prev => ({ ...prev, image: url }))}
+                            label="Upload Image"
+                          />
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Additional Images (optional)</label>
+                            <MultiImageUpload onUpload={(urls: string[]) => setNewFacilityImages(prev => [...prev, ...urls])} label="Upload Multiple Images" />
+                            {newFacilityImages.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {newFacilityImages.map((img, idx) => (
+                                  <div key={idx} className="relative w-20 h-20">
+                                    <img src={img} className="w-full h-full object-cover rounded" />
+                                    <button className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6" onClick={() => setNewFacilityImages(prev => prev.filter((_, i) => i !== idx))}>×</button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <input className="p-2 border rounded" placeholder="Order" type="number" value={newFacility.order} onChange={(e)=>setNewFacility({...newFacility,order:Number(e.target.value)})} />
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <RichTextEditor
+                              value={newFacility.description}
+                              onChange={(content) => setNewFacility(prev => ({ ...prev, description: content }))}
+                              placeholder="Enter facility description..."
+                            />
+                          </div>
+                          <input className="p-2 border rounded md:col-span-2" placeholder="Features (comma separated)" value={newFacility.features} onChange={(e)=>setNewFacility({...newFacility,features:e.target.value})} />
+                        </div>
+                        <div className="mt-3">
+                          <button
+                            onClick={() => {
+                              const item = {
+                                id: crypto.randomUUID(),
+                                name: newFacility.name,
+                                description: newFacility.description,
+                                image: newFacility.image,
+                                gallery: newFacilityImages,
+                                category: newFacility.category,
+                                features: newFacility.features.split(',').map(f=>f.trim()).filter(Boolean),
+                                published: true,
+                                order: newFacility.order || (facilities.items.length + 1),
+                              };
+                              setFacilities(prev => ({ ...prev, items: [...(prev.items || []), item] }));
+                              setNewFacility({ id: '', name: '', description: '', image: '', category: '', features: '', published: true, order: 1 });
+                              setNewFacilityImages([]);
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          >Add Facility</button>
+                        </div>
+                      </div>
+
+                      <div className="mt-8">
+                        <h3 className="font-semibold mb-2">Existing Facilities</h3>
+                        {(!facilities.items || facilities.items.length === 0) ? (
+                          <p className="text-gray-500">No facilities yet.</p>
+                        ) : (
+                          <div className="space-y-3">
+                            {facilities.items.sort((a:any,b:any)=>a.order-b.order).map((item:any, index:number) => (
+                              <div key={item.id} className="p-3 border rounded flex flex-col md:flex-row md:items-center gap-3">
+                                <div className="flex-1">
+                                  <div className="font-medium">{item.name} <span className="text-xs text-gray-500">({item.category})</span></div>
+                                  <div className="text-xs text-gray-500">Order: {item.order} • Features: {item.features.length}</div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button className="px-3 py-1 text-sm bg-blue-500 text-white rounded" onClick={()=>setEditingFacilityIndex(index)}>Edit</button>
+                                  <button className="px-3 py-1 text-sm bg-red-500 text-white rounded" onClick={()=>setFacilities({ ...facilities, items: facilities.items.filter((_:any,i:number)=>i!==index) })}>Delete</button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {editingFacilityIndex !== null && facilities.items && facilities.items[editingFacilityIndex] && (
+                        <div className="mt-8 border-t pt-6">
+                          <h3 className="font-semibold mb-3">Edit Facility</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input
+                              className="p-2 border rounded"
+                              placeholder="Name"
+                              value={facilities.items[editingFacilityIndex].name}
+                              onChange={(e)=>{
+                                const copy: any = { ...facilities };
+                                copy.items[editingFacilityIndex].name = e.target.value;
+                                setFacilities(copy);
+                              }}
+                            />
+                            <input
+                              className="p-2 border rounded"
+                              placeholder="Category"
+                              value={facilities.items[editingFacilityIndex].category}
+                              onChange={(e)=>{
+                                const copy: any = { ...facilities };
+                                copy.items[editingFacilityIndex].category = e.target.value;
+                                setFacilities(copy);
+                              }}
+                            />
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
+                              <ImageUpload
+                                value={facilities.items[editingFacilityIndex].image || ''}
+                                onChange={(url) => {
+                                  const copy: any = { ...facilities };
+                                  copy.items[editingFacilityIndex].image = url;
+                                  setFacilities(copy);
+                                }}
+                                label="Upload Image"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Gallery Images</label>
+                              <MultiImageUpload
+                                onUpload={(urls: string[]) => {
+                                  const copy: any = { ...facilities };
+                                  const current = copy.items[editingFacilityIndex].gallery || [];
+                                  copy.items[editingFacilityIndex].gallery = [...current, ...urls];
+                                  setFacilities(copy);
+                                }}
+                                label="Upload Multiple Images"
+                              />
+                              {(facilities.items[editingFacilityIndex].gallery || []).length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {(facilities.items[editingFacilityIndex].gallery || []).map((img: string, idx: number) => (
+                                    <div key={idx} className="relative w-20 h-20">
+                                      <img src={img} className="w-full h-full object-cover rounded" />
+                                      <button
+                                        className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6"
+                                        onClick={() => {
+                                          const copy: any = { ...facilities };
+                                          copy.items[editingFacilityIndex].gallery = (copy.items[editingFacilityIndex].gallery || []).filter((_: any, i: number) => i !== idx);
+                                          setFacilities(copy);
+                                        }}
+                                      >×</button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <input
+                              className="p-2 border rounded"
+                              placeholder="Order"
+                              type="number"
+                              value={facilities.items[editingFacilityIndex].order}
+                              onChange={(e)=>{
+                                const copy: any = { ...facilities };
+                                copy.items[editingFacilityIndex].order = Number(e.target.value);
+                                setFacilities(copy);
+                              }}
+                            />
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                              <RichTextEditor
+                                value={facilities.items[editingFacilityIndex].description}
+                                onChange={(content) => {
+                                  const copy: any = { ...facilities };
+                                  copy.items[editingFacilityIndex].description = content;
+                                  setFacilities(copy);
+                                }}
+                                placeholder="Edit facility description..."
+                              />
+                            </div>
+                            <input
+                              className="p-2 border rounded md:col-span-2"
+                              placeholder="Features (comma separated)"
+                              value={(facilities.items[editingFacilityIndex].features || []).join(', ')}
+                              onChange={(e)=>{
+                                const copy: any = { ...facilities };
+                                copy.items[editingFacilityIndex].features = e.target.value.split(',').map((f:string)=>f.trim()).filter(Boolean);
+                                setFacilities(copy);
+                              }}
+                            />
+                          </div>
+                          <div className="mt-3 flex gap-2">
+                            <button className="px-4 py-2 bg-green-600 text-white rounded" onClick={()=>setEditingFacilityIndex(null)}>Done</button>
+                            <button className="px-4 py-2 bg-gray-600 text-white rounded" onClick={()=>setEditingFacilityIndex(null)}>Cancel</button>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="pt-4">
+                        <button
+                          onClick={async ()=>{
+                            const updated = { ...siteSettings, facilities } as any;
+                            const saved = await saveSiteSettings(updated);
+                            if (saved) setSiteSettings(saved);
+                          }}
+                          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >Save Facilities</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {activeTab === 'achievements' && (
                     <div className="space-y-8">
                         {/* Section Settings */}
@@ -2843,10 +3093,81 @@ export default function AdminPage() {
                     </section>
                 )}
                 {activeTab === 'iqac' && (
-                    <section className="p-4 max-w-2xl mx-auto">
-                        <h2 className="text-2xl font-bold mb-4">IQAC Management</h2>
-                        <p className="text-gray-600">IQAC content will be managed here.</p>
-                    </section>
+                  <section className="space-y-8">
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h2 className="text-xl font-semibold mb-4">IQAC Management</h2>
+                      {iqacLoading ? (
+                        <div className="text-gray-500">Loading...</div>
+                      ) : iqac ? (
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                              <input className="w-full p-2 border rounded" value={iqac.title || ''} onChange={e => setIqac((prev:any) => ({ ...prev, title: e.target.value }))} />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Subtitle</label>
+                              <input className="w-full p-2 border rounded" value={iqac.subtitle || ''} onChange={e => setIqac((prev:any) => ({ ...prev, subtitle: e.target.value }))} />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Hero Image</label>
+                            <ImageUpload value={iqac.heroImage || ''} onChange={(url) => setIqac((prev:any)=>({ ...prev, heroImage: url }))} label="Upload Hero Image" />
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Mission Title</label>
+                              <input className="w-full p-2 border rounded mb-2" value={iqac.mission?.title || ''} onChange={e => setIqac((prev:any)=>({ ...prev, mission: { ...(prev.mission||{}), title: e.target.value } }))} />
+                              <RichTextEditor value={iqac.mission?.content || ''} onChange={content => setIqac((prev:any)=>({ ...prev, mission: { ...(prev.mission||{}), content } }))} />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Vision Title</label>
+                              <input className="w-full p-2 border rounded mb-2" value={iqac.vision?.title || ''} onChange={e => setIqac((prev:any)=>({ ...prev, vision: { ...(prev.vision||{}), title: e.target.value } }))} />
+                              <RichTextEditor value={iqac.vision?.content || ''} onChange={content => setIqac((prev:any)=>({ ...prev, vision: { ...(prev.vision||{}), content } }))} />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Objectives (one per line)</label>
+                            <textarea className="w-full p-2 border rounded" rows={4} value={(iqac.objectives||[]).join('\n')} onChange={e => setIqac((prev:any)=>({ ...prev, objectives: e.target.value.split('\n').map((s)=>s.trim()).filter(Boolean) }))} />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Functions (one per line)</label>
+                            <textarea className="w-full p-2 border rounded" rows={4} value={(iqac.functions||[]).join('\n')} onChange={e => setIqac((prev:any)=>({ ...prev, functions: e.target.value.split('\n').map((s)=>s.trim()).filter(Boolean) }))} />
+                          </div>
+
+                          <div>
+                            <h3 className="font-semibold mb-2">Visibility</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {['overview','committee','activities','reports','practices'].map((key) => (
+                                <label key={key} className="flex items-center gap-2">
+                                  <input type="checkbox" checked={iqac.enabled ? iqac.enabled[key] !== false : true} onChange={(e) => setIqac((prev:any)=>({ ...prev, enabled: { ...(prev.enabled||{}), [key]: e.target.checked } }))} />
+                                  <span className="capitalize">Show {key}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="pt-2">
+                            <button
+                              onClick={async ()=>{
+                                setIqacSaving(true);
+                                await fetch('/api/iqac', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(iqac) });
+                                setIqacSaving(false);
+                              }}
+                              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                              disabled={iqacSaving}
+                            >{iqacSaving ? 'Saving...' : 'Save IQAC'}</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-gray-500">No IQAC data found.</div>
+                      )}
+                    </div>
+                  </section>
                 )}
                 {activeTab === 'alumni' && (
                     <section className="p-4 max-w-2xl mx-auto">
@@ -3114,6 +3435,79 @@ export default function AdminPage() {
                                   value={editingFacultyItem.content}
                                   onChange={content => setEditingFacultyItem({ ...editingFacultyItem, content })}
                                 />
+                                {/* Faculty images management */}
+                                <div className="space-y-2 mt-3">
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Images (with caption & subtitle)</label>
+                                  <MultiImageUpload
+                                    onUpload={(urls: string[]) => {
+                                      const toAdd = urls.map(url => ({ url, caption: '', subtitle: '' }));
+                                      setEditingFacultyItem((prev: any) => ({ ...(prev as any), images: [ ...((prev as any).images || []), ...toAdd ] }));
+                                    }}
+                                    label="Upload Multiple Images"
+                                  />
+                                  {(editingFacultyItem?.images || []).map((img: any, idx: number) => (
+                                    <div
+                                      key={idx}
+                                      className="flex items-center gap-2 mb-2 group"
+                                      draggable
+                                      onDragStart={() => { facultyEditImageDragIndexRef.current = idx; }}
+                                      onDragOver={(e) => e.preventDefault()}
+                                      onDrop={(e) => {
+                                        e.preventDefault();
+                                        const from = facultyEditImageDragIndexRef.current;
+                                        const to = idx;
+                                        if (from === null || from === to) return;
+                                        const reordered = [...(editingFacultyItem.images || [])];
+                                        const [moved] = reordered.splice(from, 1);
+                                        reordered.splice(to, 0, moved);
+                                        setEditingFacultyItem({ ...editingFacultyItem, images: reordered });
+                                        facultyEditImageDragIndexRef.current = null;
+                                      }}
+                                    >
+                                      <div className="w-20 h-20 rounded overflow-hidden border">
+                                        {img.url ? <img src={img.url} alt="" className="object-cover w-full h-full" /> : null}
+                                      </div>
+                                      <input
+                                        type="text"
+                                        placeholder="Image URL"
+                                        className="border p-2 rounded flex-1"
+                                        value={img.url || ''}
+                                        onChange={e => {
+                                          const updated = [...(editingFacultyItem.images || [])];
+                                          updated[idx].url = e.target.value;
+                                          setEditingFacultyItem({ ...editingFacultyItem, images: updated });
+                                        }}
+                                      />
+                                      <input
+                                        type="text"
+                                        placeholder="Caption"
+                                        className="border p-2 rounded"
+                                        value={img.caption || ''}
+                                        onChange={e => {
+                                          const updated = [...(editingFacultyItem.images || [])];
+                                          updated[idx].caption = e.target.value;
+                                          setEditingFacultyItem({ ...editingFacultyItem, images: updated });
+                                        }}
+                                      />
+                                      <input
+                                        type="text"
+                                        placeholder="Subtitle"
+                                        className="border p-2 rounded"
+                                        value={img.subtitle || ''}
+                                        onChange={e => {
+                                          const updated = [...(editingFacultyItem.images || [])];
+                                          updated[idx].subtitle = e.target.value;
+                                          setEditingFacultyItem({ ...editingFacultyItem, images: updated });
+                                        }}
+                                      />
+                                      <button
+                                        type="button"
+                                        className="bg-red-500 text-white rounded px-2 opacity-0 group-hover:opacity-100"
+                                        onClick={() => setEditingFacultyItem({ ...editingFacultyItem, images: (editingFacultyItem.images || []).filter((_: any, i: number) => i !== idx) })}
+                                      >Remove</button>
+                                    </div>
+                                  ))}
+                                </div>
                                 <div className="flex gap-3 items-center">
                                   <input
                                     type="number"
@@ -3132,12 +3526,21 @@ export default function AdminPage() {
                                 </div>
                                 <div className="flex gap-2">
                                   <button
-                                    onClick={() => {
-                                      setFaculty(prev => ({
-                                        ...prev,
-                                        items: prev.items.map((f: any) => f.id === editingFacultyItem.id ? editingFacultyItem : f)
-                                      }));
+                                    onClick={async () => {
+                                      const updatedFaculty = ((): any => {
+                                        const current = typeof faculty === 'object' ? faculty : { title: 'Faculty', items: [] };
+                                        return {
+                                          ...current,
+                                          items: (current.items || []).map((f: any) => f.id === editingFacultyItem.id ? editingFacultyItem : f)
+                                        };
+                                      })();
+                                      setFaculty(updatedFaculty);
                                       setEditingFacultyItem(null);
+                                      if (siteSettings) {
+                                        const updatedSettings: SiteSettings = { ...siteSettings, faculty: updatedFaculty } as SiteSettings;
+                                        const saved = await saveSiteSettings(updatedSettings);
+                                        if (saved) setFaculty(saved.faculty);
+                                      }
                                     }}
                                     className="px-4 py-2 bg-green-600 text-white rounded"
                                   >
@@ -3154,7 +3557,21 @@ export default function AdminPage() {
                                 </div>
                                 <div className="flex gap-2">
                                   <button onClick={() => setEditingFacultyItem(item)} className="px-3 py-1 bg-blue-500 text-white rounded text-sm">Edit</button>
-                                  <button onClick={() => setFaculty(prev => ({ ...prev, items: prev.items.filter((f: any) => f.id !== item.id) }))} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Delete</button>
+                                  <button
+                                    onClick={async () => {
+                                      const updatedFaculty = ((): any => ({
+                                        ...faculty,
+                                        items: (faculty.items || []).filter((f: any) => f.id !== item.id)
+                                      }))();
+                                      setFaculty(updatedFaculty);
+                                      if (siteSettings) {
+                                        const updatedSettings: SiteSettings = { ...siteSettings, faculty: updatedFaculty } as SiteSettings;
+                                        const saved = await saveSiteSettings(updatedSettings);
+                                        if (saved) setFaculty(saved.faculty);
+                                      }
+                                    }}
+                                    className="px-3 py-1 bg-red-500 text-white rounded text-sm"
+                                  >Delete</button>
                                 </div>
                               </div>
                             )}
@@ -3184,6 +3601,58 @@ export default function AdminPage() {
                           value={newFacultyItem.content}
                           onChange={content => setNewFacultyItem({ ...newFacultyItem, content })}
                         />
+                        {/* New Faculty images management */}
+                        <div className="space-y-2 mt-3">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Images (with caption & subtitle)</label>
+                          <MultiImageUpload
+                            onUpload={(urls: string[]) => {
+                              const toAdd = urls.map(url => ({ url, caption: '', subtitle: '' }));
+                              setNewFacultyItem(prev => ({ ...(prev as any), images: [ ...((prev as any).images || []), ...toAdd ] }));
+                            }}
+                            label="Upload Multiple Images"
+                          />
+                          {((newFacultyItem as any).images || []).map((img: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 mb-2 group"
+                              draggable
+                              onDragStart={() => { facultyNewImageDragIndexRef.current = idx; }}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                const from = facultyNewImageDragIndexRef.current;
+                                const to = idx;
+                                if (from === null || from === to) return;
+                                const current = (((newFacultyItem as any).images) || []);
+                                const reordered = [...current];
+                                const [moved] = reordered.splice(from, 1);
+                                reordered.splice(to, 0, moved);
+                                setNewFacultyItem(prev => ({ ...(prev as any), images: reordered }));
+                                facultyNewImageDragIndexRef.current = null;
+                              }}
+                            >
+                              <div className="w-20 h-20 rounded overflow-hidden border">
+                                {img.url ? <img src={img.url} alt="" className="object-cover w-full h-full" /> : null}
+                              </div>
+                              <input type="text" placeholder="Image URL" className="border p-2 rounded flex-1" value={img.url || ''} onChange={e => {
+                                const updated = [ ...(((newFacultyItem as any).images) || []) ];
+                                updated[idx].url = e.target.value;
+                                setNewFacultyItem(prev => ({ ...(prev as any), images: updated }));
+                              }} />
+                              <input type="text" placeholder="Caption" className="border p-2 rounded" value={img.caption || ''} onChange={e => {
+                                const updated = [ ...(((newFacultyItem as any).images) || []) ];
+                                updated[idx].caption = e.target.value;
+                                setNewFacultyItem(prev => ({ ...(prev as any), images: updated }));
+                              }} />
+                              <input type="text" placeholder="Subtitle" className="border p-2 rounded" value={img.subtitle || ''} onChange={e => {
+                                const updated = [ ...(((newFacultyItem as any).images) || []) ];
+                                updated[idx].subtitle = e.target.value;
+                                setNewFacultyItem(prev => ({ ...(prev as any), images: updated }));
+                              }} />
+                              <button type="button" className="bg-red-500 text-white rounded px-2 opacity-0 group-hover:opacity-100" onClick={() => setNewFacultyItem(prev => ({ ...(prev as any), images: (((prev as any).images) || []).filter((_: any, i: number) => i !== idx) }))}>Remove</button>
+                            </div>
+                          ))}
+                        </div>
                         <div className="flex gap-3 items-center">
                           <input
                             type="number"
@@ -3201,13 +3670,20 @@ export default function AdminPage() {
                           </label>
                         </div>
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             const id = `${Date.now()}`;
-                            setFaculty(prev => ({
-                              ...prev,
-                              items: [...prev.items, { id, ...newFacultyItem }]
-                            }));
+                            const newItem = { id, designation: (newFacultyItem as any).designation || '', ...newFacultyItem } as any;
+                            const updatedFaculty = ((): any => ({
+                              ...faculty,
+                              items: [...(faculty.items || []), newItem]
+                            }))();
+                            setFaculty(updatedFaculty);
                             setNewFacultyItem({ title: '', slug: '', content: '', order: 1, published: true });
+                            if (siteSettings) {
+                              const updatedSettings: SiteSettings = { ...siteSettings, faculty: updatedFaculty } as SiteSettings;
+                              const saved = await saveSiteSettings(updatedSettings);
+                              if (saved) setFaculty(saved.faculty);
+                            }
                           }}
                           className="px-4 py-2 bg-blue-600 text-white rounded"
                         >

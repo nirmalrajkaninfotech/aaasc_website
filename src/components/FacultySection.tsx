@@ -14,8 +14,8 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
 		[faculty.items]
 	);
 
-	const [activeSlug, setActiveSlug] = useState<string>(items[0]?.slug ?? '');
-	const activeItem = useMemo(() => items.find(i => i.slug === activeSlug), [items, activeSlug]);
+	const [activeId, setActiveId] = useState<string>(items[0]?.id ?? '');
+	const activeItem = useMemo(() => items.find(i => i.id === activeId), [items, activeId]);
 
 	if (items.length === 0) return null;
 
@@ -28,15 +28,16 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
 				</div>
 
 				{/* Department chips */}
-				<div className="flex flex-wrap justify-center gap-4 mb-10">
+				<div className="relative z-10 flex flex-wrap justify-center gap-4 mb-10 pointer-events-auto">
 					{items.map(item => (
 						<button
+							type="button"
 							key={item.id}
-							onClick={() => setActiveSlug(item.slug)}
-							className={`px-6 py-2 rounded-full transition-colors duration-200 ${
-								activeSlug === item.slug
-									? 'bg-blue-600 text-white shadow'
-									: 'bg-white text-blue-700 border border-blue-600 hover:bg-blue-50'
+							onClick={() => setActiveId(item.id)}
+							className={`px-6 py-2 rounded-full transition-all duration-200 ${
+								activeId === item.id
+									? 'bg-blue-600 text-white shadow-lg'
+									: 'bg-white text-blue-700 border border-blue-600 hover:bg-blue-50 shadow-sm hover:shadow-md'
 							}`}
 						>
 							{item.title}
@@ -45,22 +46,29 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
 				</div>
 
 
-				{/* Cards grid like Facilities */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-					{items.map(item => (
-						<div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-							{item.image && (
-								<div className="relative h-48">
-									<Image src={item.image} alt={item.title} fill className="object-cover" />
-								</div>
-							)}
-							<div className="p-6">
-								<h3 className="text-xl font-bold text-gray-800 mb-3">{item.title}</h3>
-								<div className="text-sm text-gray-600 line-clamp-3" dangerouslySetInnerHTML={{ __html: item.content }} />
-							</div>
+				{/* Detail view for selected item */}
+				{activeItem && (
+					<div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row items-stretch">
+						{/* Subtitle on the left */}
+						<div className="md:w-1/3 flex flex-col justify-center p-6 border-b md:border-b-0 md:border-r border-gray-100">
+							{activeItem.subtitle && <div className="text-lg font-semibold text-blue-700 mb-2">{activeItem.subtitle}</div>}
+							<h3 className="text-xl font-bold text-gray-800 mb-3">{activeItem.title}</h3>
+							<div className="text-sm text-gray-600" dangerouslySetInnerHTML={{ __html: activeItem.content }} />
 						</div>
-					))}
-				</div>
+						{/* Images with captions on the right */}
+						<div className="md:w-2/3 flex flex-wrap gap-4 p-6 items-center justify-center">
+							{(activeItem.images && activeItem.images.length > 0 ? activeItem.images : activeItem.image ? [{ url: activeItem.image }] : []).map((img, idx) => (
+								<div key={idx} className="flex flex-col items-center">
+									<div className="relative w-32 h-32 mb-2 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
+										<Image src={img.url} alt={activeItem.title} fill className="object-contain rounded" />
+									</div>
+									{img.caption && <div className="text-xs text-gray-700 font-medium text-center">{img.caption}</div>}
+									{img.subtitle && <div className="text-xs text-gray-500 text-center">{img.subtitle}</div>}
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 		</section>
 	);

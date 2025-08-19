@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+
 import { Collage, SiteSettings } from '@/types';
 
 async function getSiteSettings(): Promise<SiteSettings> {
@@ -57,7 +56,7 @@ export default async function CollagePage({ params }: { params: { id: string } }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header siteSettings={siteSettings} />
+   
       
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-6">
@@ -120,19 +119,15 @@ export default async function CollagePage({ params }: { params: { id: string } }
           {/* Images Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {collage.images.map((image, index) => (
-              <div key={index} className="aspect-square relative bg-gray-200 rounded-lg overflow-hidden group">
+              <div key={index} className="relative bg-gray-200 rounded-lg overflow-hidden group">
                 <Image
                   src={image}
                   alt={`${collage.title} - Image ${index + 1}`}
-                  fill
+                  width={400}
+                  height={400}
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                  <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium">
-                    Image {index + 1}
-                  </span>
-                </div>
               </div>
             ))}
           </div>
@@ -145,7 +140,7 @@ export default async function CollagePage({ params }: { params: { id: string } }
         </div>
       </main>
 
-      <Footer siteSettings={siteSettings} />
+     
     </div>
   );
 }

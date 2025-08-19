@@ -95,6 +95,7 @@ export interface Facility {
   name: string;
   description: string;
   image?: string;
+  gallery?: string[];
   category: string;
   features: string[];
   published: boolean;
@@ -255,6 +256,12 @@ export interface OthersSection {
   academicCoordinator: OthersSubSection;
 }
 
+export interface FacultyImage {
+  url: string;
+  caption?: string;
+  subtitle?: string;
+}
+
 export interface FacultyItem {
   id: string;          // unique id
   slug: string;        // URL slug
@@ -265,6 +272,7 @@ export interface FacultyItem {
   phone?: string;      // contact phone
   content: string;     // HTML content (bio/description)
   image?: string;      // profile image
+  images?: FacultyImage[]; // <-- new field for multi-image support
   socialLinks?: {
     linkedin?: string;
     twitter?: string;

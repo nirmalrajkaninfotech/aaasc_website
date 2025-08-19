@@ -19,7 +19,7 @@ export default function CollageCard({ collage }: CollageCardProps) {
 
   return (
     <Link href={`/collage/${collage.id}`}>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:border-blue-400 border border-transparent transition-all duration-300 cursor-pointer flex flex-col h-full min-h-[370px]">
         <div className="aspect-video relative bg-gray-200">
           {collage.images.length > 0 ? (
             <Image
@@ -43,7 +43,7 @@ export default function CollageCard({ collage }: CollageCardProps) {
             {collage.category}
           </div>
         </div>
-        <div className="p-4">
+        <div className="p-4 flex flex-col flex-1">
           <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
             {collage.title}
           </h3>
@@ -52,7 +52,7 @@ export default function CollageCard({ collage }: CollageCardProps) {
               {collage.description}
             </p>
           )}
-          <div className="flex justify-between items-center text-sm text-gray-500">
+          <div className="flex justify-between items-center text-sm text-gray-500 mt-auto">
             <span>{collage.images.length} image{collage.images.length !== 1 ? 's' : ''}</span>
             <span>{formatDate(collage.date)}</span>
           </div>

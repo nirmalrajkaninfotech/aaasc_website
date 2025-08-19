@@ -23,6 +23,8 @@ export default function GalleryAdmin() {
     date: new Date().toISOString().split('T')[0]
   });
 
+  const [deleteImageLoading, setDeleteImageLoading] = useState(false);
+
   useEffect(() => {
     fetchCollages();
   }, []);
@@ -166,13 +168,30 @@ export default function GalleryAdmin() {
     setPreviewImage(null);
   };
 
-  const removeImage = (index: number) => {
+  const removeImage = async (index: number) => {
+    if (!editingCollage) return;
+    setDeleteImageLoading(true);
     const newImages = [...(formData.images || [])];
     newImages.splice(index, 1);
-    setFormData(prev => ({
-      ...prev,
+    const updatedFormData = {
+      ...formData,
       images: newImages
-    }));
+    };
+    setFormData(updatedFormData);
+    try {
+      const res = await fetch(`/api/collages/${editingCollage.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedFormData),
+      });
+      if (!res.ok) throw new Error('Failed to update collage');
+      // Optionally update collages list or editingCollage state here
+      alert('Image deleted and collage updated successfully.');
+    } catch (error) {
+      alert('Failed to update collage after deleting image.');
+    } finally {
+      setDeleteImageLoading(false);
+    }
   };
 
   if (loading) {
@@ -289,7 +308,8 @@ export default function GalleryAdmin() {
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 transition-opacity"
+                      disabled={deleteImageLoading}
                     >
                       <FaTimes size={12} />
                     </button>
