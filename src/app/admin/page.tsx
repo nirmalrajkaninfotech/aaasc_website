@@ -12,6 +12,60 @@ import ImageUpload from '@/components/ImageUpload';
 import SortableSection from '@/components/SortableSection';
 import MultiImageUpload from '@/components/MultiImageUpload';
 import { Collage, SiteSettings, RichTextContent, HomepageSection, CarouselItem, AlumniAssociation, ExamCellSection } from '@/types';
+import {
+  FaAlignLeft,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaClock,
+  FaEnvelope,
+  FaGlobe,
+  FaCog,
+  FaHashtag,
+  FaLink,
+  FaPlus,
+  FaInfoCircle,
+  FaMapMarkedAlt,
+  FaBriefcase,
+  FaTag,
+  FaTimes,
+  FaGripVertical,
+  FaImages,
+  FaQuoteLeft,
+  FaGraduationCap,
+  FaTrophy,
+  FaMedal,
+  FaStar,
+  FaEdit,
+  FaCircle,
+  FaImage,
+  FaToggleOn
+} from 'react-icons/fa';
+import { AnimatePresence, motion } from 'framer-motion';
+import {    
+    FaShieldAlt, 
+    FaHeading, 
+    FaEye, 
+    FaUsers, 
+    FaTrash, 
+    FaBullseye, 
+    FaCogs, 
+    FaTasks, 
+    FaSave 
+} from 'react-icons/fa';
+
+import { 
+    FaHome, 
+    FaCheck, 
+    FaEyeSlash, 
+    FaLightbulb 
+} from 'react-icons/fa';
+import { FaChartBar, FaUserTie, FaCloudUploadAlt, FaExternalLinkAlt } from 'react-icons/fa';
+
+import { 
+  
+    FaIdCard,  
+    FaFileAlt, 
+} from 'react-icons/fa';
 
 // Placement state type
 interface AdminPlacement {
@@ -290,6 +344,20 @@ export default function AdminPage() {
     const [editingFacilityIndex, setEditingFacilityIndex] = useState<number | null>(null);
     const [newFacility, setNewFacility] = useState({ id: '', name: '', description: '', image: '', category: '', features: '', published: true, order: 1 });
     const [newFacilityImages, setNewFacilityImages] = useState<string[]>([]);
+    const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error' | '', message: string }>({ type: '', message: '' });
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Handle escape key for modal
+    useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && editingFacilityIndex !== null) {
+                setEditingFacilityIndex(null);
+            }
+        };
+
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [editingFacilityIndex]);
 
     useEffect(() => {
       if (siteSettings) {
@@ -1206,211 +1274,7 @@ export default function AdminPage() {
                         </div>
                     </div>
                 )}
-
-                {/* Create New Collage
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Create New Collage</h2>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Title
-                            </label>
-                            <input
-                                type="text"
-                                value={newCollage.title}
-                                onChange={(e) => setNewCollage({ ...newCollage, title: e.target.value })}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                                placeholder="Enter collage title"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Description
-                            </label>
-                            <textarea
-                                value={newCollage.description}
-                                onChange={(e) => setNewCollage({ ...newCollage, description: e.target.value })}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                                placeholder="Enter collage description"
-                                rows={3}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Category
-                                </label>
-                                <input
-                                    type="text"
-                                    value={newCollage.category}
-                                    onChange={(e) => setNewCollage({ ...newCollage, category: e.target.value })}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    placeholder="e.g., Campus Life, Academics, Sports"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Tags (comma-separated)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={newCollage.tags}
-                                    onChange={(e) => setNewCollage({ ...newCollage, tags: e.target.value })}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    placeholder="e.g., campus, students, activities"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                id="featured"
-                                checked={newCollage.featured}
-                                onChange={(e) => setNewCollage({ ...newCollage, featured: e.target.checked })}
-                                className="mr-2"
-                            />
-                            <label htmlFor="featured" className="text-sm font-medium text-gray-700">
-                                Mark as Featured
-                            </label>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Image URLs
-                            </label>
-                            {newCollage.images.map((image, index) => (
-                                <div key={index} className="flex gap-2 mb-2">
-                                    <input
-                                        type="text"
-                                        value={image}
-                                        onChange={(e) => {
-                                            const newImages = [...newCollage.images];
-                                            newImages[index] = e.target.value;
-                                            setNewCollage({ ...newCollage, images: newImages });
-                                        }}
-                                        className="flex-1 p-2 border border-gray-300 rounded-md"
-                                        placeholder="Enter image URL"
-                                    />
-                                    <button
-                                        onClick={() => {
-                                            const newImages = newCollage.images.filter((_, i) => i !== index);
-                                            setNewCollage({ ...newCollage, images: newImages });
-                                        }}
-                                        className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            ))}
-                            <button
-                                onClick={() => setNewCollage({ ...newCollage, images: [...newCollage.images, ''] })}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                            >
-                                Add Image
-                            </button>
-                        </div>
-                        <button
-                            onClick={handleCreateCollage}
-                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                        >
-                            Create Collage
-                        </button>
-                    </div>
-                </div>*/}
-
-                {/* Existing Collages 
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Existing Collages</h2>
-                    {collages.length === 0 ? (
-                        <p className="text-gray-500">No collages yet.</p>
-                    ) : (
-                        <div className="space-y-4">
-                            {collages.map((collage) => (
-                                <div key={collage.id} className="border border-gray-200 p-4 rounded-md">
-                                    {editingCollage?.id === collage.id ? (
-                                        <div className="space-y-4">
-                                            <input
-                                                type="text"
-                                                value={editingCollage.title}
-                                                onChange={(e) => setEditingCollage({ ...editingCollage, title: e.target.value })}
-                                                className="w-full p-2 border border-gray-300 rounded-md"
-                                            />
-                                            {editingCollage.images.map((image, index) => (
-                                                <div key={index} className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        value={image}
-                                                        onChange={(e) => {
-                                                            const newImages = [...editingCollage.images];
-                                                            newImages[index] = e.target.value;
-                                                            setEditingCollage({ ...editingCollage, images: newImages });
-                                                        }}
-                                                        className="flex-1 p-2 border border-gray-300 rounded-md"
-                                                    />
-                                                    <button
-                                                        onClick={() => {
-                                                            const newImages = editingCollage.images.filter((_, i) => i !== index);
-                                                            setEditingCollage({ ...editingCollage, images: newImages });
-                                                        }}
-                                                        className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                                    >
-                                                        Remove
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => setEditingCollage({ ...editingCollage, images: [...editingCollage.images, ''] })}
-                                                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                                                >
-                                                    Add Image
-                                                </button>
-                                                <button
-                                                    onClick={handleUpdateCollage}
-                                                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                                                >
-                                                    Save
-                                                </button>
-                                                <button
-                                                    onClick={() => setEditingCollage(null)}
-                                                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h3 className="font-semibold">{collage.title}</h3>
-                                                <p className="text-sm text-gray-600">{collage.images.length} images</p>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => setEditingCollage(collage)}
-                                                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteCollage(collage.id)}
-                                                    className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                */}
-                {/* About Tab */}
+          {/* About Tab */}
                 {activeTab === 'about' && (
                     <div className="space-y-8">
                         {/* About Basics */}
@@ -2067,43 +1931,118 @@ export default function AdminPage() {
                     </div>
                 )}
 
-                {/* Site Settings Tab */}
-                {activeTab === 'site' && (
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h2 className="text-xl font-semibold mb-4">Site Settings</h2>
-                        <div className="space-y-6">
-                            {/* Basic Settings */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Site Title
-                                </label>
-                                <input
-                                    type="text"
-                                    value={siteSettings.siteTitle}
-                                    onChange={(e) => setSiteSettings({ ...siteSettings, siteTitle: e.target.value })}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                />
-                            </div>
+        {/* Site Settings Tab */}
+{activeTab === 'site' && (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+    >
+        {/* Header */}
+        <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
+            <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl text-white">
+                    <FaCog className="text-2xl" />
+                </div>
+                <div>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                        Site Settings
+                    </h2>
+                    <p className="text-gray-600 text-lg">Configure your website's basic information and appearance</p>
+                </div>
+            </div>
+        </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Logo URL
-                                </label>
-                                <input
-                                    type="text"
-                                    value={siteSettings.logo}
-                                    onChange={(e) => setSiteSettings({ ...siteSettings, logo: e.target.value })}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                />
-                            </div>
+        <div className="p-8 space-y-8">
+            {/* Basic Settings Section */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="space-y-6"
+            >
+                <div className="flex items-center gap-3 mb-6">
+                    <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Basic Information</h3>
+                </div>
 
-                            {/* Navigation Links */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Navigation Links
-                                </label>
-                                {siteSettings.navLinks.map((link, index) => (
-                                    <div key={index} className="flex gap-2 mb-2">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaGlobe className="text-blue-500" />
+                            Site Title
+                        </label>
+                        <input
+                            type="text"
+                            value={siteSettings.siteTitle}
+                            onChange={(e) => setSiteSettings({ ...siteSettings, siteTitle: e.target.value })}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Enter your site title"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaImage className="text-purple-500" />
+                            Logo URL
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={siteSettings.logo}
+                                onChange={(e) => setSiteSettings({ ...siteSettings, logo: e.target.value })}
+                                className="w-full p-4 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                placeholder="Enter logo URL"
+                            />
+                            {siteSettings.logo && (
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                    <img src={siteSettings.logo} alt="Logo preview" className="w-8 h-8 object-cover rounded" />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Navigation Links Section */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-6"
+            >
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <span className="w-2 h-8 bg-gradient-to-b from-green-500 to-blue-500 rounded-full"></span>
+                        <h3 className="text-xl font-bold text-gray-800">Navigation Links</h3>
+                    </div>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                            const newNavLinks = [...siteSettings.navLinks, { label: '', href: '' }];
+                            setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+                        }}
+                        className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 flex items-center gap-2"
+                    >
+                        <FaPlus />
+                        Add Nav Link
+                    </motion.button>
+                </div>
+
+                <div className="space-y-4">
+                    <AnimatePresence>
+                        {siteSettings.navLinks.map((link, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="bg-gray-50 rounded-xl p-4 border border-gray-200"
+                            >
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-600">Label</label>
                                         <input
                                             type="text"
                                             value={link.label}
@@ -2112,65 +2051,124 @@ export default function AdminPage() {
                                                 newNavLinks[index] = { ...link, label: e.target.value };
                                                 setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
                                             }}
-                                            className="flex-1 p-2 border border-gray-300 rounded-md"
-                                            placeholder="Label"
+                                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                            placeholder="Enter link label"
                                         />
-                                        <input
-                                            type="text"
-                                            value={link.href}
-                                            onChange={(e) => {
-                                                const newNavLinks = [...siteSettings.navLinks];
-                                                newNavLinks[index] = { ...link, href: e.target.value };
-                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                            }}
-                                            className="flex-1 p-2 border border-gray-300 rounded-md"
-                                            placeholder="URL"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                const newNavLinks = siteSettings.navLinks.filter((_, i) => i !== index);
-                                                setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                            }}
-                                            className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                        >
-                                            Remove
-                                        </button>
                                     </div>
-                                ))}
-                                <button
-                                    onClick={() => {
-                                        const newNavLinks = [...siteSettings.navLinks, { label: '', href: '' }];
-                                        setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
-                                    }}
-                                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                                >
-                                    Add Nav Link
-                                </button>
-                            </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-600">URL</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={link.href}
+                                                onChange={(e) => {
+                                                    const newNavLinks = [...siteSettings.navLinks];
+                                                    newNavLinks[index] = { ...link, href: e.target.value };
+                                                    setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+                                                }}
+                                                className="flex-1 p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                placeholder="Enter URL"
+                                            />
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => {
+                                                    const newNavLinks = siteSettings.navLinks.filter((_, i) => i !== index);
+                                                    setSiteSettings({ ...siteSettings, navLinks: newNavLinks });
+                                                }}
+                                                className="p-3 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors duration-200"
+                                            >
+                                                <FaTrash />
+                                            </motion.button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                    {siteSettings.navLinks.length === 0 && (
+                        <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                            No navigation links added yet. Click "Add Nav Link" to get started.
+                        </div>
+                    )}
+                </div>
+            </motion.div>
 
-                            {/* Footer Settings */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Footer Text
-                                </label>
-                                <input
-                                    type="text"
-                                    value={siteSettings.footer.text}
-                                    onChange={(e) => setSiteSettings({
-                                        ...siteSettings,
-                                        footer: { ...siteSettings.footer, text: e.target.value }
-                                    })}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                />
-                            </div>
+            {/* Footer Settings Section */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-6"
+            >
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Footer Settings</h3>
+                </div>
 
-                            {/* Social Links */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Social Links
-                                </label>
-                                {siteSettings.footer.socialLinks.map((link, index) => (
-                                    <div key={index} className="flex gap-2 mb-2">
+                <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <FaAlignLeft className="text-orange-500" />
+                        Footer Text
+                    </label>
+                    <textarea
+                        value={siteSettings.footer.text}
+                        onChange={(e) => setSiteSettings({
+                            ...siteSettings,
+                            footer: { ...siteSettings.footer, text: e.target.value }
+                        })}
+                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        rows={3}
+                        placeholder="Enter footer text (copyright, description, etc.)"
+                    />
+                </div>
+            </motion.div>
+
+            {/* Social Links Section */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="space-y-6"
+            >
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <span className="w-2 h-8 bg-gradient-to-b from-pink-500 to-rose-500 rounded-full"></span>
+                        <h3 className="text-xl font-bold text-gray-800">Social Links</h3>
+                    </div>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                            const newSocialLinks = [...siteSettings.footer.socialLinks, { label: '', href: '' }];
+                            setSiteSettings({
+                                ...siteSettings,
+                                footer: { ...siteSettings.footer, socialLinks: newSocialLinks }
+                            });
+                        }}
+                        className="px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 flex items-center gap-2"
+                    >
+                        <FaPlus />
+                        Add Social Link
+                    </motion.button>
+                </div>
+
+                <div className="space-y-4">
+                    <AnimatePresence>
+                        {siteSettings.footer.socialLinks.map((link, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-4 border border-pink-200"
+                            >
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                                            <FaHashtag className="text-pink-500" />
+                                            Platform
+                                        </label>
                                         <input
                                             type="text"
                                             value={link.label}
@@ -2182,418 +2180,924 @@ export default function AdminPage() {
                                                     footer: { ...siteSettings.footer, socialLinks: newSocialLinks }
                                                 });
                                             }}
-                                            className="flex-1 p-2 border border-gray-300 rounded-md"
-                                            placeholder="Platform"
+                                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+                                            placeholder="e.g., Facebook, Twitter, Instagram"
                                         />
-                                        <input
-                                            type="text"
-                                            value={link.href}
-                                            onChange={(e) => {
-                                                const newSocialLinks = [...siteSettings.footer.socialLinks];
-                                                newSocialLinks[index] = { ...link, href: e.target.value };
-                                                setSiteSettings({
-                                                    ...siteSettings,
-                                                    footer: { ...siteSettings.footer, socialLinks: newSocialLinks }
-                                                });
-                                            }}
-                                            className="flex-1 p-2 border border-gray-300 rounded-md"
-                                            placeholder="URL"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                const newSocialLinks = siteSettings.footer.socialLinks.filter((_, i) => i !== index);
-                                                setSiteSettings({
-                                                    ...siteSettings,
-                                                    footer: { ...siteSettings.footer, socialLinks: newSocialLinks }
-                                                });
-                                            }}
-                                            className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                        >
-                                            Remove
-                                        </button>
                                     </div>
-                                ))}
-                                <button
-                                    onClick={() => {
-                                        const newSocialLinks = [...siteSettings.footer.socialLinks, { label: '', href: '' }];
-                                        setSiteSettings({
-                                            ...siteSettings,
-                                            footer: { ...siteSettings.footer, socialLinks: newSocialLinks }
-                                        });
-                                    }}
-                                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                                >
-                                    Add Social Link
-                                </button>
-                            </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                                            <FaLink className="text-rose-500" />
+                                            URL
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={link.href}
+                                                onChange={(e) => {
+                                                    const newSocialLinks = [...siteSettings.footer.socialLinks];
+                                                    newSocialLinks[index] = { ...link, href: e.target.value };
+                                                    setSiteSettings({
+                                                        ...siteSettings,
+                                                        footer: { ...siteSettings.footer, socialLinks: newSocialLinks }
+                                                    });
+                                                }}
+                                                className="flex-1 p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+                                                placeholder="https://..."
+                                            />
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => {
+                                                    const newSocialLinks = siteSettings.footer.socialLinks.filter((_, i) => i !== index);
+                                                    setSiteSettings({
+                                                        ...siteSettings,
+                                                        footer: { ...siteSettings.footer, socialLinks: newSocialLinks }
+                                                    });
+                                                }}
+                                                className="p-3 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors duration-200"
+                                            >
+                                                <FaTrash />
+                                            </motion.button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                    {siteSettings.footer.socialLinks.length === 0 && (
+                        <div className="text-center py-8 text-gray-500 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-dashed border-pink-300">
+                            No social links added yet. Click "Add Social Link" to connect your social media.
+                        </div>
+                    )}
+                </div>
+            </motion.div>
 
-                            <button
-                                onClick={handleSaveSiteSettings}
-                                disabled={saving}
-                                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                            >
-                                {saving ? 'Saving...' : 'Save Site Settings'}
-                            </button>
+            {/* Save Button */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="flex justify-center pt-8 border-t border-gray-200"
+            >
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSaveSiteSettings}
+                    disabled={saving}
+                    className={`px-12 py-4 rounded-2xl shadow-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
+                        saving 
+                            ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                            : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl'
+                    }`}
+                >
+                    {saving ? (
+                        <>
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full"
+                            />
+                            Saving Settings...
+                        </>
+                    ) : (
+                        <>
+                            <FaSave />
+                            Save Site Settings
+                        </>
+                    )}
+                </motion.button>
+            </motion.div>
+        </div>
+    </motion.div>
+)}
+
+
+{/* Contact Info Tab */}
+{activeTab === 'contact' && (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+    >
+        {/* Header */}
+        <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+            <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl text-white">
+                    <FaPhone className="text-2xl" />
+                </div>
+                <div>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                        Contact Information
+                    </h2>
+                    <p className="text-gray-600 text-lg">Update contact details and location information for your site</p>
+                </div>
+            </div>
+        </div>
+
+        <div className="p-8 space-y-8">
+            {/* Address Section */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="space-y-4"
+            >
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="w-2 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Location Details</h3>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <FaMapMarkerAlt className="text-emerald-500" />
+                        Business Address
+                    </label>
+                    <div className="relative">
+                        <textarea
+                            value={siteSettings.contact.address}
+                            onChange={(e) =>
+                                setSiteSettings({
+                                    ...siteSettings,
+                                    contact: { ...siteSettings.contact, address: e.target.value },
+                                })
+                            }
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 resize-none"
+                            rows={3}
+                            placeholder="Enter your complete business address..."
+                        />
+                        <div className="absolute top-3 right-3">
+                            <FaMapMarkerAlt className="text-gray-300" />
                         </div>
                     </div>
-                )}
+                </div>
+            </motion.div>
 
-                {/* Contact Info Tab */}
-                {activeTab === 'contact' && (
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h2 className="text-xl font-semibold mb-4">Contact Info</h2>
-                        <p className="text-gray-600 mb-6">Update contact details for your site.</p>
+            {/* Contact Methods Section */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-6"
+            >
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Contact Methods</h3>
+                </div>
 
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaPhone className="text-blue-500" />
+                            Phone Number
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={siteSettings.contact.phone}
+                                onChange={(e) =>
+                                    setSiteSettings({
+                                        ...siteSettings,
+                                        contact: { ...siteSettings.contact, phone: e.target.value },
+                                    })
+                                }
+                                className="w-full p-4 pl-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                placeholder="Enter phone number"
+                            />
+                            <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                                <FaPhone className="text-gray-400" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaEnvelope className="text-cyan-500" />
+                            Email Address
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="email"
+                                value={siteSettings.contact.email}
+                                onChange={(e) =>
+                                    setSiteSettings({
+                                        ...siteSettings,
+                                        contact: { ...siteSettings.contact, email: e.target.value },
+                                    })
+                                }
+                                className="w-full p-4 pl-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
+                                placeholder="Enter email address"
+                            />
+                            <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                                <FaEnvelope className="text-gray-400" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Business Hours Section */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-4"
+            >
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="w-2 h-8 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Business Hours</h3>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <FaClock className="text-orange-500" />
+                        Office Hours
+                    </label>
+                    <div className="relative">
+                        <textarea
+                            value={siteSettings.contact.officeHours}
+                            onChange={(e) =>
+                                setSiteSettings({
+                                    ...siteSettings,
+                                    contact: { ...siteSettings.contact, officeHours: e.target.value },
+                                })
+                            }
+                            className="w-full p-4 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 resize-none"
+                            rows={3}
+                            placeholder="e.g., Monday - Friday: 9:00 AM - 5:00 PM&#10;Saturday: 10:00 AM - 2:00 PM&#10;Sunday: Closed"
+                        />
+                        <div className="absolute top-3 right-3">
+                            <FaClock className="text-gray-300" />
+                        </div>
+                    </div>
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <FaInfoCircle className="text-blue-400" />
+                        Include all relevant operating hours and special schedules
+                    </p>
+                </div>
+            </motion.div>
+
+            {/* Map Integration Section */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="space-y-4"
+            >
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="w-2 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Map Integration</h3>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <FaMapMarkedAlt className="text-purple-500" />
+                        Google Maps Embed URL
+                    </label>
+                    <div className="relative">
+                        <input
+                            type="text"
+                            value={siteSettings.contact.googleMapsUrl || ''}
+                            onChange={(e) =>
+                                setSiteSettings({
+                                    ...siteSettings,
+                                    contact: { ...siteSettings.contact, googleMapsUrl: e.target.value },
+                                })
+                            }
+                            className="w-full p-4 pl-12 pr-16 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                            placeholder="https://maps.google.com/embed?..."
+                        />
+                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                            <FaMapMarkedAlt className="text-gray-400" />
+                        </div>
+                        {siteSettings.contact.googleMapsUrl && (
+                            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mt-3">
+                        <p className="text-sm text-purple-700 flex items-start gap-2">
+                            <FaInfoCircle className="text-purple-500 mt-0.5 flex-shrink-0" />
+                            <span>
+                                To get the embed URL: Go to Google Maps → Search your location → Click "Share" → 
+                                Choose "Embed a map" → Copy the URL from the iframe src attribute
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Preview Section */}
+            {(siteSettings.contact.address || siteSettings.contact.phone || siteSettings.contact.email) && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-6 border border-gray-200"
+                >
+                    <div className="flex items-center gap-3 mb-4">
+                        <span className="w-2 h-6 bg-gradient-to-b from-gray-500 to-blue-500 rounded-full"></span>
+                        <h4 className="text-lg font-bold text-gray-800">Contact Information Preview</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {siteSettings.contact.address && (
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <div className="flex items-center gap-2 text-emerald-600 font-medium mb-2">
+                                    <FaMapMarkerAlt />
                                     Address
-                                </label>
-                                <textarea
-                                    value={siteSettings.contact.address}
-                                    onChange={(e) =>
-                                        setSiteSettings({
-                                            ...siteSettings,
-                                            contact: { ...siteSettings.contact, address: e.target.value },
-                                        })
-                                    }
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    rows={3}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Phone Number
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={siteSettings.contact.phone}
-                                        onChange={(e) =>
-                                            setSiteSettings({
-                                                ...siteSettings,
-                                                contact: { ...siteSettings.contact, phone: e.target.value },
-                                            })
-                                        }
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Email Address
-                                    </label>
-                                    <input
-                                        type="email"
-                                        value={siteSettings.contact.email}
-                                        onChange={(e) =>
-                                            setSiteSettings({
-                                                ...siteSettings,
-                                                contact: { ...siteSettings.contact, email: e.target.value },
-                                            })
-                                        }
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                    />
+                                <p className="text-gray-700 text-sm whitespace-pre-line">
+                                    {siteSettings.contact.address}
+                                </p>
+                            </div>
+                        )}
+                        
+                        {siteSettings.contact.phone && (
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <div className="flex items-center gap-2 text-blue-600 font-medium mb-2">
+                                    <FaPhone />
+                                    Phone
                                 </div>
+                                <p className="text-gray-700 text-sm">
+                                    {siteSettings.contact.phone}
+                                </p>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Office Hours
-                                </label>
-                                <textarea
-                                    value={siteSettings.contact.officeHours}
-                                    onChange={(e) =>
-                                        setSiteSettings({
-                                            ...siteSettings,
-                                            contact: { ...siteSettings.contact, officeHours: e.target.value },
-                                        })
-                                    }
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    rows={2}
-                                />
+                        )}
+                        
+                        {siteSettings.contact.email && (
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <div className="flex items-center gap-2 text-cyan-600 font-medium mb-2">
+                                    <FaEnvelope />
+                                    Email
+                                </div>
+                                <p className="text-gray-700 text-sm">
+                                    {siteSettings.contact.email}
+                                </p>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Google Maps Embed URL
-                                </label>
-                                <input
-                                    type="text"
-                                    value={siteSettings.contact.googleMapsUrl || ''}
-                                    onChange={(e) =>
-                                        setSiteSettings({
-                                            ...siteSettings,
-                                            contact: { ...siteSettings.contact, googleMapsUrl: e.target.value },
-                                        })
-                                    }
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    placeholder="Enter Google Maps embed URL"
-                                />
-                            </div>
-
-                            <button
-                                onClick={handleSaveSiteSettings}
-                                disabled={saving}
-                                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                            >
-                                {saving ? 'Saving...' : 'Save Contact Information'}
-                            </button>
-                        </div>
+                        )}
                     </div>
-                )}
+                </motion.div>
+            )}
+
+            {/* Save Button */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="flex justify-center pt-8 border-t border-gray-200"
+            >
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSaveSiteSettings}
+                    disabled={saving}
+                    className={`px-12 py-4 rounded-2xl shadow-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
+                        saving 
+                            ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                            : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:shadow-2xl'
+                    }`}
+                >
+                    {saving ? (
+                        <>
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full"
+                            />
+                            Saving Contact Info...
+                        </>
+                    ) : (
+                        <>
+                            <FaSave />
+                            Save Contact Information
+                        </>
+                    )}
+                </motion.button>
+            </motion.div>
+        </div>
+    </motion.div>
+)}
+
 
                 {/* Placements Tab */}
-
 {/* Placements Tab */}
 {activeTab === 'placements' && (
-  <div className="space-y-8">
-    {/* Section settings (single card) */}
-    <div className="bg-white p-6 rounded-lg shadow">
-      <h2 className="text-xl font-semibold mb-4">Placement Section</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
-          <input
-            type="text"
-            value={placementSectionTitle}
-            onChange={(e) => setPlacementSectionTitle(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="Student Placements"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
-          <input
-            type="text"
-            value={placementSectionSubtitle}
-            onChange={(e) => setPlacementSectionSubtitle(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="Our graduates excel in top companies worldwide."
-          />
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-6">
-        {/* Single card editor for the placement content/images */}
-        {loadingPlacements ? (
-          <div className="py-8 text-center text-gray-500">Loading placement content...</div>
-        ) : (
-          <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-700">Main Description</label>
-            <RichTextEditor
-              value={placements[0]?.content || ''}
-              onChange={(content) => {
-                if (placements.length === 0) {
-                  setPlacements([{ id: crypto.randomUUID(), title: 'Placement', content, images: [], alignment: 'left', published: true }]);
-                } else {
-                  const updated = [...placements];
-                  updated[0] = { ...updated[0], content };
-                  setPlacements(updated);
-                }
-              }}
-              placeholder="Write placement description..."
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
-              <MultiImageUpload
-                onUpload={(urls: string[]) => {
-                  if (placements.length === 0) {
-                    setPlacements([{ id: crypto.randomUUID(), title: 'Placement', content: '', images: urls, alignment: 'left', published: true }]);
-                  } else {
-                    const updated = [...placements];
-                    updated[0] = { ...updated[0], images: [...(updated[0].images || []), ...urls] };
-                    setPlacements(updated);
-                  }
-                }}
-                label="Upload Images"
-              />
-              <div className="flex flex-wrap gap-3 mt-3">
-                {(placements[0]?.images || []).map((img, idx) => (
-                  <div
-                    key={idx}
-                    className="relative w-24 h-24 group cursor-move"
-                    draggable
-                    onDragStart={() => { imageDragIndexRef.current = idx; }}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const from = imageDragIndexRef.current;
-                      const to = idx;
-                      if (from === null || from === to) return;
-                      const current = placements[0]?.images || [];
-                      const reordered = [...current];
-                      const [moved] = reordered.splice(from, 1);
-                      reordered.splice(to, 0, moved);
-                      const updated = [...placements];
-                      updated[0] = { ...updated[0], images: reordered };
-                      setPlacements(updated);
-                      imageDragIndexRef.current = null;
-                    }}
-                  >
-                    <img src={img} alt="" className="object-cover w-full h-full rounded-md border border-gray-200" />
-                    <button
-                      type="button"
-                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => {
-                        const updated = [...placements];
-                        updated[0] = { ...updated[0], images: updated[0].images.filter((_, i) => i !== idx) };
-                        setPlacements(updated);
-                      }}
-                    >×</button>
-                  </div>
-                ))}
-              </div>
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+    >
+        {/* Header Section */}
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl text-white">
+                        <FaBriefcase className="text-2xl" />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            Placement Management
+                        </h2>
+                        <p className="text-gray-600 text-lg">Showcase your students' career success and placement achievements</p>
+                    </div>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Card Title</label>
-                <input
-                  type="text"
-                  value={placements[0]?.title || ''}
-                  onChange={(e) => {
-                    if (placements.length === 0) {
-                      setPlacements([{ id: crypto.randomUUID(), title: e.target.value, content: '', images: [], alignment: 'left', published: true }]);
-                    } else {
-                      const updated = [...placements];
-                      updated[0] = { ...updated[0], title: e.target.value };
-                      setPlacements(updated);
-                    }
-                  }}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Text Alignment</label>
-                <select
-                  value={placements[0]?.alignment || 'left'}
-                  onChange={(e) => {
-                    if (placements.length === 0) return;
-                    const updated = [...placements];
-                    updated[0] = { ...updated[0], alignment: e.target.value as 'left' | 'center' | 'right' };
-                    setPlacements(updated);
-                  }}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                >
-                  <option value="left">Left</option>
-                  <option value="center">Center</option>
-                  <option value="right">Right</option>
-                </select>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="placement-single-published"
-                  checked={placements[0]?.published ?? true}
-                  onChange={(e) => {
-                    if (placements.length === 0) return;
-                    const updated = [...placements];
-                    updated[0] = { ...updated[0], published: e.target.checked };
-                    setPlacements(updated);
-                  }}
-                  className="mr-2 h-5 w-5 text-blue-600"
-                />
-                <label htmlFor="placement-single-published" className="text-sm font-medium text-gray-700">Published</label>
-              </div>
+            {/* Section Settings */}
+            <div className="p-8">
+                <div className="flex items-center gap-3 mb-6">
+                    <span className="w-2 h-8 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Section Configuration</h3>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaGraduationCap className="text-indigo-500" />
+                            Section Title
+                        </label>
+                        <input
+                            type="text"
+                            value={placementSectionTitle}
+                            onChange={(e) => setPlacementSectionTitle(e.target.value)}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Student Placements"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaQuoteLeft className="text-purple-500" />
+                            Section Subtitle
+                        </label>
+                        <input
+                            type="text"
+                            value={placementSectionSubtitle}
+                            onChange={(e) => setPlacementSectionSubtitle(e.target.value)}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Our graduates excel in top companies worldwide."
+                        />
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+
+        {/* Main Content Section */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Placement Content</h3>
+                </div>
             </div>
 
-            <div className="pt-2">
-              <button
-                onClick={async () => {
-                  try {
-                    setSaving(true);
-                    const body = {
-                      title: placementSectionTitle,
-                      subtitle: placementSectionSubtitle,
-                      items: placements,
-                    };
-                    await fetch('/api/placements', {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(body),
-                    });
-                  } finally {
-                    setSaving(false);
-                  }
-                }}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Save Section
-              </button>
+            <div className="p-8">
+                {loadingPlacements ? (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="py-16 text-center"
+                    >
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"
+                        />
+                        <p className="text-gray-500 text-lg">Loading placement content...</p>
+                    </motion.div>
+                ) : (
+                    <div className="space-y-8">
+                        {/* Main Description */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="space-y-4"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="w-2 h-6 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></span>
+                                <h4 className="text-lg font-bold text-gray-800">Main Description</h4>
+                            </div>
+                            
+                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                                <RichTextEditor
+                                    value={placements[0]?.content || ''}
+                                    onChange={(content) => {
+                                        if (placements.length === 0) {
+                                            setPlacements([{ 
+                                                id: crypto.randomUUID(), 
+                                                title: 'Placement', 
+                                                content, 
+                                                images: [], 
+                                                alignment: 'left', 
+                                                published: true 
+                                            }]);
+                                        } else {
+                                            const updated = [...placements];
+                                            updated[0] = { ...updated, content };
+                                            setPlacements(updated);
+                                        }
+                                    }}
+                                    placeholder="Write placement description highlighting achievements, statistics, and success stories..."
+                                />
+                            </div>
+                        </motion.div>
+
+                        {/* Images Section */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="space-y-4"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="w-2 h-6 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full"></span>
+                                <h4 className="text-lg font-bold text-gray-800">Gallery Images</h4>
+                            </div>
+
+                            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
+                                <MultiImageUpload
+                                    onUpload={(urls: string[]) => {
+                                        if (placements.length === 0) {
+                                            setPlacements([{ 
+                                                id: crypto.randomUUID(), 
+                                                title: 'Placement', 
+                                                content: '', 
+                                                images: urls, 
+                                                alignment: 'left', 
+                                                published: true 
+                                            }]);
+                                        } else {
+                                            const updated = [...placements];
+                                            updated[0] = { ...updated, images: [...(updated.images || []), ...urls] };
+                                            setPlacements(updated);
+                                        }
+                                    }}
+                                    label="Upload Placement Images"
+                                />
+                                
+                                {(placements[0]?.images || []).length > 0 && (
+                                    <div className="mt-6">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <FaImages className="text-blue-500" />
+                                            <span className="text-sm font-medium text-gray-700">
+                                                Uploaded Images ({(placements[0]?.images || []).length})
+                                            </span>
+                                        </div>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                            <AnimatePresence>
+                                                {(placements[0]?.images || []).map((img, idx) => (
+                                                    <motion.div
+                                                        key={idx}
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.8 }}
+                                                        className="relative group aspect-square cursor-move"
+                                                        draggable
+                                                        onDragStart={() => { imageDragIndexRef.current = idx; }}
+                                                        onDragOver={(e) => e.preventDefault()}
+                                                        onDrop={(e) => {
+                                                            e.preventDefault();
+                                                            const from = imageDragIndexRef.current;
+                                                            const to = idx;
+                                                            if (from === null || from === to) return;
+                                                            const current = placements[0]?.images || [];
+                                                            const reordered = [...current];
+                                                            const [moved] = reordered.splice(from, 1);
+                                                            reordered.splice(to, 0, moved);
+                                                            const updated = [...placements];
+                                                            updated[0] = { ...updated, images: reordered };
+                                                            setPlacements(updated);
+                                                            imageDragIndexRef.current = null;
+                                                        }}
+                                                    >
+                                                        <img 
+                                                            src={img} 
+                                                            alt="" 
+                                                            className="object-cover w-full h-full rounded-xl border-2 border-gray-200 group-hover:border-blue-300 transition-all duration-200" 
+                                                        />
+                                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl flex items-center justify-center">
+                                                            <FaGripVertical className="text-white text-lg" />
+                                                        </div>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            type="button"
+                                                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                                                            onClick={() => {
+                                                                const updated = [...placements];
+                                                                updated[0] = { ...updated, images: updated.images.filter((_, i) => i !== idx) };
+                                                                setPlacements(updated);
+                                                            }}
+                                                        >
+                                                            <FaTimes size={12} />
+                                                        </motion.button>
+                                                        <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                            #{idx + 1}
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </AnimatePresence>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+
+                        {/* Settings Section */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="space-y-4"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="w-2 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></span>
+                                <h4 className="text-lg font-bold text-gray-800">Display Settings</h4>
+                            </div>
+
+                            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-6 border border-orange-200">
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                            <FaTag className="text-orange-500" />
+                                            Card Title
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={placements[0]?.title || ''}
+                                            onChange={(e) => {
+                                                if (placements.length === 0) {
+                                                    setPlacements([{ 
+                                                        id: crypto.randomUUID(), 
+                                                        title: e.target.value, 
+                                                        content: '', 
+                                                        images: [], 
+                                                        alignment: 'left', 
+                                                        published: true 
+                                                    }]);
+                                                } else {
+                                                    const updated = [...placements];
+                                                    updated[0] = { ...updated, title: e.target.value };
+                                                    setPlacements(updated);
+                                                }
+                                            }}
+                                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                                            placeholder="Enter card title"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                            <FaAlignLeft className="text-red-500" />
+                                            Text Alignment
+                                        </label>
+                                        <select
+                                            value={placements[0]?.alignment || 'left'}
+                                            onChange={(e) => {
+                                                if (placements.length === 0) return;
+                                                const updated = [...placements];
+                                                updated[0] = { ...updated, alignment: e.target.value as 'left' | 'center' | 'right' };
+                                                setPlacements(updated);
+                                            }}
+                                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                                        >
+                                            <option value="left">Left Aligned</option>
+                                            <option value="center">Center Aligned</option>
+                                            <option value="right">Right Aligned</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                            <FaToggleOn className="text-green-500" />
+                                            Visibility
+                                        </label>
+                                        <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                                            <span className="text-sm font-medium text-gray-700">
+                                                {placements[0]?.published ?? true ? 'Published' : 'Draft'}
+                                            </span>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    id="placement-single-published"
+                                                    checked={placements[0]?.published ?? true}
+                                                    onChange={(e) => {
+                                                        if (placements.length === 0) return;
+                                                        const updated = [...placements];
+                                                        updated[0] = { ...updated[0], published: e.target.checked };
+                                                        setPlacements(updated);
+                                                    }}
+                                                    className="sr-only peer"
+                                                />
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Save Button */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="flex justify-center pt-8 border-t border-gray-200"
+                        >
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={async () => {
+                                    try {
+                                        setSaving(true);
+                                        const body = {
+                                            title: placementSectionTitle,
+                                            subtitle: placementSectionSubtitle,
+                                            items: placements,
+                                        };
+                                        await fetch('/api/placements', {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(body),
+                                        });
+                                    } finally {
+                                        setSaving(false);
+                                    }
+                                }}
+                                disabled={saving}
+                                className={`px-12 py-4 rounded-2xl shadow-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
+                                    saving 
+                                        ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-2xl'
+                                }`}
+                            >
+                                {saving ? (
+                                    <>
+                                        <motion.div
+                                            animate={{ rotate: 360 }}
+                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                            className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full"
+                                        />
+                                        Saving Placement Data...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaSave />
+                                        Save Placement Section
+                                    </>
+                                )}
+                            </motion.button>
+                        </motion.div>
+                    </div>
+                )}
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
+        </motion.div>
+    </motion.div>
 )}
+
 
 
                 {/* Achievements Tab */}
                 {/* Facilities Tab */}
                 {activeTab === 'facilities' && (
-                  <div className="space-y-8">
-                    <div className="bg-white p-6 rounded-lg shadow">
-                      <h2 className="text-xl font-semibold mb-4">Facilities Section</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-8 animate-fadeIn">
+                    <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
+                      <div className="flex items-center mb-6">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                        </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                          <h2 className="text-2xl font-bold text-gray-800">Facilities Section</h2>
+                          <p className="text-gray-600">Manage your institution's facilities and amenities</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
                           <input
                             type="text"
                             value={facilities.title}
                             onChange={(e) => setFacilities({ ...facilities, title: e.target.value })}
-                            className="w-full p-2 border border-gray-300 rounded-md"
+                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                            placeholder="Enter section title..."
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
+                        <div className="space-y-2">
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Section Subtitle</label>
                           <input
                             type="text"
                             value={facilities.subtitle}
                             onChange={(e) => setFacilities({ ...facilities, subtitle: e.target.value })}
-                            className="w-full p-2 border border-gray-300 rounded-md"
+                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                            placeholder="Enter section subtitle..."
                           />
                         </div>
                       </div>
 
-                      <div className="mt-6">
-                        <h3 className="font-semibold mb-2">Add Facility</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <input className="p-2 border rounded" placeholder="Name" value={newFacility.name} onChange={(e)=>setNewFacility({...newFacility,name:e.target.value})} />
-                          <input className="p-2 border rounded" placeholder="Category" value={newFacility.category} onChange={(e)=>setNewFacility({...newFacility,category:e.target.value})} />
-                          <ImageUpload
-                            value={newFacility.image}
-                            onChange={(url) => setNewFacility(prev => ({ ...prev, image: url }))}
-                            label="Upload Image"
-                          />
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Additional Images (optional)</label>
+                      <div className="mt-8 p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-200">
+                        <div className="flex items-center mb-4">
+                          <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                          </div>
+                          <h3 className="text-xl font-bold text-gray-800">Add New Facility</h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Facility Name</label>
+                            <input 
+                              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-300" 
+                              placeholder="Enter facility name" 
+                              value={newFacility.name} 
+                              onChange={(e)=>setNewFacility({...newFacility,name:e.target.value})} 
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Category</label>
+                            <input 
+                              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-300" 
+                              placeholder="e.g., Library, Lab, Sports" 
+                              value={newFacility.category} 
+                              onChange={(e)=>setNewFacility({...newFacility,category:e.target.value})} 
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Main Image</label>
+                            <ImageUpload
+                              value={newFacility.image}
+                              onChange={(url) => setNewFacility(prev => ({ ...prev, image: url }))}
+                              label="Upload Main Image"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Display Order</label>
+                            <input 
+                              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-300" 
+                              placeholder="1, 2, 3..." 
+                              type="number" 
+                              value={newFacility.order} 
+                              onChange={(e)=>setNewFacility({...newFacility,order:Number(e.target.value)})} 
+                            />
+                          </div>
+                          
+                          <div className="md:col-span-2 space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Additional Gallery Images</label>
                             <MultiImageUpload onUpload={(urls: string[]) => setNewFacilityImages(prev => [...prev, ...urls])} label="Upload Multiple Images" />
                             {newFacilityImages.length > 0 && (
-                              <div className="flex flex-wrap gap-2 mt-2">
+                              <div className="flex flex-wrap gap-3 mt-3">
                                 {newFacilityImages.map((img, idx) => (
-                                  <div key={idx} className="relative w-20 h-20">
-                                    <img src={img} className="w-full h-full object-cover rounded" />
-                                    <button className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6" onClick={() => setNewFacilityImages(prev => prev.filter((_, i) => i !== idx))}>×</button>
+                                  <div key={idx} className="relative group">
+                                    <img src={img} className="w-24 h-24 object-cover rounded-xl shadow-md group-hover:shadow-lg transition-all duration-200" />
+                                    <button 
+                                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors duration-200 shadow-lg" 
+                                      onClick={() => setNewFacilityImages(prev => prev.filter((_, i) => i !== idx))}
+                                    >
+                                      ×
+                                    </button>
                                   </div>
                                 ))}
                               </div>
                             )}
                           </div>
-                          <input className="p-2 border rounded" placeholder="Order" type="number" value={newFacility.order} onChange={(e)=>setNewFacility({...newFacility,order:Number(e.target.value)})} />
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                          
+                          <div className="md:col-span-2 space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Description</label>
                             <RichTextEditor
                               value={newFacility.description}
                               onChange={(content) => setNewFacility(prev => ({ ...prev, description: content }))}
-                              placeholder="Enter facility description..."
+                              placeholder="Enter detailed facility description..."
                             />
                           </div>
-                          <input className="p-2 border rounded md:col-span-2" placeholder="Features (comma separated)" value={newFacility.features} onChange={(e)=>setNewFacility({...newFacility,features:e.target.value})} />
+                          
+                          <div className="md:col-span-2 space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Features</label>
+                            <input 
+                              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-300" 
+                              placeholder="WiFi, Air Conditioning, Projector (comma separated)" 
+                              value={newFacility.features} 
+                              onChange={(e)=>setNewFacility({...newFacility,features:e.target.value})} 
+                            />
+                          </div>
                         </div>
-                        <div className="mt-3">
+                        
+                        <div className="mt-6">
                           <button
                             onClick={() => {
                               const item = {
@@ -2611,26 +3115,82 @@ export default function AdminPage() {
                               setNewFacility({ id: '', name: '', description: '', image: '', category: '', features: '', published: true, order: 1 });
                               setNewFacilityImages([]);
                             }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                          >Add Facility</button>
+                            className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
+                          >
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Add Facility
+                          </button>
                         </div>
                       </div>
 
-                      <div className="mt-8">
-                        <h3 className="font-semibold mb-2">Existing Facilities</h3>
+                      <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200">
+                        <div className="flex items-center mb-4">
+                          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                          </div>
+                          <h3 className="text-xl font-bold text-gray-800">Existing Facilities</h3>
+                        </div>
+                        
                         {(!facilities.items || facilities.items.length === 0) ? (
-                          <p className="text-gray-500">No facilities yet.</p>
+                          <div className="text-center py-8">
+                            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                              </svg>
+                            </div>
+                            <p className="text-gray-500 text-lg">No facilities added yet</p>
+                            <p className="text-gray-400 text-sm">Start by adding your first facility above</p>
+                          </div>
                         ) : (
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             {facilities.items.sort((a:any,b:any)=>a.order-b.order).map((item:any, index:number) => (
-                              <div key={item.id} className="p-3 border rounded flex flex-col md:flex-row md:items-center gap-3">
-                                <div className="flex-1">
-                                  <div className="font-medium">{item.name} <span className="text-xs text-gray-500">({item.category})</span></div>
-                                  <div className="text-xs text-gray-500">Order: {item.order} • Features: {item.features.length}</div>
-                                </div>
-                                <div className="flex gap-2">
-                                  <button className="px-3 py-1 text-sm bg-blue-500 text-white rounded" onClick={()=>setEditingFacilityIndex(index)}>Edit</button>
-                                  <button className="px-3 py-1 text-sm bg-red-500 text-white rounded" onClick={()=>setFacilities({ ...facilities, items: facilities.items.filter((_:any,i:number)=>i!==index) })}>Delete</button>
+                              <div key={item.id} className="p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-100 hover:border-blue-200">
+                                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                      <div className="font-semibold text-gray-800 text-lg">{item.name}</div>
+                                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">{item.category}</span>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                                      <span className="flex items-center gap-1">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                        Order: {item.order}
+                                      </span>
+                                      <span className="flex items-center gap-1">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {item.features.length} features
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button 
+                                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg" 
+                                      onClick={()=>setEditingFacilityIndex(index)}
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                      </svg>
+                                      Edit
+                                    </button>
+                                    <button 
+                                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg" 
+                                      onClick={()=>setFacilities({ ...facilities, items: facilities.items.filter((_:any,i:number)=>i!==index) })}
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                      Delete
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             ))}
@@ -2638,691 +3198,1721 @@ export default function AdminPage() {
                         )}
                       </div>
 
+                      {/* Edit Facility Modal */}
                       {editingFacilityIndex !== null && facilities.items && facilities.items[editingFacilityIndex] && (
-                        <div className="mt-8 border-t pt-6">
-                          <h3 className="font-semibold mb-3">Edit Facility</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input
-                              className="p-2 border rounded"
-                              placeholder="Name"
-                              value={facilities.items[editingFacilityIndex].name}
-                              onChange={(e)=>{
-                                const copy: any = { ...facilities };
-                                copy.items[editingFacilityIndex].name = e.target.value;
-                                setFacilities(copy);
-                              }}
-                            />
-                            <input
-                              className="p-2 border rounded"
-                              placeholder="Category"
-                              value={facilities.items[editingFacilityIndex].category}
-                              onChange={(e)=>{
-                                const copy: any = { ...facilities };
-                                copy.items[editingFacilityIndex].category = e.target.value;
-                                setFacilities(copy);
-                              }}
-                            />
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
-                              <ImageUpload
-                                value={facilities.items[editingFacilityIndex].image || ''}
-                                onChange={(url) => {
-                                  const copy: any = { ...facilities };
-                                  copy.items[editingFacilityIndex].image = url;
-                                  setFacilities(copy);
-                                }}
-                                label="Upload Image"
-                              />
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Gallery Images</label>
-                              <MultiImageUpload
-                                onUpload={(urls: string[]) => {
-                                  const copy: any = { ...facilities };
-                                  const current = copy.items[editingFacilityIndex].gallery || [];
-                                  copy.items[editingFacilityIndex].gallery = [...current, ...urls];
-                                  setFacilities(copy);
-                                }}
-                                label="Upload Multiple Images"
-                              />
-                              {(facilities.items[editingFacilityIndex].gallery || []).length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  {(facilities.items[editingFacilityIndex].gallery || []).map((img: string, idx: number) => (
-                                    <div key={idx} className="relative w-20 h-20">
-                                      <img src={img} className="w-full h-full object-cover rounded" />
-                                      <button
-                                        className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6"
-                                        onClick={() => {
-                                          const copy: any = { ...facilities };
-                                          copy.items[editingFacilityIndex].gallery = (copy.items[editingFacilityIndex].gallery || []).filter((_: any, i: number) => i !== idx);
-                                          setFacilities(copy);
-                                        }}
-                                      >×</button>
-                                    </div>
-                                  ))}
+                        <div 
+                          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                          onClick={() => setEditingFacilityIndex(null)}
+                        >
+                          <div 
+                            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {/* Modal Header */}
+                            <div className="sticky top-0 bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-t-2xl border-b border-yellow-200">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center mr-4">
+                                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </div>
+                                  <div>
+                                    <h3 className="text-2xl font-bold text-gray-800">Edit Facility</h3>
+                                    <p className="text-gray-600">Update facility information and settings</p>
+                                  </div>
                                 </div>
-                              )}
+                                <button
+                                  onClick={() => setEditingFacilityIndex(null)}
+                                  className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-colors duration-200"
+                                >
+                                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
                             </div>
-                            <input
-                              className="p-2 border rounded"
-                              placeholder="Order"
-                              type="number"
-                              value={facilities.items[editingFacilityIndex].order}
-                              onChange={(e)=>{
-                                const copy: any = { ...facilities };
-                                copy.items[editingFacilityIndex].order = Number(e.target.value);
-                                setFacilities(copy);
-                              }}
-                            />
-                            <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                              <RichTextEditor
-                                value={facilities.items[editingFacilityIndex].description}
-                                onChange={(content) => {
-                                  const copy: any = { ...facilities };
-                                  copy.items[editingFacilityIndex].description = content;
-                                  setFacilities(copy);
-                                }}
-                                placeholder="Edit facility description..."
-                              />
+                            
+                            {/* Modal Body */}
+                            <div className="p-6">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <label className="block text-sm font-semibold text-gray-700">Facility Name</label>
+                                  <input
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                                    placeholder="Enter facility name"
+                                    value={facilities.items[editingFacilityIndex].name}
+                                    onChange={(e)=>{
+                                      const copy: any = { ...facilities };
+                                      copy.items[editingFacilityIndex].name = e.target.value;
+                                      setFacilities(copy);
+                                    }}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="block text-sm font-semibold text-gray-700">Category</label>
+                                  <input
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                                    placeholder="e.g., Library, Lab, Sports"
+                                    value={facilities.items[editingFacilityIndex].category}
+                                    onChange={(e)=>{
+                                      const copy: any = { ...facilities };
+                                      copy.items[editingFacilityIndex].category = e.target.value;
+                                      setFacilities(copy);
+                                    }}
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <label className="block text-sm font-semibold text-gray-700">Main Image</label>
+                                  <ImageUpload
+                                    value={facilities.items[editingFacilityIndex].image || ''}
+                                    onChange={(url) => {
+                                      const copy: any = { ...facilities };
+                                      copy.items[editingFacilityIndex].image = url;
+                                      setFacilities(copy);
+                                    }}
+                                    label="Upload Image"
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <label className="block text-sm font-semibold text-gray-700">Display Order</label>
+                                  <input
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                                    placeholder="1, 2, 3..."
+                                    type="number"
+                                    value={facilities.items[editingFacilityIndex].order}
+                                    onChange={(e)=>{
+                                      const copy: any = { ...facilities };
+                                      copy.items[editingFacilityIndex].order = Number(e.target.value);
+                                      setFacilities(copy);
+                                    }}
+                                  />
+                                </div>
+                                
+                                <div className="md:col-span-2 space-y-2">
+                                  <label className="block text-sm font-semibold text-gray-700">Gallery Images</label>
+                                  <MultiImageUpload
+                                    onUpload={(urls: string[]) => {
+                                      const copy: any = { ...facilities };
+                                      const current = copy.items[editingFacilityIndex].gallery || [];
+                                      copy.items[editingFacilityIndex].gallery = [...current, ...urls];
+                                      setFacilities(copy);
+                                    }}
+                                    label="Upload Multiple Images"
+                                  />
+                                  {(facilities.items[editingFacilityIndex].gallery || []).length > 0 && (
+                                    <div className="flex flex-wrap gap-3 mt-3">
+                                      {(facilities.items[editingFacilityIndex].gallery || []).map((img: string, idx: number) => (
+                                        <div key={idx} className="relative group">
+                                          <img src={img} className="w-24 h-24 object-cover rounded-xl shadow-md group-hover:shadow-lg transition-all duration-200" />
+                                          <button
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors duration-200 shadow-lg"
+                                            onClick={() => {
+                                              const copy: any = { ...facilities };
+                                              copy.items[editingFacilityIndex].gallery = (copy.items[editingFacilityIndex].gallery || []).filter((_: any, i: number) => i !== idx);
+                                              setFacilities(copy);
+                                            }}
+                                          >×</button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="md:col-span-2 space-y-2">
+                                  <label className="block text-sm font-semibold text-gray-700">Description</label>
+                                  <RichTextEditor
+                                    value={facilities.items[editingFacilityIndex].description}
+                                    onChange={(content) => {
+                                      const copy: any = { ...facilities };
+                                      copy.items[editingFacilityIndex].description = content;
+                                      setFacilities(copy);
+                                    }}
+                                    placeholder="Edit facility description..."
+                                  />
+                                </div>
+                                
+                                <div className="md:col-span-2 space-y-2">
+                                  <label className="block text-sm font-semibold text-gray-700">Features</label>
+                                  <input
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                                    placeholder="WiFi, Air Conditioning, Projector (comma separated)"
+                                    value={(facilities.items[editingFacilityIndex].features || []).join(', ')}
+                                    onChange={(e)=>{
+                                      const copy: any = { ...facilities };
+                                      copy.items[editingFacilityIndex].features = e.target.value.split(',').map((f:string)=>f.trim()).filter(Boolean);
+                                      setFacilities(copy);
+                                    }}
+                                  />
+                                </div>
+                              </div>
                             </div>
-                            <input
-                              className="p-2 border rounded md:col-span-2"
-                              placeholder="Features (comma separated)"
-                              value={(facilities.items[editingFacilityIndex].features || []).join(', ')}
-                              onChange={(e)=>{
-                                const copy: any = { ...facilities };
-                                copy.items[editingFacilityIndex].features = e.target.value.split(',').map((f:string)=>f.trim()).filter(Boolean);
-                                setFacilities(copy);
-                              }}
-                            />
-                          </div>
-                          <div className="mt-3 flex gap-2">
-                            <button className="px-4 py-2 bg-green-600 text-white rounded" onClick={()=>setEditingFacilityIndex(null)}>Done</button>
-                            <button className="px-4 py-2 bg-gray-600 text-white rounded" onClick={()=>setEditingFacilityIndex(null)}>Cancel</button>
+                            
+                            {/* Modal Footer */}
+                            <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t border-gray-200">
+                              <div className="flex gap-3 justify-end">
+                                <button 
+                                  className="px-6 py-3 bg-gray-500 text-white rounded-xl font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg" 
+                                  onClick={() => setEditingFacilityIndex(null)}
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                  Cancel
+                                </button>
+                                <button 
+                                  className="px-6 py-3 bg-green-500 text-white rounded-xl font-semibold hover:bg-green-600 transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg" 
+                                  onClick={() => {
+                                    setEditingFacilityIndex(null);
+                                    // Show success message
+                                    setSaveStatus({ type: 'success', message: 'Facility updated successfully!' });
+                                    setTimeout(() => setSaveStatus({ type: '', message: '' }), 3000);
+                                  }}
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  Save Changes
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       )}
 
-                      <div className="pt-4">
+                      <div className="pt-6">
                         <button
                           onClick={async ()=>{
-                            const updated = { ...siteSettings, facilities } as any;
-                            const saved = await saveSiteSettings(updated);
-                            if (saved) setSiteSettings(saved);
+                            if (isSaving) return; // Prevent multiple clicks
+                            setIsSaving(true);
+                            try {
+                              const updated = { ...siteSettings, facilities } as any;
+                              const saved = await saveSiteSettings(updated);
+                              if (saved) {
+                                setSiteSettings(saved);
+                                // Show success message
+                                setSaveStatus({ type: 'success', message: 'Facilities saved successfully!' });
+                                setTimeout(() => setSaveStatus({ type: '', message: '' }), 3000);
+                              }
+                            } catch (error) {
+                              setSaveStatus({ type: 'error', message: 'Failed to save facilities. Please try again.' });
+                              setTimeout(() => setSaveStatus({ type: '', message: '' }), 5000);
+                            } finally {
+                              setIsSaving(false);
+                            }
                           }}
-                          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        >Save Facilities</button>
+                          disabled={isSaving}
+                          className={`px-8 py-3 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl flex items-center mx-auto ${
+                            isSaving 
+                              ? 'bg-gray-400 cursor-not-allowed' 
+                              : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105'
+                          }`}
+                        >
+                          {isSaving ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Save All Facilities
+                            </>
+                          )}
+                        </button>
+                        
+                        {/* Save Status Message */}
+                        {saveStatus.type && (
+                          <div className={`mt-4 p-4 rounded-xl text-center transition-all duration-300 ${
+                            saveStatus.type === 'success' 
+                              ? 'bg-green-100 text-green-800 border border-green-200' 
+                              : 'bg-red-100 text-red-800 border border-red-200'
+                          }`}>
+                            <div className="flex items-center justify-center gap-2">
+                              {saveStatus.type === 'success' ? (
+                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              ) : (
+                                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              )}
+                              <span className="font-medium">{saveStatus.message}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 )}
-                {activeTab === 'achievements' && (
-                    <div className="space-y-8">
-                        {/* Section Settings */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Achievements Section Settings</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Section Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={siteSettings.achievements?.title || ''}
-                                        onChange={(e) => setSiteSettings({
-                                            ...siteSettings,
-                                            achievements: { ...siteSettings.achievements, title: e.target.value }
-                                        })}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Section Subtitle
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={siteSettings.achievements?.subtitle || ''}
-                                        onChange={(e) => setSiteSettings({
-                                            ...siteSettings,
-                                            achievements: { ...siteSettings.achievements, subtitle: e.target.value }
-                                        })}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                    />
-                                </div>
+ {activeTab === 'achievements' && (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+    >
+        {/* Header Section */}
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl text-white">
+                        <FaTrophy className="text-2xl" />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
+                            Achievements Management
+                        </h2>
+                        <p className="text-gray-600 text-lg">Showcase your institution's awards, recognitions, and milestones</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Section Settings */}
+            <div className="p-8">
+                <div className="flex items-center gap-3 mb-6">
+                    <span className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Section Configuration</h3>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaMedal className="text-amber-500" />
+                            Section Title
+                        </label>
+                        <input
+                            type="text"
+                            value={siteSettings.achievements?.title || ''}
+                            onChange={(e) => setSiteSettings({
+                                ...siteSettings,
+                                achievements: { ...siteSettings.achievements, title: e.target.value }
+                            })}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Our Achievements"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaQuoteLeft className="text-orange-500" />
+                            Section Subtitle
+                        </label>
+                        <input
+                            type="text"
+                            value={siteSettings.achievements?.subtitle || ''}
+                            onChange={(e) => setSiteSettings({
+                                ...siteSettings,
+                                achievements: { ...siteSettings.achievements, subtitle: e.target.value }
+                            })}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Celebrating excellence and recognition in education"
+                        />
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+
+        {/* Create New Achievement */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Create New Achievement</h3>
+                </div>
+            </div>
+
+            <div className="p-8 space-y-8">
+                {/* Basic Information */}
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-6"
+                >
+                    <div className="flex items-center gap-3 mb-4">
+                        <span className="w-2 h-6 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full"></span>
+                        <h4 className="text-lg font-bold text-gray-800">Achievement Details</h4>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaStar className="text-blue-500" />
+                            Achievement Title
+                        </label>
+                        <input
+                            type="text"
+                            value={newAchievement.title || ''}
+                            onChange={(e) => setNewAchievement({ ...newAchievement, title: e.target.value })}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Enter achievement title"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaFileAlt className="text-cyan-500" />
+                            Achievement Content
+                        </label>
+                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
+                            <RichTextEditor
+                                value={newAchievement.content || ''}
+                                onChange={(content) => setNewAchievement({ ...newAchievement, content })}
+                                placeholder="Describe the achievement, its significance, date received, awarding body, etc..."
+                            />
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Image Upload */}
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="space-y-6"
+                >
+                    <div className="flex items-center gap-3 mb-4">
+                        <span className="w-2 h-6 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></span>
+                        <h4 className="text-lg font-bold text-gray-800">Visual Content</h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                <FaImage className="text-purple-500" />
+                                Primary Image
+                            </label>
+                            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                                <ImageUpload
+                                    value={newAchievement.image || ''}
+                                    onChange={(image) => setNewAchievement({ ...newAchievement, image })}
+                                    label="Upload Primary Image"
+                                />
                             </div>
                         </div>
 
-                        {/* Create New Achievement */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Create New Achievement</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newAchievement.title || ''}
-                                        onChange={(e) => setNewAchievement({ ...newAchievement, title: e.target.value })}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                        placeholder="Enter achievement title"
-                                    />
-                                </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                <FaImages className="text-pink-500" />
+                                Additional Images
+                            </label>
+                            <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-4 border border-pink-200">
+                                <MultiImageUpload
+                                    label="Upload Additional Images"
+                                    onUpload={(urls) => setNewAchievement({
+                                        ...newAchievement,
+                                        images: [
+                                            ...((newAchievement.images as any) || []),
+                                            ...urls.map(u => ({ url: u, caption: '', subtitle: '' }))
+                                        ]
+                                    })}
+                                />
+                            </div>
+                        </div>
+                    </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Content
-                                    </label>
-                                    <RichTextEditor
-                                        value={newAchievement.content || ''}
-                                        onChange={(content) => setNewAchievement({ ...newAchievement, content })}
-                                        placeholder="Enter achievement content with rich formatting..."
-                                    />
-                                </div>
-
-                                <div>
-                                    <ImageUpload
-                                        value={newAchievement.image || ''}
-                                        onChange={(image) => setNewAchievement({ ...newAchievement, image })}
-                                        label="Primary Image (optional)"
-                                    />
-                                </div>
-
-                                <div>
-                                    <MultiImageUpload
-                                        label="Additional Images (with captions/subtitles)"
-                                        onUpload={(urls) => setNewAchievement({
-                                            ...newAchievement,
-                                            images: [
-                                                ...((newAchievement.images as any) || []),
-                                                ...urls.map(u => ({ url: u, caption: '', subtitle: '' }))
-                                            ]
-                                        })}
-                                    />
-                                    {newAchievement.images && (newAchievement as any).images.length > 0 && (
-                                        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                            {(newAchievement as any).images.map((img: any, i: number) => (
-                                                <div key={`${img.url}-${i}`} className="border rounded overflow-hidden">
-                                                    <div className="relative h-28">
-                                                        <Image src={img.url} alt="" fill className="object-cover" />
-                                                    </div>
-                                                    <div className="p-2 space-y-2">
-                                                        <label className="block text-xs text-gray-600 mb-1">Caption</label>
-                                                        <RichTextEditor
-                                                            value={img.caption || ''}
-                                                            onChange={(value: string) => {
-                                                                const nextImgs = [ ...((newAchievement as any).images || []) ];
-                                                                nextImgs[i] = { ...nextImgs[i], caption: value };
-                                                                setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
-                                                            }}
-                                                            placeholder="Write caption..."
-                                                        />
-                                                        <label className="block text-xs text-gray-600 mb-1 mt-2">Subcaption</label>
-                                                        <RichTextEditor
-                                                            value={img.subtitle || ''}
-                                                            onChange={(value: string) => {
-                                                                const nextImgs = [ ...((newAchievement as any).images || []) ];
-                                                                nextImgs[i] = { ...nextImgs[i], subtitle: value };
-                                                                setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
-                                                            }}
-                                                            placeholder="Write subcaption..."
-                                                        />
-                                                        <div className="flex items-center justify-between">
-                                                            <span className="text-xs text-gray-500">Drag to reorder</span>
-                                                            <button className="text-red-600 text-xs" onClick={()=>{
-                                                                const nextImgs = ((newAchievement as any).images || []).filter((_: any, k: number) => k !== i);
-                                                                setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
-                                                            }}>Remove</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Text Alignment
-                                        </label>
-                                        <select
-                                            value={newAchievement.alignment || 'left'}
-                                            onChange={(e) => setNewAchievement({ ...newAchievement, alignment: e.target.value as 'left' | 'center' | 'right' })}
-                                            className="w-full p-2 border border-gray-300 rounded-md"
+                    {/* Image Gallery */}
+                    {newAchievement.images && (newAchievement as any).images.length > 0 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <FaImages className="text-pink-500" />
+                                <span className="text-sm font-medium text-gray-700">
+                                    Uploaded Images ({(newAchievement as any).images.length})
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                <AnimatePresence>
+                                    {(newAchievement as any).images.map((img: any, i: number) => (
+                                        <motion.div
+                                            key={`${img.url}-${i}`}
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
                                         >
-                                            <option value="left">Left</option>
-                                            <option value="center">Center</option>
-                                            <option value="right">Right</option>
-                                        </select>
-                                    </div>
+                                            <div className="relative h-40">
+                                                <Image src={img.url} alt="" fill className="object-cover" />
+                                                <button 
+                                                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+                                                    onClick={() => {
+                                                        const nextImgs = ((newAchievement as any).images || []).filter((_: any, k: number) => k !== i);
+                                                        setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
+                                                    }}
+                                                >
+                                                    <FaTimes size={12} />
+                                                </button>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-600 mb-2">Caption</label>
+                                                    <RichTextEditor
+                                                        value={img.caption || ''}
+                                                        onChange={(value: string) => {
+                                                            const nextImgs = [...((newAchievement as any).images || [])];
+                                                            nextImgs[i] = { ...nextImgs[i], caption: value };
+                                                            setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
+                                                        }}
+                                                        placeholder="Write image caption..."
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-600 mb-2">Subcaption</label>
+                                                    <RichTextEditor
+                                                        value={img.subtitle || ''}
+                                                        onChange={(value: string) => {
+                                                            const nextImgs = [...((newAchievement as any).images || [])];
+                                                            nextImgs[i] = { ...nextImgs[i], subtitle: value };
+                                                            setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
+                                                        }}
+                                                        placeholder="Write subcaption..."
+                                                    />
+                                                </div>
+                                                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                                                        <FaGripVertical />
+                                                        Drag to reorder
+                                                    </span>
+                                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                                                        #{i + 1}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    )}
+                </motion.div>
 
-                                    <div className="flex items-center">
+                {/* Display Settings */}
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="space-y-4"
+                >
+                    <div className="flex items-center gap-3 mb-4">
+                        <span className="w-2 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></span>
+                        <h4 className="text-lg font-bold text-gray-800">Display Settings</h4>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <FaAlignLeft className="text-indigo-500" />
+                                    Text Alignment
+                                </label>
+                                <select
+                                    value={newAchievement.alignment || 'left'}
+                                    onChange={(e) => setNewAchievement({ ...newAchievement, alignment: e.target.value as 'left' | 'center' | 'right' })}
+                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                >
+                                    <option value="left">Left Aligned</option>
+                                    <option value="center">Center Aligned</option>
+                                    <option value="right">Right Aligned</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <FaToggleOn className="text-purple-500" />
+                                    Publication Status
+                                </label>
+                                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                                    <span className="text-sm font-medium text-gray-700">
+                                        {newAchievement.published ? 'Published' : 'Draft'}
+                                    </span>
+                                    <label className="relative inline-flex items-center cursor-pointer">
                                         <input
                                             type="checkbox"
                                             id="achievement-published"
                                             checked={newAchievement.published || false}
                                             onChange={(e) => setNewAchievement({ ...newAchievement, published: e.target.checked })}
-                                            className="mr-2"
+                                            className="sr-only peer"
                                         />
-                                        <label htmlFor="achievement-published" className="text-sm font-medium text-gray-700">
-                                            Published
-                                        </label>
-                                    </div>
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
                                 </div>
-
-                                <button
-                                    onClick={handleCreateAchievement}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Create Achievement
-                                </button>
                             </div>
                         </div>
+                    </div>
+                </motion.div>
 
-                        {/* Existing Achievements */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Existing Achievements</h2>
-                            {siteSettings.achievements?.items.length === 0 ? (
-                                <p className="text-gray-500">No achievements yet.</p>
-                            ) : (
-                                <div className="space-y-4">
-                                    {siteSettings.achievements?.items.map((achievement) => (
-                                        <div key={achievement.id} className="border border-gray-200 p-4 rounded-md">
-                                            {editingAchievement?.id === achievement.id ? (
-                                                <div className="space-y-4">
-                                                    <input
-                                                        type="text"
-                                                        value={editingAchievement.title}
-                                                        onChange={(e) => setEditingAchievement({ ...editingAchievement, title: e.target.value })}
-                                                        className="w-full p-2 border border-gray-300 rounded-md"
-                                                    />
-                                                    <RichTextEditor
-                                                        value={editingAchievement.content || ''}
-                                                        onChange={(content) => setEditingAchievement({ ...editingAchievement, content })}
-                                                        placeholder="Edit achievement content..."
-                                                    />
-                                                    <ImageUpload
-                                                        value={editingAchievement.image || ''}
-                                                        onChange={(image) => setEditingAchievement({ ...editingAchievement, image })}
-                                                    />
-                                                    <div>
-                                                        <MultiImageUpload
-                                                            label="Additional Images (with captions/subtitles)"
-                                                            onUpload={(urls) => setEditingAchievement({
-                                                                ...editingAchievement,
-                                                                images: [
-                                                                    ...((editingAchievement as any).images || []),
-                                                                    ...urls.map(u => ({ url: u, caption: '', subtitle: '' }))
-                                                                ]
-                                                            })}
-                                                        />
-                                                        {(editingAchievement as any).images && (editingAchievement as any).images.length > 0 && (
-                                                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                                {(editingAchievement as any).images.map((img: any, i: number) => (
-                                                                    <div key={`${img.url}-${i}`} className="border rounded overflow-hidden">
-                                                                        <div className="relative h-28">
-                                                                            <Image src={img.url} alt="" fill className="object-cover" />
-                                                                        </div>
-                                                                        <div className="p-2 space-y-3">
-                                                                            <div>
-                                                                                <label className="block text-xs text-gray-600 mb-1">Caption</label>
-                                                                                <RichTextEditor
-                                                                                    value={img.caption || ''}
-                                                                                    onChange={(value: string) => {
-                                                                                        const nextImgs = [ ...((editingAchievement as any).images || []) ];
-                                                                                        nextImgs[i] = { ...nextImgs[i], caption: value };
-                                                                                        setEditingAchievement({ ...(editingAchievement as any), images: nextImgs } as any);
-                                                                                    }}
-                                                                                    placeholder="Write caption..."
-                                                                                />
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-xs text-gray-600 mb-1">Subcaption</label>
-                                                                                <RichTextEditor
-                                                                                    value={img.subtitle || ''}
-                                                                                    onChange={(value: string) => {
-                                                                                        const nextImgs = [ ...((editingAchievement as any).images || []) ];
-                                                                                        nextImgs[i] = { ...nextImgs[i], subtitle: value };
-                                                                                        setEditingAchievement({ ...(editingAchievement as any), images: nextImgs } as any);
-                                                                                    }}
-                                                                                    placeholder="Write subcaption..."
-                                                                                />
-                                                                            </div>
-                                                                            <div className="flex items-center justify-between">
-                                                                                <span className="text-xs text-gray-500">Drag to reorder</span>
-                                                                                <button className="text-red-600 text-xs" onClick={()=>{
-                                                                                    const nextImgs = ((editingAchievement as any).images || []).filter((_: any, k: number) => k !== i);
-                                                                                    setEditingAchievement({ ...(editingAchievement as any), images: nextImgs } as any);
-                                                                                }}>Remove</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <select
-                                                            value={editingAchievement.alignment}
-                                                            onChange={(e) => setEditingAchievement({ ...editingAchievement, alignment: e.target.value as 'left' | 'center' | 'right' })}
-                                                            className="p-2 border border-gray-300 rounded-md"
-                                                        >
-                                                            <option value="left">Left</option>
-                                                            <option value="center">Center</option>
-                                                            <option value="right">Right</option>
-                                                        </select>
-                                                        <label className="flex items-center">
+                {/* Create Button */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="flex justify-center pt-6 border-t border-gray-200"
+                >
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleCreateAchievement}
+                        className="px-12 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl shadow-xl hover:shadow-2xl font-bold text-lg transition-all duration-200 flex items-center gap-3"
+                    >
+                        <FaPlus />
+                        Create Achievement
+                    </motion.button>
+                </motion.div>
+            </div>
+        </motion.div>
+
+        {/* Existing Achievements */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-gray-50">
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 bg-gradient-to-b from-slate-500 to-gray-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">
+                        Existing Achievements ({siteSettings.achievements?.items.length || 0})
+                    </h3>
+                </div>
+            </div>
+
+            <div className="p-8">
+                {siteSettings.achievements?.items.length === 0 ? (
+                    <div className="text-center py-12">
+                        <div className="text-6xl mb-4">🏆</div>
+                        <h3 className="text-xl font-semibold text-gray-400 mb-2">No achievements yet</h3>
+                        <p className="text-gray-500">Create your first achievement using the form above</p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        <AnimatePresence>
+                            {siteSettings.achievements?.items.map((achievement) => (
+                                <motion.div
+                                    key={achievement.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className={`border rounded-2xl overflow-hidden transition-all duration-300 ${
+                                        editingAchievement?.id === achievement.id 
+                                            ? 'border-blue-300 shadow-lg bg-blue-50/30' 
+                                            : 'border-gray-200 hover:shadow-md'
+                                    }`}
+                                >
+                                    {editingAchievement?.id === achievement.id ? (
+                                        // Edit Mode
+                                        <div className="p-6 space-y-6">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h4 className="text-lg font-bold text-gray-800">Edit Achievement</h4>
+                                                <button
+                                                    onClick={() => setEditingAchievement(null)}
+                                                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                                                >
+                                                    <FaTimes />
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-4">
+                                                <input
+                                                    type="text"
+                                                    value={editingAchievement.title}
+                                                    onChange={(e) => setEditingAchievement({ ...editingAchievement, title: e.target.value })}
+                                                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Achievement title"
+                                                />
+                                                <RichTextEditor
+                                                    value={editingAchievement.content || ''}
+                                                    onChange={(content) => setEditingAchievement({ ...editingAchievement, content })}
+                                                    placeholder="Edit achievement content..."
+                                                />
+                                                <ImageUpload
+                                                    value={editingAchievement.image || ''}
+                                                    onChange={(image) => setEditingAchievement({ ...editingAchievement, image })}
+                                                    label="Update Primary Image"
+                                                />
+                                                
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                                    <select
+                                                        value={editingAchievement.alignment}
+                                                        onChange={(e) => setEditingAchievement({ ...editingAchievement, alignment: e.target.value as 'left' | 'center' | 'right' })}
+                                                        className="p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    >
+                                                        <option value="left">Left Aligned</option>
+                                                        <option value="center">Center Aligned</option>
+                                                        <option value="right">Right Aligned</option>
+                                                    </select>
+                                                    <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                                                        <span className="text-sm font-medium text-gray-700">Published</span>
+                                                        <label className="relative inline-flex items-center cursor-pointer">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={editingAchievement.published}
                                                                 onChange={(e) => setEditingAchievement({ ...editingAchievement, published: e.target.checked })}
-                                                                className="mr-2"
+                                                                className="sr-only peer"
                                                             />
-                                                            Published
+                                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                                         </label>
                                                     </div>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={handleUpdateAchievement}
-                                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                                                        >
-                                                            Save
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setEditingAchievement(null)}
-                                                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                                                        >
-                                                            Cancel
-                                                        </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-3 pt-4 border-t border-gray-200">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={handleUpdateAchievement}
+                                                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 flex items-center gap-2"
+                                                >
+                                                    <FaSave />
+                                                    Save Changes
+                                                </motion.button>
+                                                <button
+                                                    onClick={() => setEditingAchievement(null)}
+                                                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-medium transition-colors"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        // View Mode
+                                        <div className="p-6">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-start gap-4 flex-1">
+                                                    {achievement.image && (
+                                                        <div className="flex-shrink-0">
+                                                            <img 
+                                                                src={achievement.image} 
+                                                                alt={achievement.title} 
+                                                                className="w-16 h-16 object-cover rounded-xl shadow-sm" 
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div className="flex-1 min-w-0">
+                                                        <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                                            <FaTrophy className="text-amber-500" />
+                                                            {achievement.title}
+                                                        </h3>
+                                                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+                                                            <span className="flex items-center gap-1">
+                                                                <FaAlignLeft />
+                                                                {achievement.alignment} aligned
+                                                            </span>
+                                                            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                                                                achievement.published 
+                                                                    ? 'bg-green-100 text-green-800' 
+                                                                    : 'bg-gray-100 text-gray-600'
+                                                            }`}>
+                                                                <FaCircle size={6} />
+                                                                {achievement.published ? 'Published' : 'Draft'}
+                                                            </span>
+                                                            {(achievement as any).images && (achievement as any).images.length > 0 && (
+                                                                <span className="flex items-center gap-1">
+                                                                    <FaImages />
+                                                                    {(achievement as any).images.length} images
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {achievement.content && (
+                                                            <div 
+                                                                className="text-gray-600 text-sm line-clamp-2"
+                                                                dangerouslySetInnerHTML={{ __html: achievement.content }}
+                                                            />
+                                                        )}
                                                     </div>
                                                 </div>
-                                            ) : (
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="font-semibold">{achievement.title}</h3>
-                                                        <p className="text-sm text-gray-600">
-                                                            {achievement.alignment} aligned • {achievement.published ? 'Published' : 'Draft'}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => setEditingAchievement(achievement)}
-                                                            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteAchievement(achievement.id)}
-                                                            className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                                                        >
-                                                            Delete
-                                                        </button>
+                                                <div className="flex gap-2 ml-4">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => setEditingAchievement(achievement)}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Edit Achievement"
+                                                    >
+                                                        <FaEdit />
+                                                    </motion.button>
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => handleDeleteAchievement(achievement.id)}
+                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        title="Delete Achievement"
+                                                    >
+                                                        <FaTrash />
+                                                    </motion.button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                )}
+
+                {/* Save All Button */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="flex justify-center pt-8 border-t border-gray-200 mt-8"
+                >
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleSaveSiteSettings}
+                        disabled={saving}
+                        className={`px-12 py-4 rounded-2xl shadow-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
+                            saving 
+                                ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-2xl'
+                        }`}
+                    >
+                        {saving ? (
+                            <>
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                    className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full"
+                                />
+                                Saving All Changes...
+                            </>
+                        ) : (
+                            <>
+                                <FaSave />
+                                Save All Changes
+                            </>
+                        )}
+                    </motion.button>
+                </motion.div>
+            </div>
+        </motion.div>
+    </motion.div>
+)}
+
+
+{activeTab === 'homepage' && (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+    >
+        {/* Header Section */}
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-violet-50 to-purple-50">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl text-white">
+                        <FaHome className="text-2xl" />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                            Homepage Layout Management
+                        </h2>
+                        <p className="text-gray-600 text-lg">Design your homepage by controlling section visibility and order</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Description and Instructions */}
+            <div className="p-8">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 mb-8">
+                    <div className="flex items-start gap-3">
+                        <FaInfoCircle className="text-blue-500 mt-1 flex-shrink-0" />
+                        <div>
+                            <h3 className="text-lg font-semibold text-blue-800 mb-2">How to Use</h3>
+                            <ul className="text-blue-700 space-y-1 text-sm">
+                                <li>• <strong>Drag and drop</strong> sections to reorder them on your homepage</li>
+                                <li>• Use <strong>toggle switches</strong> to show or hide sections</li>
+                                <li>• <strong>Order numbers</strong> indicate the display sequence on your homepage</li>
+                                <li>• Changes are <strong>saved automatically</strong> when you click "Save Homepage Layout"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section Management */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <span className="w-2 h-8 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full"></span>
+                        <h3 className="text-xl font-bold text-gray-800">Configure Sections</h3>
+                    </div>
+
+                    {siteSettings.homepage?.sections ? (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl p-6 border border-gray-200"
+                        >
+                            <SortableSection
+                                sections={siteSettings.homepage.sections}
+                                onSectionsChange={handleHomepageSectionsChange}
+                            />
+                        </motion.div>
+                    ) : (
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="text-center py-16 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-dashed border-gray-300"
+                        >
+                            <div className="text-6xl mb-4">⚙️</div>
+                            <h3 className="text-xl font-semibold text-gray-400 mb-2">No Homepage Sections</h3>
+                            <p className="text-gray-500">Homepage sections are not configured yet.</p>
+                        </motion.div>
+                    )}
+
+                    {/* Save Button */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="flex justify-center pt-6 border-t border-gray-200"
+                    >
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={handleSaveSiteSettings}
+                            disabled={saving}
+                            className={`px-12 py-4 rounded-2xl shadow-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
+                                saving 
+                                    ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                    : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:shadow-2xl'
+                            }`}
+                        >
+                            {saving ? (
+                                <>
+                                    <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                        className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full"
+                                    />
+                                    Saving Layout...
+                                </>
+                            ) : (
+                                <>
+                                    <FaSave />
+                                    Save Homepage Layout
+                                </>
+                            )}
+                        </motion.button>
+                    </motion.div>
+                </div>
+            </div>
+        </motion.div>
+
+        {/* Preview Section */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <FaEye className="text-emerald-600" />
+                        Homepage Layout Preview
+                    </h3>
+                </div>
+                <p className="text-gray-600 mt-2">This is how your homepage sections will appear to visitors</p>
+            </div>
+
+            <div className="p-8">
+                {/* Visible Sections */}
+                <div className="space-y-4 mb-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <span className="w-2 h-6 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></span>
+                        <h4 className="text-lg font-bold text-gray-800">Active Sections</h4>
+                        <span className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
+                            {siteSettings.homepage?.sections?.filter(section => section.enabled).length || 0} visible
+                        </span>
+                    </div>
+
+                    {siteSettings.homepage?.sections
+                        ?.filter(section => section.enabled)
+                        ?.sort((a, b) => a.order - b.order)
+                        ?.length > 0 ? (
+                        <div className="space-y-3">
+                            <AnimatePresence>
+                                {siteSettings.homepage.sections
+                                    .filter(section => section.enabled)
+                                    .sort((a, b) => a.order - b.order)
+                                    .map((section: HomepageSection, index: number) => (
+                                        <motion.div
+                                            key={section.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 20 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            className="group flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 hover:shadow-md transition-all duration-200"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-bold px-3 py-2 rounded-lg shadow-sm">
+                                                        #{index + 1}
+                                                    </span>
+                                                    <FaGripVertical className="text-gray-400 group-hover:text-gray-600 transition-colors" />
+                                                </div>
+                                                <div>
+                                                    <span className="font-semibold text-gray-800 text-lg">
+                                                        {section.name}
+                                                    </span>
+                                                    <div className="text-sm text-gray-500 mt-1">
+                                                        Order: {section.order} • Status: Active
                                                     </div>
                                                 </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className="bg-green-500 text-white text-sm font-medium px-3 py-1.5 rounded-full flex items-center gap-2">
+                                                    <FaCheck size={12} />
+                                                    Visible
+                                                </span>
+                                                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                            </AnimatePresence>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-dashed border-gray-300">
+                            <div className="text-4xl mb-4">👁️</div>
+                            <h4 className="text-lg font-semibold text-gray-400 mb-2">No Visible Sections</h4>
+                            <p className="text-gray-500">Enable some sections above to see them here</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Hidden Sections */}
+                {siteSettings.homepage?.sections?.some(section => !section.enabled) && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="pt-8 border-t border-gray-200"
+                    >
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className="w-2 h-6 bg-gradient-to-b from-gray-400 to-slate-400 rounded-full"></span>
+                            <h4 className="text-lg font-bold text-gray-800">Hidden Sections</h4>
+                            <span className="bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1 rounded-full">
+                                {siteSettings.homepage.sections.filter(section => !section.enabled).length} hidden
+                            </span>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl p-6 border border-gray-200">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                <AnimatePresence>
+                                    {siteSettings.homepage.sections
+                                        .filter(section => !section.enabled)
+                                        .map((section: HomepageSection, index: number) => (
+                                            <motion.div
+                                                key={section.id}
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                transition={{ delay: index * 0.05 }}
+                                                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-all duration-200"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <FaEyeSlash className="text-gray-400" />
+                                                        <span className="text-sm font-medium text-gray-600 truncate">
+                                                            {section.name}
+                                                        </span>
+                                                    </div>
+                                                    <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full">
+                                                        Hidden
+                                                    </span>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                </AnimatePresence>
+                            </div>
+
+                            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <div className="flex items-start gap-2">
+                                    <FaLightbulb className="text-amber-500 mt-0.5 flex-shrink-0" />
+                                    <p className="text-amber-700 text-sm">
+                                        <strong>Tip:</strong> Enable hidden sections using the toggle switches above to make them visible on your homepage.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Statistics */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="mt-8 pt-8 border-t border-gray-200"
+                >
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 text-center">
+                            <div className="text-3xl font-bold text-blue-600 mb-2">
+                                {siteSettings.homepage?.sections?.length || 0}
+                            </div>
+                            <div className="text-blue-700 font-medium text-sm">Total Sections</div>
+                        </div>
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 text-center">
+                            <div className="text-3xl font-bold text-green-600 mb-2">
+                                {siteSettings.homepage?.sections?.filter(s => s.enabled).length || 0}
+                            </div>
+                            <div className="text-green-700 font-medium text-sm">Active Sections</div>
+                        </div>
+                        <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl p-6 border border-gray-200 text-center">
+                            <div className="text-3xl font-bold text-gray-600 mb-2">
+                                {siteSettings.homepage?.sections?.filter(s => !s.enabled).length || 0}
+                            </div>
+                            <div className="text-gray-700 font-medium text-sm">Hidden Sections</div>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
+    </motion.div>
+)}
+
+
+      {/* Carousel Tab */}
+{activeTab === 'carousel' && (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+    >
+        {/* Header Section */}
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-indigo-50">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl text-white">
+                        <FaImages className="text-2xl" />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
+                            Carousel Management
+                        </h2>
+                        <p className="text-gray-600 text-lg">Upload and organize homepage carousel images with captions and links</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Upload Section */}
+            <div className="p-8">
+                <div className="flex items-center gap-3 mb-6">
+                    <span className="w-2 h-8 bg-gradient-to-b from-purple-500 to-indigo-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800">Upload New Images</h3>
+                </div>
+
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200">
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={e => handleMultiImageUpload(e.target.files)}
+                        disabled={uploading}
+                    />
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className={`px-8 py-4 rounded-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
+                            uploading 
+                                ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-xl'
+                        }`}
+                    >
+                        {uploading ? (
+                            <>
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                    className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full"
+                                />
+                                Uploading Images...
+                            </>
+                        ) : (
+                            <>
+                                <FaCloudUploadAlt />
+                                Upload Multiple Images
+                            </>
+                        )}
+                    </motion.button>
+                    <p className="text-purple-700 text-sm mt-3 flex items-center gap-2">
+                        <FaInfoCircle />
+                        Select multiple images to upload them all at once
+                    </p>
+                </div>
+            </div>
+        </motion.div>
+
+        {/* Carousel Images Management */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full"></span>
+                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <FaGripVertical className="text-blue-600" />
+                            Carousel Images ({carouselOrder.length})
+                        </h3>
+                    </div>
+                    {carouselOrder.length > 0 && (
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleSaveOrder}
+                            className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 flex items-center gap-2"
+                        >
+                            <FaSave />
+                            Save Order
+                        </motion.button>
+                    )}
+                </div>
+                <p className="text-gray-600 mt-2">Drag and drop images to reorder them in the carousel</p>
+            </div>
+
+            <div className="p-8">
+                {carouselOrder.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <AnimatePresence>
+                            {carouselOrder.map((item, idx) => (
+                                <motion.div
+                                    key={item.id}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    whileHover={{ y: -4 }}
+                                    className="group relative bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-move border border-gray-200"
+                                    draggable
+                                    onDragStart={e => handleDragStart(e, item.id)}
+                                    onDrop={e => handleDrop(e, item.id)}
+                                    onDragOver={handleDragOver}
+                                >
+                                    {/* Image */}
+                                    <div className="relative aspect-video overflow-hidden">
+                                        <img 
+                                            src={item.image} 
+                                            alt={item.caption || 'carousel image'} 
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        
+                                        {/* Order Badge */}
+                                        <div className="absolute top-3 left-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                                            #{idx + 1}
+                                        </div>
+
+                                        {/* Drag Handle */}
+                                        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                            <FaGripVertical />
+                                        </div>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="p-6 space-y-3">
+                                        <div>
+                                            <h4 className="font-semibold text-gray-800 line-clamp-2">
+                                                {item.caption || 'No Caption'}
+                                            </h4>
+                                            {item.link && (
+                                                <a 
+                                                    href={item.link} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    className="text-blue-600 hover:text-blue-800 text-sm truncate block mt-1 flex items-center gap-1"
+                                                >
+                                                    <FaExternalLinkAlt size={10} />
+                                                    {item.link}
+                                                </a>
                                             )}
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+
+                                        {/* Action Buttons */}
+                                        <div className="flex gap-2 pt-2">
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => handleEditCarousel(item)}
+                                                className="flex-1 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                                            >
+                                                <FaEdit size={14} />
+                                                Edit
+                                            </motion.button>
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => handleDeleteCarousel(item.id)}
+                                                className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                                            >
+                                                <FaTrash size={14} />
+                                                Delete
+                                            </motion.button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                ) : (
+                    <div className="text-center py-20">
+                        <div className="text-6xl mb-6">🖼️</div>
+                        <h3 className="text-2xl font-semibold text-gray-400 mb-2">No Carousel Images</h3>
+                        <p className="text-gray-500 mb-6">Upload your first carousel image to get started</p>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 flex items-center gap-2 mx-auto"
+                        >
+                            <FaCloudUploadAlt />
+                            Upload First Image
+                        </motion.button>
+                    </div>
+                )}
+            </div>
+        </motion.div>
+
+        {/* Edit Modal */}
+        <AnimatePresence>
+            {editingCarousel && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                >
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                                <FaEdit className="text-purple-600" />
+                                Edit Carousel Item
+                            </h3>
                             <button
-                                onClick={handleSaveSiteSettings}
-                                disabled={saving}
-                                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                                onClick={() => setEditingCarousel(null)}
+                                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                             >
-                                {saving ? 'Saving...' : 'Save All Changes'}
+                                <FaTimes />
                             </button>
                         </div>
-                    </div>
-                )}
 
-                {/* Homepage Layout Tab */}
-                {activeTab === 'homepage' && (
-                    <div className="space-y-8">
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Homepage Layout Management</h2>
-                            <p className="text-gray-600 mb-6">
-                                Control which sections appear on your homepage and in what order.
-                                Drag and drop to reorder sections, and use the toggle switches to show or hide them.
-                            </p>
-
-                            {siteSettings.homepage?.sections ? (
-                                <SortableSection
-                                    sections={siteSettings.homepage.sections}
-                                    onSectionsChange={handleHomepageSectionsChange}
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Image</label>
+                                <ImageUpload
+                                    value={editingCarousel.image}
+                                    onChange={img => setEditingCarousel(c => c ? { ...c, image: img } : null)}
+                                    label="Update Image"
                                 />
-                            ) : (
-                                <div className="text-center py-8 text-gray-500">
-                                    No homepage sections configured.
-                                </div>
-                            )}
-
-                            <div className="mt-6 pt-6 border-t border-gray-200">
-                                <button
-                                    onClick={handleSaveSiteSettings}
-                                    disabled={saving}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                                >
-                                    {saving ? 'Saving...' : 'Save Homepage Layout'}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Preview Section */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h3 className="text-lg font-semibold mb-4">Current Homepage Layout Preview</h3>
-                            <div className="space-y-2">
-                                {siteSettings.homepage?.sections
-                                    ?.filter(section => section.enabled)
-                                    ?.sort((a, b) => a.order - b.order)
-                                    ?.map((section: HomepageSection, index: number) => (
-                                        <div
-                                            key={section.id}
-                                            className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
-                                        >
-                                            <div className="flex items-center space-x-3">
-                                                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
-                                                    {index + 1}
-                                                </span>
-                                                <span className="font-medium text-gray-800">
-                                                    {section.name}
-                                                </span>
-                                            </div>
-                                            <span className="text-green-600 text-sm font-medium">
-                                                Visible
-                                            </span>
-                                        </div>
-                                    ))}
-
-                                {siteSettings.homepage?.sections?.filter(section => section.enabled).length === 0 && (
-                                    <div className="text-center py-8 text-gray-500">
-                                        No sections are currently enabled for the homepage.
-                                    </div>
-                                )}
                             </div>
 
-                            {siteSettings.homepage?.sections?.some(section => !section.enabled) && (
-                                <div className="mt-6 pt-4 border-t border-gray-200">
-                                    <h4 className="text-sm font-medium text-gray-700 mb-3">Hidden Sections:</h4>
-                                    <div className="flex flex-wrap gap-2">
-                                        {siteSettings.homepage.sections
-                                            .filter(section => !section.enabled)
-                                            .map((section: HomepageSection) => (
-                                                <span
-                                                    key={section.id}
-                                                    className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded"
-                                                >
-                                                    {section.name}
-                                                </span>
-                                            ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Carousel Tab */}
-                {activeTab === 'carousel' && (
-                    <div className="space-y-8">
-                        <div className="bg-white p-6 rounded-lg shadow">
-                            <h2 className="text-xl font-semibold mb-4">Manage Carousel</h2>
-                            {/* Multi-image upload */}
-                            <div className="mb-6">
-                                <h3 className="text-lg font-semibold mb-2">Add Images</h3>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Caption</label>
                                 <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    className="mb-2"
-                                    onChange={e => handleMultiImageUpload(e.target.files)}
-                                    disabled={uploading}
+                                    type="text"
+                                    placeholder="Enter image caption (optional)"
+                                    value={editingCarousel.caption || ''}
+                                    onChange={e => setEditingCarousel(c => c ? { ...c, caption: e.target.value } : null)}
+                                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                                 />
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                    disabled={uploading}
-                                >{uploading ? 'Uploading...' : 'Upload Images'}</button>
                             </div>
-                            {/* Sortable carousel list */}
+
                             <div>
-                                <h3 className="text-lg font-semibold mb-2">Carousel Images (Drag to reorder)</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {carouselOrder.map(item => (
-                                        <div
-                                            key={item.id}
-                                            className="relative border rounded-lg p-4 flex flex-col gap-2 bg-gray-50 cursor-move"
-                                            draggable
-                                            onDragStart={e => handleDragStart(e, item.id)}
-                                            onDrop={e => handleDrop(e, item.id)}
-                                            onDragOver={handleDragOver}
-                                        >
-                                            <img src={item.image} alt={item.caption || 'carousel'} className="w-full h-40 object-cover rounded" />
-                                            <div className="flex flex-col gap-1">
-                                                <span className="font-semibold">{item.caption}</span>
-                                                {item.link && <a href={item.link} className="text-blue-600 text-xs" target="_blank" rel="noopener noreferrer">{item.link}</a>}
-                                            </div>
-                                            <div className="flex gap-2 mt-2">
-                                                <button onClick={() => handleEditCarousel(item)} className="px-2 py-1 bg-yellow-400 text-white rounded">Edit</button>
-                                                <button onClick={() => handleDeleteCarousel(item.id)} className="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <button
-                                    onClick={handleSaveOrder}
-                                    className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                                >Save Order</button>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Link URL</label>
+                                <input
+                                    type="text"
+                                    placeholder="https://example.com (optional)"
+                                    value={editingCarousel.link || ''}
+                                    onChange={e => setEditingCarousel(c => c ? { ...c, link: e.target.value } : null)}
+                                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                                />
                             </div>
-                            {/* Edit Carousel Modal */}
-                            {editingCarousel && (
-                                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-                                        <h3 className="text-lg font-semibold mb-4">Edit Carousel Item</h3>
-                                        <ImageUpload value={editingCarousel.image} onChange={img => setEditingCarousel(c => c ? { ...c, image: img } : null)} />
-                                        <input
-                                            type="text"
-                                            placeholder="Caption (optional)"
-                                            value={editingCarousel.caption || ''}
-                                            onChange={e => setEditingCarousel(c => c ? { ...c, caption: e.target.value } : null)}
-                                            className="border p-2 rounded w-full my-2"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="Link (optional)"
-                                            value={editingCarousel.link || ''}
-                                            onChange={e => setEditingCarousel(c => c ? { ...c, link: e.target.value } : null)}
-                                            className="border p-2 rounded w-full my-2"
-                                        />
-                                        <div className="flex gap-2 mt-4">
-                                            <button onClick={handleUpdateCarousel} className="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
-                                            <button onClick={() => setEditingCarousel(null)} className="bg-gray-300 px-4 py-2 rounded">Cancel</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </div>
+
+                        <div className="flex gap-3 mt-8">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleUpdateCarousel}
+                                className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:shadow-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                            >
+                                <FaSave />
+                                Save Changes
+                            </motion.button>
+                            <button
+                                onClick={() => setEditingCarousel(null)}
+                                className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-200 font-medium transition-colors duration-200"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </motion.div>
+)}
+
+
+       {/* Others Tab */}
+{activeTab === 'others' && (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+    >
+        {/* Header Section */}
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-zinc-50">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gradient-to-br from-slate-500 to-zinc-500 rounded-xl text-white">
+                        <FaCog className="text-2xl" />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-600 via-zinc-600 to-gray-700 bg-clip-text text-transparent">
+                            Additional Sections
+                        </h2>
+                        <p className="text-gray-600 text-lg">Manage specialized sections and additional content areas</p>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+
+        {/* AISHE Section */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <FaChartBar className="text-blue-600" />
+                        AISHE Section
+                    </h3>
+                </div>
+                <p className="text-gray-600 mt-2">All India Survey on Higher Education related content</p>
+            </div>
+
+            <div className="p-8 space-y-6">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                >
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaHeading className="text-blue-500" />
+                            Section Title
+                        </label>
+                        <input
+                            type="text"
+                            value={others.aishe.title}
+                            onChange={e => setOthers(o => ({ ...o, aishe: { ...o.aishe, title: e.target.value } }))}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            placeholder="AISHE Report"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaQuoteLeft className="text-indigo-500" />
+                            Section Subtitle
+                        </label>
+                        <input
+                            type="text"
+                            value={others.aishe.subtitle}
+                            onChange={e => setOthers(o => ({ ...o, aishe: { ...o.aishe, subtitle: e.target.value } }))}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Annual data submission and statistics"
+                        />
+                    </div>
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="space-y-2"
+                >
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <FaFileAlt className="text-cyan-500" />
+                        AISHE Content
+                    </label>
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                        <RichTextEditor
+                            value={others.aishe.content}
+                            onChange={content => setOthers(o => ({ ...o, aishe: { ...o.aishe, content } }))}
+                            placeholder="Enter AISHE content including survey data, statistics, compliance information, and annual reports..."
+                        />
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
+
+        {/* Academic Coordinator Section */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <FaUserTie className="text-emerald-600" />
+                        Academic Coordinator Section
+                    </h3>
+                </div>
+                <p className="text-gray-600 mt-2">Academic coordination and administrative information</p>
+            </div>
+
+            <div className="p-8 space-y-6">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                >
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaHeading className="text-emerald-500" />
+                            Section Title
+                        </label>
+                        <input
+                            type="text"
+                            value={others.academicCoordinator.title}
+                            onChange={e => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, title: e.target.value } }))}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Academic Coordinator"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaQuoteLeft className="text-teal-500" />
+                            Section Subtitle
+                        </label>
+                        <input
+                            type="text"
+                            value={others.academicCoordinator.subtitle}
+                            onChange={e => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, subtitle: e.target.value } }))}
+                            className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Academic oversight and coordination"
+                        />
+                    </div>
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="space-y-2"
+                >
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <FaFileAlt className="text-cyan-500" />
+                        Academic Coordinator Content
+                    </label>
+                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
+                        <RichTextEditor
+                            value={others.academicCoordinator.content}
+                            onChange={content => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, content } }))}
+                            placeholder="Enter Academic Coordinator information including responsibilities, contact details, office hours, and coordination procedures..."
+                        />
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
+
+        {/* Content Preview */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></span>
+                    <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <FaEye className="text-purple-600" />
+                        Content Preview
+                    </h3>
+                </div>
+                <p className="text-gray-600 mt-2">Preview of your additional sections</p>
+            </div>
+
+            <div className="p-8 space-y-6">
+                {/* AISHE Preview */}
+                {(others.aishe.title || others.aishe.subtitle || others.aishe.content) && (
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                        <div className="flex items-center gap-3 mb-4">
+                            <FaChartBar className="text-blue-600" />
+                            <h4 className="text-lg font-bold text-blue-800">AISHE Section Preview</h4>
+                        </div>
+                        {others.aishe.title && (
+                            <h5 className="text-xl font-bold text-gray-800 mb-2">{others.aishe.title}</h5>
+                        )}
+                        {others.aishe.subtitle && (
+                            <p className="text-gray-600 mb-3">{others.aishe.subtitle}</p>
+                        )}
+                        {others.aishe.content && (
+                            <div 
+                                className="prose max-w-none text-gray-700"
+                                dangerouslySetInnerHTML={{ __html: others.aishe.content }}
+                            />
+                        )}
                     </div>
                 )}
 
-                {/* Others Tab */}
-                {activeTab === 'others' && (
-                    <div className="space-y-8">
-                        {/* AISHE Section */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                          <h2 className="text-xl font-semibold mb-4">AISHE Section</h2>
-                          <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
-                              <input
-                                type="text"
-                                value={others.aishe.title}
-                                onChange={e => setOthers(o => ({ ...o, aishe: { ...o.aishe, title: e.target.value } }))}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
-                              <input
-                                type="text"
-                                value={others.aishe.subtitle}
-                                onChange={e => setOthers(o => ({ ...o, aishe: { ...o.aishe, subtitle: e.target.value } }))}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                              <RichTextEditor
-                                value={others.aishe.content}
-                                onChange={content => setOthers(o => ({ ...o, aishe: { ...o.aishe, content } }))}
-                                placeholder="Enter AISHE content with rich formatting..."
-                              />
-                            </div>
-                          </div>
+                {/* Academic Coordinator Preview */}
+                {(others.academicCoordinator.title || others.academicCoordinator.subtitle || others.academicCoordinator.content) && (
+                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
+                        <div className="flex items-center gap-3 mb-4">
+                            <FaUserTie className="text-emerald-600" />
+                            <h4 className="text-lg font-bold text-emerald-800">Academic Coordinator Preview</h4>
                         </div>
-                        {/* Academic Coordinator Section */}
-                        <div className="bg-white p-6 rounded-lg shadow">
-                          <h2 className="text-xl font-semibold mb-4">Academic Coordinator Section</h2>
-                          <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
-                              <input
-                                type="text"
-                                value={others.academicCoordinator.title}
-                                onChange={e => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, title: e.target.value } }))}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label>
-                              <input
-                                type="text"
-                                value={others.academicCoordinator.subtitle}
-                                onChange={e => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, subtitle: e.target.value } }))}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                              <RichTextEditor
-                                value={others.academicCoordinator.content}
-                                onChange={content => setOthers(o => ({ ...o, academicCoordinator: { ...o.academicCoordinator, content } }))}
-                                placeholder="Enter Academic Coordinator content with rich formatting..."
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={handleSaveOthers}
-                          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                        >
-                          Save Others
-                        </button>
+                        {others.academicCoordinator.title && (
+                            <h5 className="text-xl font-bold text-gray-800 mb-2">{others.academicCoordinator.title}</h5>
+                        )}
+                        {others.academicCoordinator.subtitle && (
+                            <p className="text-gray-600 mb-3">{others.academicCoordinator.subtitle}</p>
+                        )}
+                        {others.academicCoordinator.content && (
+                            <div 
+                                className="prose max-w-none text-gray-700"
+                                dangerouslySetInnerHTML={{ __html: others.academicCoordinator.content }}
+                            />
+                        )}
                     </div>
                 )}
+
+                {/* Empty State */}
+                {!others.aishe.title && !others.aishe.subtitle && !others.aishe.content && 
+                 !others.academicCoordinator.title && !others.academicCoordinator.subtitle && !others.academicCoordinator.content && (
+                    <div className="text-center py-12 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-dashed border-gray-300">
+                        <div className="text-6xl mb-4">📝</div>
+                        <h4 className="text-xl font-semibold text-gray-400 mb-2">No Content Yet</h4>
+                        <p className="text-gray-500">Add content to the sections above to see a preview here</p>
+                    </div>
+                )}
+            </div>
+        </motion.div>
+
+        {/* Save Button */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex justify-center"
+        >
+            <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSaveOthers}
+                disabled={saving}
+                className={`px-12 py-4 rounded-2xl shadow-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
+                    saving 
+                        ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                        : 'bg-gradient-to-r from-slate-600 to-zinc-600 text-white hover:shadow-2xl'
+                }`}
+            >
+                {saving ? (
+                    <>
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full"
+                        />
+                        Saving Content...
+                    </>
+                ) : (
+                    <>
+                        <FaSave />
+                        Save Additional Sections
+                    </>
+                )}
+            </motion.button>
+        </motion.div>
+
+        {/* Statistics */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+        >
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-white/20">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                        <FaChartBar className="text-blue-600" />
+                    </div>
+                    <h4 className="font-semibold text-gray-800">AISHE Section</h4>
+                </div>
+                <div className="text-2xl font-bold text-blue-600 mb-2">
+                    {[others.aishe.title, others.aishe.subtitle, others.aishe.content].filter(Boolean).length}/3
+                </div>
+                <div className="text-sm text-gray-600">Fields completed</div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-white/20">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-emerald-100 rounded-lg">
+                        <FaUserTie className="text-emerald-600" />
+                    </div>
+                    <h4 className="font-semibold text-gray-800">Academic Coordinator</h4>
+                </div>
+                <div className="text-2xl font-bold text-emerald-600 mb-2">
+                    {[others.academicCoordinator.title, others.academicCoordinator.subtitle, others.academicCoordinator.content].filter(Boolean).length}/3
+                </div>
+                <div className="text-sm text-gray-600">Fields completed</div>
+            </div>
+        </motion.div>
+    </motion.div>
+)}
+
 
                 {activeTab === 'gallery' && (
                     <section className="p-4 max-w-4xl mx-auto">
@@ -3464,163 +5054,494 @@ export default function AdminPage() {
                         >Save Homepage Image</button>
                     </section>
                 )}
-                {activeTab === 'iqac' && (
-                  <section className="space-y-8">
-                    <div className="bg-white p-6 rounded-lg shadow">
-                      <h2 className="text-xl font-semibold mb-4">IQAC Management</h2>
-                      {iqacLoading ? (
-                        <div className="text-gray-500">Loading...</div>
-                      ) : iqac ? (
-                        <div className="space-y-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                              <input className="w-full p-2 border rounded" value={iqac.title || ''} onChange={e => setIqac((prev:any) => ({ ...prev, title: e.target.value }))} />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Subtitle</label>
-                              <input className="w-full p-2 border rounded" value={iqac.subtitle || ''} onChange={e => setIqac((prev:any) => ({ ...prev, subtitle: e.target.value }))} />
-                            </div>
-                          </div>
+             {activeTab === 'iqac' && (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+    >
+        {/* Header Section */}
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+        >
+            <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-cyan-50">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl text-white">
+                        <FaShieldAlt className="text-2xl" />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent">
+                            IQAC Management
+                        </h2>
+                        <p className="text-gray-600 text-lg">Internal Quality Assurance Cell configuration and committee management</p>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
 
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Hero Image</label>
-                            <ImageUpload value={iqac.heroImage || ''} onChange={(url) => setIqac((prev:any)=>({ ...prev, heroImage: url }))} label="Upload Hero Image" />
-                          </div>
+        {/* Main Content */}
+        {iqacLoading ? (
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-white rounded-2xl shadow-xl border border-white/20 p-16 text-center"
+            >
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-4"
+                />
+                <p className="text-gray-500 text-lg">Loading IQAC data...</p>
+            </motion.div>
+        ) : iqac ? (
+            <div className="space-y-8">
+                {/* Basic Information */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+                >
+                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div className="flex items-center gap-3">
+                            <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></span>
+                            <h3 className="text-xl font-bold text-gray-800">Basic Information</h3>
+                        </div>
+                    </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Mission Title</label>
-                              <input className="w-full p-2 border rounded mb-2" value={iqac.mission?.title || ''} onChange={e => setIqac((prev:any)=>({ ...prev, mission: { ...(prev.mission||{}), title: e.target.value } }))} />
-                              <RichTextEditor value={iqac.mission?.content || ''} onChange={content => setIqac((prev:any)=>({ ...prev, mission: { ...(prev.mission||{}), content } }))} />
+                    <div className="p-8 space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <FaHeading className="text-blue-500" />
+                                    IQAC Title
+                                </label>
+                                <input 
+                                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+                                    value={iqac.title || ''} 
+                                    onChange={e => setIqac((prev:any) => ({ ...prev, title: e.target.value }))} 
+                                    placeholder="Internal Quality Assurance Cell"
+                                />
                             </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Vision Title</label>
-                              <input className="w-full p-2 border rounded mb-2" value={iqac.vision?.title || ''} onChange={e => setIqac((prev:any)=>({ ...prev, vision: { ...(prev.vision||{}), title: e.target.value } }))} />
-                              <RichTextEditor value={iqac.vision?.content || ''} onChange={content => setIqac((prev:any)=>({ ...prev, vision: { ...(prev.vision||{}), content } }))} />
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <FaQuoteLeft className="text-indigo-500" />
+                                    Subtitle
+                                </label>
+                                <input 
+                                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200" 
+                                    value={iqac.subtitle || ''} 
+                                    onChange={e => setIqac((prev:any) => ({ ...prev, subtitle: e.target.value }))} 
+                                    placeholder="Ensuring continuous quality improvement"
+                                />
                             </div>
-                          </div>
+                        </div>
 
-                          {/* Committee Editor */}
-                          <div className="border rounded-lg p-4">
-                            <h3 className="font-semibold mb-3">Committee</h3>
-                            <div className="mb-3">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Committee Title</label>
-                              <input
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                <FaImage className="text-purple-500" />
+                                Hero Image
+                            </label>
+                            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+                                <ImageUpload 
+                                    value={iqac.heroImage || ''} 
+                                    onChange={(url) => setIqac((prev:any)=>({ ...prev, heroImage: url }))} 
+                                    label="Upload IQAC Hero Image" 
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Mission & Vision */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+                >
+                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+                        <div className="flex items-center gap-3">
+                            <span className="w-2 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></span>
+                            <h3 className="text-xl font-bold text-gray-800">Mission & Vision</h3>
+                        </div>
+                    </div>
+
+                    <div className="p-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 mb-4">
+                                    {/* Replaced FaTarget with a checkmark icon as a placeholder */}
+                                    <span className="text-emerald-600 text-xl">&#10003;</span>
+                                    <h4 className="text-lg font-bold text-gray-800">Mission</h4>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">Mission Title</label>
+                                    <input 
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" 
+                                        value={iqac.mission?.title || ''} 
+                                        onChange={e => setIqac((prev:any)=>({ ...prev, mission: { ...(prev.mission||{}), title: e.target.value } }))} 
+                                        placeholder="Our Mission"
+                                    />
+                                </div>
+                                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
+                                    <RichTextEditor 
+                                        value={iqac.mission?.content || ''} 
+                                        onChange={content => setIqac((prev:any)=>({ ...prev, mission: { ...(prev.mission||{}), content } }))} 
+                                        placeholder="Describe the IQAC mission..."
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <FaEye className="text-teal-600 text-xl" />
+                                    <h4 className="text-lg font-bold text-gray-800">Vision</h4>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">Vision Title</label>
+                                    <input 
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200" 
+                                        value={iqac.vision?.title || ''} 
+                                        onChange={e => setIqac((prev:any)=>({ ...prev, vision: { ...(prev.vision||{}), title: e.target.value } }))} 
+                                        placeholder="Our Vision"
+                                    />
+                                </div>
+                                <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-200">
+                                    <RichTextEditor 
+                                        value={iqac.vision?.content || ''} 
+                                        onChange={content => setIqac((prev:any)=>({ ...prev, vision: { ...(prev.vision||{}), content } }))} 
+                                        placeholder="Describe the IQAC vision..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Committee Management */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+                >
+                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-violet-50 to-purple-50">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <span className="w-2 h-8 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full"></span>
+                                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    <FaUsers className="text-violet-600" />
+                                    Committee Members ({(iqac.committee?.members || []).length})
+                                </h3>
+                            </div>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                type="button" 
+                                className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 flex items-center gap-2"
+                                onClick={() => setIqac((prev:any)=>({
+                                    ...prev,
+                                    committee: {
+                                        ...(prev.committee || { title: '', members: [] }),
+                                        members: [ ...((prev.committee?.members) || []), { name: '', position: '', designation: '', department: '' } ]
+                                    }
+                                }))}
+                            >
+                                <FaPlus />
+                                Add Member
+                            </motion.button>
+                        </div>
+                    </div>
+
+                    <div className="p-8 space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                <FaIdCard className="text-violet-500" />
+                                Committee Title
+                            </label>
+                            <input
                                 type="text"
-                                className="w-full p-2 border rounded"
+                                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
                                 value={iqac.committee?.title || ''}
                                 onChange={e => setIqac((prev:any)=>({ ...prev, committee: { ...(prev.committee||{}), title: e.target.value, members: (prev.committee?.members||[]) } }))}
-                              />
-                            </div>
-                            <div className="space-y-3">
-                              {(iqac.committee?.members || []).map((m:any, idx:number) => (
-                                <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end bg-gray-50 p-3 rounded">
-                                  <div>
-                                    <label className="block text-xs text-gray-600 mb-1">Name</label>
-                                    <input type="text" className="w-full p-2 border rounded" value={m.name || ''} onChange={e => {
-                                      const next = { ...(iqac as any) };
-                                      const list = [ ...(next.committee?.members || []) ];
-                                      list[idx] = { ...list[idx], name: e.target.value };
-                                      next.committee = { ...(next.committee||{}), members: list };
-                                      setIqac(next);
-                                    }} />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs text-gray-600 mb-1">Position</label>
-                                    <input type="text" className="w-full p-2 border rounded" value={m.position || ''} onChange={e => {
-                                      const next = { ...(iqac as any) };
-                                      const list = [ ...(next.committee?.members || []) ];
-                                      list[idx] = { ...list[idx], position: e.target.value };
-                                      next.committee = { ...(next.committee||{}), members: list };
-                                      setIqac(next);
-                                    }} />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs text-gray-600 mb-1">Designation</label>
-                                    <input type="text" className="w-full p-2 border rounded" value={m.designation || ''} onChange={e => {
-                                      const next = { ...(iqac as any) };
-                                      const list = [ ...(next.committee?.members || []) ];
-                                      list[idx] = { ...list[idx], designation: e.target.value };
-                                      next.committee = { ...(next.committee||{}), members: list };
-                                      setIqac(next);
-                                    }} />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs text-gray-600 mb-1">Department</label>
-                                    <input type="text" className="w-full p-2 border rounded" value={m.department || ''} onChange={e => {
-                                      const next = { ...(iqac as any) };
-                                      const list = [ ...(next.committee?.members || []) ];
-                                      list[idx] = { ...list[idx], department: e.target.value };
-                                      next.committee = { ...(next.committee||{}), members: list };
-                                      setIqac(next);
-                                    }} />
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <button type="button" className="px-3 py-2 bg-red-500 text-white rounded"
-                                      onClick={() => setIqac((prev:any)=>({
-                                        ...prev,
-                                        committee: {
-                                          ...(prev.committee||{ title: '', members: [] }),
-                                          members: (prev.committee?.members || []).filter((_:any, i:number) => i !== idx)
-                                        }
-                                      }))}
-                                    >Remove</button>
-                                  </div>
-                                </div>
-                              ))}
-                              <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded"
-                                onClick={() => setIqac((prev:any)=>({
-                                  ...prev,
-                                  committee: {
-                                    ...(prev.committee || { title: '', members: [] }),
-                                    members: [ ...((prev.committee?.members) || []), { name: '', position: '', designation: '', department: '' } ]
-                                  }
-                                }))}
-                              >Add Member</button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Objectives (one per line)</label>
-                            <textarea className="w-full p-2 border rounded" rows={4} value={(iqac.objectives||[]).join('\n')} onChange={e => setIqac((prev:any)=>({ ...prev, objectives: e.target.value.split('\n').map((s)=>s.trim()).filter(Boolean) }))} />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Functions (one per line)</label>
-                            <textarea className="w-full p-2 border rounded" rows={4} value={(iqac.functions||[]).join('\n')} onChange={e => setIqac((prev:any)=>({ ...prev, functions: e.target.value.split('\n').map((s)=>s.trim()).filter(Boolean) }))} />
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold mb-2">Visibility</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {['overview','committee','activities','reports','practices'].map((key) => (
-                                <label key={key} className="flex items-center gap-2">
-                                  <input type="checkbox" checked={iqac.enabled ? iqac.enabled[key] !== false : true} onChange={(e) => setIqac((prev:any)=>({ ...prev, enabled: { ...(prev.enabled||{}), [key]: e.target.checked } }))} />
-                                  <span className="capitalize">Show {key}</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="pt-2">
-                            <button
-                              onClick={async ()=>{
-                                setIqacSaving(true);
-                                await fetch('/api/iqac', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(iqac) });
-                                setIqacSaving(false);
-                              }}
-                              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                              disabled={iqacSaving}
-                            >{iqacSaving ? 'Saving...' : 'Save IQAC'}</button>
-                          </div>
+                                placeholder="IQAC Committee"
+                            />
                         </div>
-                      ) : (
-                        <div className="text-gray-500">No IQAC data found.</div>
-                      )}
+
+                        <div className="space-y-4">
+                            <AnimatePresence>
+                                {(iqac.committee?.members || []).map((m:any, idx:number) => (
+                                    <motion.div 
+                                        key={idx}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-6 border border-violet-200"
+                                    >
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h4 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                                                <FaUserTie className="text-violet-600" />
+                                                Member #{idx + 1}
+                                            </h4>
+                                            <motion.button 
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                type="button" 
+                                                className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                                                onClick={() => setIqac((prev:any)=>({
+                                                    ...prev,
+                                                    committee: {
+                                                        ...(prev.committee||{ title: '', members: [] }),
+                                                        members: (prev.committee?.members || []).filter((_:any, i:number) => i !== idx)
+                                                    }
+                                                }))}
+                                            >
+                                                <FaTrash />
+                                            </motion.button>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="block text-sm font-medium text-gray-700">Name</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200" 
+                                                    value={m.name || ''} 
+                                                    onChange={e => {
+                                                        const next = { ...(iqac as any) };
+                                                        const list = [ ...(next.committee?.members || []) ];
+                                                        list[idx] = { ...list[idx], name: e.target.value };
+                                                        next.committee = { ...(next.committee||{}), members: list };
+                                                        setIqac(next);
+                                                    }} 
+                                                    placeholder="Full name"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="block text-sm font-medium text-gray-700">Position</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200" 
+                                                    value={m.position || ''} 
+                                                    onChange={e => {
+                                                        const next = { ...(iqac as any) };
+                                                        const list = [ ...(next.committee?.members || []) ];
+                                                        list[idx] = { ...list[idx], position: e.target.value };
+                                                        next.committee = { ...(next.committee||{}), members: list };
+                                                        setIqac(next);
+                                                    }} 
+                                                    placeholder="Chairman/Member"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="block text-sm font-medium text-gray-700">Designation</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200" 
+                                                    value={m.designation || ''} 
+                                                    onChange={e => {
+                                                        const next = { ...(iqac as any) };
+                                                        const list = [ ...(next.committee?.members || []) ];
+                                                        list[idx] = { ...list[idx], designation: e.target.value };
+                                                        next.committee = { ...(next.committee||{}), members: list };
+                                                        setIqac(next);
+                                                    }} 
+                                                    placeholder="Professor/Principal"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="block text-sm font-medium text-gray-700">Department</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200" 
+                                                    value={m.department || ''} 
+                                                    onChange={e => {
+                                                        const next = { ...(iqac as any) };
+                                                        const list = [ ...(next.committee?.members || []) ];
+                                                        list[idx] = { ...list[idx], department: e.target.value };
+                                                        next.committee = { ...(next.committee||{}), members: list };
+                                                        setIqac(next);
+                                                    }} 
+                                                    placeholder="Computer Science"
+                                                />
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+
+                            {(iqac.committee?.members || []).length === 0 && (
+                                <div className="text-center py-12 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-dashed border-gray-300">
+                                    <div className="text-6xl mb-4">👥</div>
+                                    <h4 className="text-xl font-semibold text-gray-400 mb-2">No Committee Members</h4>
+                                    <p className="text-gray-500">Add your first committee member to get started</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                  </section>
-                )}
+                </motion.div>
+
+                {/* Objectives & Functions */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+                >
+                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
+                        <div className="flex items-center gap-3">
+                            <span className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full"></span>
+                            <h3 className="text-xl font-bold text-gray-800">Objectives & Functions</h3>
+                        </div>
+                    </div>
+
+                    <div className="p-8 space-y-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <FaBullseye className="text-amber-600 text-xl" />
+                                    <h4 className="text-lg font-bold text-gray-800">Objectives</h4>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">Objectives (one per line)</label>
+                                    <textarea 
+                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200" 
+                                        rows={6} 
+                                        value={(iqac.objectives||[]).join('\n')} 
+                                        onChange={e => setIqac((prev:any)=>({ ...prev, objectives: e.target.value.split('\n').map((s)=>s.trim()).filter(Boolean) }))} 
+                                        placeholder="Enter each objective on a new line..."
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <FaCogs className="text-orange-600 text-xl" />
+                                    <h4 className="text-lg font-bold text-gray-800">Functions</h4>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">Functions (one per line)</label>
+                                    <textarea 
+                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200" 
+                                        rows={6} 
+                                        value={(iqac.functions||[]).join('\n')} 
+                                        onChange={e => setIqac((prev:any)=>({ ...prev, functions: e.target.value.split('\n').map((s)=>s.trim()).filter(Boolean) }))} 
+                                        placeholder="Enter each function on a new line..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Visibility Settings */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+                >
+                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-rose-50 to-pink-50">
+                        <div className="flex items-center gap-3">
+                            <span className="w-2 h-8 bg-gradient-to-b from-rose-500 to-pink-500 rounded-full"></span>
+                            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                <FaToggleOn className="text-rose-600" />
+                                Section Visibility
+                            </h3>
+                        </div>
+                        <p className="text-gray-600 mt-2">Control which sections are visible on the IQAC page</p>
+                    </div>
+
+                    <div className="p-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {[
+                                { key: 'overview', label: 'Overview', icon: FaEye },
+                                { key: 'committee', label: 'Committee', icon: FaUsers },
+                                { key: 'activities', label: 'Activities', icon: FaTasks },
+                                { key: 'reports', label: 'Reports', icon: FaFileAlt },
+                                { key: 'practices', label: 'Best Practices', icon: FaStar }
+                            ].map(({ key, label, icon: Icon }) => (
+                                <div key={key} className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-xl p-6 border border-rose-200">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-rose-100 rounded-lg">
+                                                <Icon className="text-rose-600" />
+                                            </div>
+                                            <span className="font-semibold text-gray-800 capitalize">{label}</span>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={iqac.enabled ? iqac.enabled[key] !== false : true} 
+                                                onChange={(e) => setIqac((prev:any)=>({ ...prev, enabled: { ...(prev.enabled||{}), [key]: e.target.checked } }))} 
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-rose-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Save Button */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="flex justify-center"
+                >
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={async ()=>{
+                            setIqacSaving(true);
+                            await fetch('/api/iqac', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(iqac) });
+                            setIqacSaving(false);
+                        }}
+                        className={`px-12 py-4 rounded-2xl shadow-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
+                            iqacSaving 
+                                ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                : 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white hover:shadow-2xl'
+                        }`}
+                        disabled={iqacSaving}
+                    >
+                        {iqacSaving ? (
+                            <>
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                    className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full"
+                                />
+                                Saving IQAC Data...
+                            </>
+                        ) : (
+                            <>
+                                <FaSave />
+                                Save IQAC Configuration
+                            </>
+                        )}
+                    </motion.button>
+                </motion.div>
+            </div>
+        ) : (
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-2xl shadow-xl border border-white/20 p-16 text-center"
+            >
+                <div className="text-6xl mb-6">📋</div>
+                <h3 className="text-2xl font-semibold text-gray-400 mb-2">No IQAC Data Found</h3>
+                <p className="text-gray-500">IQAC configuration data is not available</p>
+            </motion.div>
+        )}
+    </motion.div>
+)}
+
                 {activeTab === 'alumni' && (
                     <section className="p-4 max-w-2xl mx-auto">
                         <h2 className="text-2xl font-bold mb-4">Alumni Association</h2>
@@ -4154,4 +6075,5 @@ export default function AdminPage() {
     );
 }
 
+// Handlers moved inside component
 // Handlers moved inside component

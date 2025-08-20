@@ -3,8 +3,8 @@ import "./globals.css";
 import HeaderWrapper from '@/components/HeaderWrapper';
 import Footer from '@/components/Footer';
 import { SiteSettings } from '@/types';
-import { API_BASE_URL } from '@/config';
 import React from 'react';
+import { API_BASE_URL } from "@/config";
 
 
 async function getSiteSettings(): Promise<SiteSettings> {
