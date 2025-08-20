@@ -75,7 +75,7 @@ export default function Header({ siteSettings }: HeaderProps) {
                 )
               )}
 
-              {/* Admin Button */}
+              {/* Admin Button 
               <div className="ml-4">
                 <Link
                   href="/admin"
@@ -85,7 +85,7 @@ export default function Header({ siteSettings }: HeaderProps) {
                   <AdminIcon />
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Link>
-              </div>
+              </div>*/}
             </nav>
 
             {/* Mobile Menu Button */}

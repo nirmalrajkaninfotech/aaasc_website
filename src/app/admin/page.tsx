@@ -27,7 +27,7 @@ interface AdminPlacement {
 export default function AdminPage() {
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
-    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'academics'|'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities'>('collages');
+    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'academics'|'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities'>('site');
   const [newNavItem, setNewNavItem] = useState({ label: '', href: '' });
   const [editingNavItem, setEditingNavItem] = useState<{ index: number; item: { label: string; href: string } } | null>(null);
 
@@ -968,6 +968,14 @@ export default function AdminPage() {
       if (saved) setOthers(saved.others);
     };
 
+    const handleLogout = async () => {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } finally {
+        window.location.href = '/login';
+      }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -988,16 +996,17 @@ export default function AdminPage() {
         <div className="min-h-screen flex flex-col">
 
             <main className="flex-1 container mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+                    <div className="flex items-center gap-3">
+                        <a href="/" className="text-sm text-blue-600 hover:underline">Back to site</a>
+                        <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Logout</button>
+                    </div>
+                </div>
 
                 {/* Tab Navigation */}
                 <nav className="flex flex-wrap gap-2 mb-8">
-                    <button
-                        onClick={() => setActiveTab('collages')}
-                        className={`px-4 py-2 rounded ${activeTab === 'collages' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-                    >
-                        Manage Collages
-                    </button>
+                    {/* Removed Manage Collages tab */}
                     <button
                         onClick={() => setActiveTab('site')}
                         className={`px-4 py-2 rounded ${activeTab === 'site' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
