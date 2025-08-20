@@ -1,59 +1,83 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
+// Uncomment and use FontAwesome if properly configured
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { CarouselItem } from '@/types';
 
 interface CarouselProps {
   isTamil: boolean;
+  items: CarouselItem[];
 }
 
-export default function Carousel({ isTamil }: CarouselProps) {
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [transitioning, setTransitioning] = useState(false);
-  const [localIndex, setLocalIndex] = useState(1);
-  const [activeSlide, setActiveSlide] = useState(0);
+export default function Carousel({ isTamil, items = [] }: CarouselProps) {
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [imageStates, setImageStates] = useState<Record<string, 'loading' | 'loaded' | 'error'>>({});
 
-  const slides = [
-    {
-      id: 1,
-      image: '/img/1.jpg',
-      title: isTamil 
-        ? 'நாடுகள் கடந்தாலும், நம்ம தையல் கலாச்சாரம் கடந்ததில்லை – திருப்பூர் வாழ்க' 
-        : 'Even as the years pass, our tailoring tradition remains timeless – Long live Tiruppur.',
-      description: ''
-    },
-
-  ];
+  // Filter and sort slides
+  const slides = (Array.isArray(items) ? items : [])
+    .filter((item: CarouselItem) => item?.published !== false)
+    .sort((a: CarouselItem, b: CarouselItem) => (a.order || 0) - (b.order || 0));
 
   const totalSlides = slides.length;
-  const extendedSlides = [slides[totalSlides - 1], ...slides, slides[0]];
+
+  // Initialize image states
+  useEffect(() => {
+    const newImageStates: Record<string, 'loading' | 'loaded' | 'error'> = {};
+    slides.forEach(slide => {
+      if (imageStates[slide.image] === undefined) {
+        newImageStates[slide.image] = 'loading';
+      }
+    });
+
+    if (Object.keys(newImageStates).length > 0) {
+      setImageStates(prev => ({ ...prev, ...newImageStates }));
+    }
+    // Dependency on stringified slide images for proper re-init  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slides.map(s => s.image).join(',')]);
+
+  const handleImageLoad = (src: string) => {
+    setImageStates(prev => ({ ...prev, [src]: 'loaded' }));
+  };
+
+  const handleImageError = (src: string) => {
+    setImageStates(prev => ({ ...prev, [src]: 'error' }));
+  };
 
   const nextSlide = useCallback(() => {
-    if (!transitioning) {
-      setTransitioning(true);
-      setLocalIndex((prev) => prev + 1);
+    if (totalSlides > 0) {
+      setIsTransitioning(true);
+      setCurrentIndex(prev => (prev + 1) % totalSlides);
     }
-  }, [transitioning]);
+  }, [totalSlides]);
 
   const prevSlide = useCallback(() => {
-    if (!transitioning) {
-      setTransitioning(true);
-      setLocalIndex((prev) => prev - 1);
+    if (totalSlides > 0) {
+      setIsTransitioning(true);
+      setCurrentIndex(prev => (prev - 1 + totalSlides) % totalSlides);
     }
-  }, [transitioning]);
+  }, [totalSlides]);
 
   const goToSlide = useCallback((index: number) => {
-    setTransitioning(true);
-    setLocalIndex(index + 1); // Because of the cloned first slide
-  }, []);
+    if (totalSlides > 0) {
+      setIsTransitioning(true);
+      setCurrentIndex(index);
+    }
+  }, [totalSlides]);
 
   const startAutoScroll = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      nextSlide();
-    }, 1000);
-  }, [nextSlide]);
+    if (totalSlides > 0) {
+      intervalRef.current = setInterval(() => {
+        nextSlide();
+      }, 4000);
+    }
+  }, [nextSlide, totalSlides]);
 
   const stopAutoScroll = useCallback(() => {
     if (intervalRef.current) {
@@ -67,111 +91,150 @@ export default function Carousel({ isTamil }: CarouselProps) {
     return () => stopAutoScroll();
   }, [startAutoScroll, stopAutoScroll]);
 
-  const handleTransitionEnd = () => {
-    setTransitioning(false);
-    if (localIndex === 0) {
-      setLocalIndex(totalSlides);
-      setActiveSlide(totalSlides - 1);
-    } else if (localIndex === totalSlides + 1) {
-      setLocalIndex(1);
-      setActiveSlide(0);
-    } else {
-      setActiveSlide(localIndex - 1);
-    }
-  };
-
   useEffect(() => {
-    if (localIndex > 0 && localIndex <= totalSlides) {
-      setActiveSlide(localIndex - 1);
+    if (isTransitioning) {
+      const timer = setTimeout(() => setIsTransitioning(false), 600);
+      return () => clearTimeout(timer);
     }
-  }, [localIndex, totalSlides]);
+  }, [isTransitioning]);
+
+  if (totalSlides === 0) {
+    return (
+      <section className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center text-white">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl font-light">No carousel items available</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
-      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-gray-900 overflow-hidden shadow-2xl"
+      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
       onMouseEnter={stopAutoScroll}
       onMouseLeave={startAutoScroll}
       aria-roledescription="carousel"
       aria-label="Image Carousel"
     >
-      <div
-        className="absolute inset-0 flex transition-transform duration-700 ease-in-out"
-        style={{ transform: `translateX(-${localIndex * 100}%)`, transition: transitioning ? 'transform 0.7s ease' : 'none' }}
-        onTransitionEnd={handleTransitionEnd}
-      >
-        {extendedSlides.map((slide, index) => (
-          <div
-            key={`${slide.id}-${index}`}
-            className="w-full h-full flex-shrink-0 relative"
-            style={{ minWidth: '100%' }}
-            aria-hidden={localIndex !== index}
-          >
-            <img
-              src={slide.image}
-              alt={slide.title || `Slide ${((index - 1 + totalSlides) % totalSlides) + 1}`}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            {(slide.title || slide.description) && (
-              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-12 text-white">
-                {slide.title && (
-                  <h3
-                    className="text-xl sm:text-2xl md:text-4xl font-bold mb-2 md:mb-4"
-                    style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
-                  >
-                    {slide.title}
-                  </h3>
+      {/* Slides Container */}
+      <div className="relative w-full h-full">
+        {slides.map((slide, index) => {
+          const imageState = imageStates[slide.image] || 'loading';
+          const isActive = index === currentIndex;
+          const isPrev = index === (currentIndex - 1 + totalSlides) % totalSlides;
+          const isNext = index === (currentIndex + 1) % totalSlides;
+
+          return (
+            <div
+              key={slide.id || index}
+              className={`absolute inset-0 w-full h-full transition-all duration-700 ease-in-out ${
+                isActive ? 'opacity-100 scale-100 z-10' :
+                isPrev ? 'opacity-0 scale-95 -translate-x-full z-0' :
+                isNext ? 'opacity-0 scale-95 translate-x-full z-0' :
+                'opacity-0 scale-90 z-0'
+              }`}
+              aria-hidden={!isActive}
+            >
+              {/* Image Container */}
+              <div className="relative w-full h-full">
+                {imageState === 'loading' && (
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800 animate-pulse" />
                 )}
-                {slide.description && (
-                  <p
-                    className="text-sm sm:text-base md:text-lg"
-                    style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
-                  >
-                    {slide.description}
-                  </p>
+                {imageState === 'error' && (
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                      <span className="text-white text-sm">Image failed to load</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Proper fallback path for images */}
+                {imageState !== 'error' && (
+                  <Image
+                    src={slide.image.startsWith('/') ? slide.image : `/${slide.image}`}
+                    alt={slide.title || 'Carousel image'}
+                    fill
+                    className="object-cover"
+                    onLoadingComplete={() => handleImageLoad(slide.image)}
+                    onError={() => handleImageError(slide.image)}
+                    priority={index === 0}
+                    sizes="100vw"
+                  />
                 )}
               </div>
-            )}
-          </div>
+
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+
+              {/* Content Overlay */}
+              <div className="absolute inset-0 flex flex-col justify-end items-center text-white p-8 sm:p-12 md:p-16">
+                <div className="text-center max-w-4xl transform transition-all duration-700 delay-300"
+                     style={{
+                       opacity: isActive ? 1 : 0,
+                       transform: isActive ? 'translateY(0)' : 'translateY(20px)'
+                     }}>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4">
+                
+                  </h2>
+                  {slide.description && (
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-light opacity-90">
+                   
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Left Arrow (fallback to Unicode if FontAwesome fails) */}
+      <button
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center focus:outline-none hover:bg-black/75 transition-all duration-300 z-50"
+        onClick={prevSlide}
+        aria-label="Previous slide"
+        style={{ fontSize: '1.75rem', border: '2px solid white' }} // Makes it always visible
+      >
+        {/* <FontAwesomeIcon icon={faChevronLeft} /> */}
+        <span aria-hidden="true">&#x2039;</span>
+      </button>
+
+      {/* Right Arrow */}
+      <button
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center focus:outline-none hover:bg-black/75 transition-all duration-300 z-50"
+        onClick={nextSlide}
+        aria-label="Next slide"
+        style={{ fontSize: '1.75rem', border: '2px solid white' }}
+      >
+        {/* <FontAwesomeIcon icon={faChevronRight} /> */}
+        <span aria-hidden="true">&#x203A;</span>
+      </button>
+
+      {/* Indicators */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-20">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            className={`w-3 h-3 rounded-full focus:outline-none transition-all duration-300 ${
+              index === currentIndex 
+                ? 'bg-white scale-125 border border-black' 
+                : 'bg-white/50 hover:bg-white/75'
+            }`}
+            onClick={() => goToSlide(index)}
+            aria-label={`Go to slide ${index + 1}`}
+            aria-current={index === currentIndex ? 'true' : 'false'}
+          />
         ))}
       </div>
 
-      {/* Navigation Arrows */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white text-gray-900 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center z-10"
-        aria-label={isTamil ? 'முந்தைய ஸ்லைடு' : 'Previous slide'}
-      >
-        <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
-      </button>
-      <button
-        onClick={nextSlide}
-        className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white text-gray-900 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center z-10"
-        aria-label={isTamil ? 'அடுத்த ஸ்லைடு' : 'Next slide'}
-      >
-        <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
-      </button>
-
-      {/* Dot Indicators */}
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex space-x-3 z-10">
-        {slides.map((_, index) => {
-          // Calculate if this dot should be active
-          const isActive = localIndex === index + 1 || 
-                         (localIndex === 0 && index === totalSlides - 1) || // First clone case
-                         (localIndex === totalSlides + 1 && index === 0);   // Last clone case
-          
-          return (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full ring-1 ring-white/50 transition-all duration-300 ${
-                isActive ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white'
-              }`}
-              aria-label={isTamil ? `ஸ்லைடு ${index + 1} க்கு செல்ல` : `Go to slide ${index + 1}`}
-              aria-current={isActive ? 'true' : 'false'}
-            />
-          );
-        })}
+      {/* Progress Bar */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-black/20">
+        <div 
+          className="h-full bg-white/80 transition-all duration-4000 ease-linear"
+          style={{ width: totalSlides > 0 ? `${((currentIndex + 1) / totalSlides) * 100}%` : '0%' }}
+        />
       </div>
     </section>
   );
