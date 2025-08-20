@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Enable static export for cPanel hosting (no Node.js needed)
+  output: 'export',
+  trailingSlash: true,
   // Disable ESLint during builds to allow linting errors
   eslint: {
     ignoreDuringBuilds: true,
@@ -9,7 +12,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Disable image optimization for cPanel hosting
+  // Disable image optimization for static export
   images: {
     unoptimized: true,
     remotePatterns: [
