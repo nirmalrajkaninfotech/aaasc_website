@@ -1,0 +1,123 @@
+[
+  {
+    "id": 2,
+    "title": "Academic Excellence",
+    "description": "Showcasing our academic achievements, graduation ceremonies, and scholarly pursuits.",
+    "category": "Academics",
+    "date": "2024-11-20",
+    "featured": true,
+    "tags": [
+      "graduation",
+      "academics",
+      "achievement",
+      "ceremony"
+    ],
+    "images": [
+      "/uploads/1755585381235_4-3.jpg",
+      "/uploads/1755585385359_5-2-1024x688.jpg",
+      "/uploads/1755585395073_7-1-1024x683.jpg"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Sports & Recreation",
+    "description": "Our institution takes immense pride in fostering a dynamic and inclusive sports culture that encourages both competitive excellence and recreational participation. Students are actively involved in a wide range of athletic activities that promote teamwork, discipline, leadership, and physical well-being.\n#SportsCulture\n\n#AthleticExcellence\n\n#StudentAthletes\n\n#CampusLife\n\n#RecreationalActivities\n\n#ActiveCampus\n\n#SportsAchievements\n\n#HealthyLifestyle",
+    "category": "Sports",
+    "date": "2024-10-10",
+    "featured": false,
+    "tags": [
+      "sports",
+      "athletics",
+      "recreation",
+      "teamwork"
+    ],
+    "images": [
+      "/uploads/1755585108632_2-2.jpg"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Cultural Events",
+    "description": "Celebrating diversity through cultural festivals, performances, and artistic expressions.",
+    "category": "Culture",
+    "date": "2024-09-15",
+    "featured": false,
+    "tags": [
+      "culture",
+      "festivals",
+      "diversity",
+      "arts"
+    ],
+    "images": [
+      "/uploads/1755585294776_3-2-1024x682.jpg",
+      "/uploads/1755585294816_6-e1713528650106-1024x476.jpg",
+      "/uploads/1755585294838_7-1-1024x683.jpg",
+      "/uploads/1755585294860_g3-1-1024x569.jpeg",
+      "/uploads/1755585294882_g4-1024x458.jpg",
+      "/uploads/1755585294904_g8-1024x471.jpg",
+      "/uploads/1755585294924_g9-1024x472.jpeg",
+      "/uploads/1755585294954_g10-1024x461.jpg",
+      "/uploads/1755585294975_g12-1024x449.jpeg",
+      "/uploads/1755585294997_g13-1-1024x453.jpeg",
+      "/uploads/1755585295017_g15-1024x761.jpeg",
+      "/uploads/1755585295041_g18-1-1024x576.jpeg",
+      "/uploads/1755585295062_image-6-1024x462.jpg"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Placements",
+    "description": "Our institution takes immense pride in fostering a dynamic and inclusive sports culture that encourages both competitive excellence and recreational participation. Students are actively involved in a wide range of athletic activities that promote teamwork, discipline, leadership, and physical well-being.",
+    "category": "Placements",
+    "date": "2025-08-19",
+    "featured": false,
+    "tags": [],
+    "images": [
+      "/uploads/1755585462832_WhatsApp-Image-2024-07-30-at-10.27.57-AM-1536x1023.jpeg"
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Blood Donations",
+    "description": "Donate blood, save lives — it’s the simplest gift with the greatest impact.",
+    "category": "Blood Donations",
+    "date": "2025-08-19",
+    "featured": false,
+    "tags": [],
+    "images": [
+      "/uploads/1755585954169_9-1024x576.jpg"
+    ]
+  },
+  {
+    "id": 7,
+    "title": "NGO WORK",
+    "description": "",
+    "category": "NGO_WORK",
+    "date": "2025-08-19",
+    "featured": false,
+    "tags": [],
+    "images": [
+      "/uploads/1755586180530_1-1-1024x459.jpg",
+      "/uploads/1755586180552_2-1-1024x576.jpg",
+      "/uploads/1755586180574_3-1-1024x598.jpg",
+      "/uploads/1755586180594_4-2-1024x606.jpg",
+      "/uploads/1755586180616_5-1-1024x622.jpg",
+      "/uploads/1755586180640_6-1-1024x576.jpg",
+      "/uploads/1755586180661_10-1024x768.jpg",
+      "/uploads/1755586180686_g5-1024x768.jpg"
+    ]
+  },
+  {
+    "id": 8,
+    "title": "OTHERS",
+    "description": "    \n\n\n\n\n\n",
+    "category": "others",
+    "date": "2025-08-19",
+    "featured": false,
+    "tags": [],
+    "images": [
+      "/uploads/1755586274179_g17-1024x768.jpeg",
+      "/uploads/1755586274201_g20-1024x576.jpeg"
+    ]
+  }
+]

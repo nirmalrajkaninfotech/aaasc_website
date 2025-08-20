@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    - export NODE_OPTIONS=--max_old_space_size=4096
+    - npm install
+    - npm run cpanel-build
+    - echo 'Build completed successfully'
