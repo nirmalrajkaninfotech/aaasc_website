@@ -20,24 +20,7 @@ export default function Header2({ siteSettings }: Header2Props) {
             <Link href="/admin" className="text-xl font-bold">
               {siteSettings.siteTitle || 'Admin Panel'}
             </Link>
-            
-            <nav className="hidden md:flex space-x-4">
-              <Link href="/admin/dashboard" className="hover:text-gray-300 px-3 py-2 rounded">
-                Dashboard
-              </Link>
-              <Link href="/admin/posts" className="hover:text-gray-300 px-3 py-2 rounded">
-                Posts
-              </Link>
-              <Link href="/admin/pages" className="hover:text-gray-300 px-3 py-2 rounded">
-                Pages
-              </Link>
-              <Link href="/admin/header" className="hover:text-gray-300 px-3 py-2 rounded">
-                Header
-              </Link>
-              <Link href="/admin/settings" className="hover:text-gray-300 px-3 py-2 rounded">
-                Settings
-              </Link>
-            </nav>
+      
           </div>
           
           <div className="flex items-center space-x-4">

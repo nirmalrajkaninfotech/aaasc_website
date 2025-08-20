@@ -1,3 +1,8 @@
+export interface AboutImage {
+  url: string;
+  caption?: string;
+  subtitle?: string;
+}
 export interface Collage {
   id: number;
   title: string;
@@ -32,6 +37,9 @@ export interface AboutSection {
   title: string;
   content: string;
   image: string;
+  images?: AboutImage[]; // optional gallery images with ordering
+  masterCaption?: string; // global caption/strapline for About section
+  galleryEnabled?: boolean; // toggle About Gallery tab visibility
   stats: {
     label: string;
     value: string;
@@ -40,12 +48,14 @@ export interface AboutSection {
   templeAdministration?: AboutSubsection;
   secretaryMessage?: AboutSubsection;
   principalMessage?: AboutSubsection;
+  extraSections?: AboutSubsection[]; // user-defined additional sections
 }
 
 export interface AboutSubsection {
   title: string;
   content: string;
   image?: string;
+  images?: AboutImage[]; // optional additional images per subsection
   alignment?: 'left' | 'right';
 }
 
@@ -62,6 +72,7 @@ export interface RichTextContent {
   title: string;
   content: string;
   image?: string;
+  images?: AboutImage[]; // optional multi-images with captions/subtitles
   alignment: 'left' | 'center' | 'right';
   order: number;
   published: boolean;
@@ -216,7 +227,9 @@ export interface GalleryItem {
 export interface AcademicProgram {
   id: string;
   title: string;
+  section?: string; // grouping, e.g., UG/PG/Certificate
   description: string;
+  content?: string; // rich HTML content shown on details
   duration: string;
   eligibility: string;
   syllabus: string;

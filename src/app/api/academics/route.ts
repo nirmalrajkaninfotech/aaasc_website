@@ -3,6 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { AcademicSection } from '@/types';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 const dataFilePath = path.join(process.cwd(), 'data/academics.json');
 
 // Helper function to read data from file
@@ -61,8 +64,29 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const data: AcademicSection = await request.json();
-    const success = writeData(data);
+    const payload = await request.json();
+    // Normalize programs to accept both `image` and `img`
+    const normalized: AcademicSection = {
+      title: payload.title || 'Academic Programs',
+      subtitle: payload.subtitle || 'Explore our diverse range of academic programs',
+      additionalInfo: payload.additionalInfo || '',
+      programs: (payload.programs || []).map((p: any, index: number) => ({
+        id: p.id || `prog_${Date.now()}_${index}`,
+        title: p.title || '',
+        section: p.section || p.category || '',
+        description: p.description || p.content || '',
+        content: p.content || '',
+        duration: p.duration || '',
+        eligibility: p.eligibility || '',
+        syllabus: p.syllabus || '',
+        careerProspects: p.careerProspects || [],
+        image: p.image || p.img || '',
+        order: p.order ?? index + 1,
+        published: p.published !== false,
+      })),
+    };
+
+    const success = writeData(normalized);
     
     if (!success) {
       throw new Error('Failed to save data');

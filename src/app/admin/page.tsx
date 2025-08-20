@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -26,7 +27,7 @@ interface AdminPlacement {
 export default function AdminPage() {
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
-    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities'>('collages');
+    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'academics'|'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities'>('collages');
   const [newNavItem, setNewNavItem] = useState({ label: '', href: '' });
   const [editingNavItem, setEditingNavItem] = useState<{ index: number; item: { label: string; href: string } } | null>(null);
 
@@ -621,6 +622,11 @@ export default function AdminPage() {
 
         setSiteSettings(updatedSettings);
         setNewAchievement({ title: '', content: '', image: '', alignment: 'left', published: true });
+        fetch('/api/site', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedSettings),
+        });
     };
 
     const handleUpdateAchievement = () => {
@@ -638,6 +644,11 @@ export default function AdminPage() {
 
         setSiteSettings(updatedSettings);
         setEditingAchievement(null);
+        fetch('/api/site', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedSettings),
+        });
     };
 
     const handleDeleteAchievement = (id: string) => {
@@ -652,6 +663,11 @@ export default function AdminPage() {
         };
 
         setSiteSettings(updatedSettings);
+        fetch('/api/site', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedSettings),
+        });
     };
 
     // About management functions
@@ -1000,6 +1016,12 @@ export default function AdminPage() {
                     >
                         About
                     </button>
+                    <a
+                        href="/admin/academics"
+                        className="px-4 py-2 rounded text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+                    >
+                        Academics
+                    </a>
                     <button
                         onClick={() => setActiveTab('placements')}
                         className={`px-4 py-2 rounded ${activeTab === 'placements' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
@@ -1400,6 +1422,20 @@ export default function AdminPage() {
                                 </div>
 
                                 <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Master Caption</label>
+                                    <input
+                                        type="text"
+                                        value={siteSettings.about.masterCaption || ''}
+                                        onChange={(e) => setSiteSettings({
+                                            ...siteSettings,
+                                            about: { ...siteSettings.about, masterCaption: e.target.value }
+                                        })}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                        placeholder="Global caption/strapline for About section"
+                                    />
+                                </div>
+
+                                <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
                                     <RichTextEditor
                                         value={siteSettings.about.content || ''}
@@ -1418,8 +1454,82 @@ export default function AdminPage() {
                                             ...siteSettings,
                                             about: { ...siteSettings.about, image }
                                         })}
-                                        label="About Image"
+                                        label="About Main Image"
                                     />
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        id="about-gallery-enabled"
+                                        type="checkbox"
+                                        checked={siteSettings.about.galleryEnabled ?? true}
+                                        onChange={(e) => setSiteSettings({
+                                            ...siteSettings,
+                                            about: { ...siteSettings.about, galleryEnabled: e.target.checked }
+                                        })}
+                                    />
+                                    <label htmlFor="about-gallery-enabled" className="text-sm text-gray-700">Enable About Gallery</label>
+                                </div>
+
+                                <div>
+                                    {siteSettings.about.galleryEnabled !== false && (
+                                        <MultiImageUpload
+                                            label="About Gallery Images"
+                                            onUpload={(urls) => setSiteSettings({
+                                                ...siteSettings,
+                                                about: { ...siteSettings.about, images: [...(siteSettings.about.images || []), ...urls.map((u)=>({ url: u }))] }
+                                            })}
+                                        />
+                                    )}
+
+                                    {siteSettings.about.galleryEnabled !== false && siteSettings.about.images && siteSettings.about.images.length > 0 && (
+                                        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                                            {siteSettings.about.images.map((img, idx) => (
+                                                <div
+                                                    key={`${img.url}-${idx}`}
+                                                    draggable
+                                                    onDragStart={(e) => {
+                                                        e.dataTransfer.setData('text/plain', String(idx));
+                                                    }}
+                                                    onDragOver={(e) => e.preventDefault()}
+                                                    onDrop={(e) => {
+                                                        e.preventDefault();
+                                                        const fromIndex = Number(e.dataTransfer.getData('text/plain'));
+                                                        const toIndex = idx;
+                                                        if (isNaN(fromIndex)) return;
+                                                        const next = [...(siteSettings.about.images || [])];
+                                                        const [moved] = next.splice(fromIndex, 1);
+                                                        next.splice(toIndex, 0, moved);
+                                                        setSiteSettings({
+                                                            ...siteSettings,
+                                                            about: { ...siteSettings.about, images: next }
+                                                        });
+                                                    }}
+                                                    className="relative h-28 border rounded overflow-hidden group"
+                                                >
+                                                    <Image
+                                                        src={img.url}
+                                                        alt={`About image ${idx + 1}`}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
+                                                    <button
+                                                        className="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded"
+                                                        onClick={() => {
+                                                            const next = (siteSettings.about.images || []).filter((_, i) => i !== idx);
+                                                            setSiteSettings({
+                                                                ...siteSettings,
+                                                                about: { ...siteSettings.about, images: next }
+                                                            });
+                                                        }}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1796,6 +1906,144 @@ export default function AdminPage() {
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Extra Sections */}
+                                <div className="border-t pt-8">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-lg font-semibold">More Sections</h3>
+                                        <button
+                                            className="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                                            onClick={() => setSiteSettings({
+                                                ...siteSettings,
+                                                about: {
+                                                    ...siteSettings.about,
+                                                    extraSections: [
+                                                        ...((siteSettings.about.extraSections) || []),
+                                                        { title: 'New Section', content: '', image: '', images: [], alignment: 'left' }
+                                                    ]
+                                                }
+                                            })}
+                                        >
+                                            + Add Section
+                                        </button>
+                                    </div>
+
+                                    {(siteSettings.about.extraSections || []).map((sec, idx) => (
+                                        <div key={idx} className="mb-8 p-4 border rounded-md space-y-4">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <input
+                                                    type="text"
+                                                    value={sec.title}
+                                                    onChange={(e) => {
+                                                        const next = [...(siteSettings.about.extraSections || [])];
+                                                        next[idx] = { ...next[idx], title: e.target.value } as any;
+                                                        setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });
+                                                    }}
+                                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                                    placeholder="Section title"
+                                                />
+                                                <select
+                                                    value={sec.alignment || 'left'}
+                                                    onChange={(e) => {
+                                                        const next = [...(siteSettings.about.extraSections || [])];
+                                                        next[idx] = { ...next[idx], alignment: e.target.value as any } as any;
+                                                        setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });
+                                                    }}
+                                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                                >
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+
+                                            <RichTextEditor
+                                                value={sec.content || ''}
+                                                onChange={(content) => {
+                                                    const next = [...(siteSettings.about.extraSections || [])];
+                                                    next[idx] = { ...next[idx], content } as any;
+                                                    setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });
+                                                }}
+                                                placeholder="Write section content..."
+                                            />
+
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex-1">
+                                                    <ImageUpload
+                                                        value={sec.image || ''}
+                                                        onChange={(image) => {
+                                                            const next = [...(siteSettings.about.extraSections || [])];
+                                                            next[idx] = { ...next[idx], image } as any;
+                                                            setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });
+                                                        }}
+                                                        label="Section Main Image (optional)"
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <MultiImageUpload
+                                                        label="Section Images (optional)"
+                                                        onUpload={(urls) => {
+                                                            const next = [...(siteSettings.about.extraSections || [])];
+                                                            const current = (next[idx] as any).images || [];
+                                                            const wrapped = urls.map(url => ({ url, caption: '', subtitle: '' }));
+                                                            next[idx] = { ...next[idx], images: [...current, ...wrapped] } as any;
+                                                            setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });
+                                                        }}
+                                                    />
+                                                    {sec.images && sec.images.length > 0 && (
+                                                        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                            {sec.images.map((img, i) => (
+                                                                <div key={`${img.url}-${i}`} className="border rounded overflow-hidden">
+                                                                    <div className="relative h-28">
+                                                                        <Image src={img.url} alt="" fill className="object-cover" />
+                                                                    </div>
+                                                                    <div className="p-2 space-y-2">
+                                                                        <input
+                                                                            type="text"
+                                                                            value={img.caption || ''}
+                                                                            onChange={(e) => {
+                                                                                const nextImgs = [...(sec.images || [])];
+                                                                                nextImgs[i] = { ...nextImgs[i], caption: e.target.value } as any;
+                                                                                const next = [...(siteSettings.about.extraSections || [])];
+                                                                                next[idx] = { ...(next[idx] as any), images: nextImgs } as any;
+                                                                                setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });
+                                                                            }}
+                                                                            placeholder="Caption"
+                                                                            className="w-full p-2 border rounded"
+                                                                        />
+                                                                        <input
+                                                                            type="text"
+                                                                            value={img.subtitle || ''}
+                                                                            onChange={(e) => {
+                                                                                const nextImgs = [...(sec.images || [])];
+                                                                                nextImgs[i] = { ...nextImgs[i], subtitle: e.target.value } as any;
+                                                                                const next = [...(siteSettings.about.extraSections || [])];
+                                                                                next[idx] = { ...(next[idx] as any), images: nextImgs } as any;
+                                                                                setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });
+                                                                            }}
+                                                                            placeholder="Subtitle"
+                                                                            className="w-full p-2 border rounded"
+                                                                        />
+                                                                        <div className="flex items-center justify-between">
+                                                                            <span className="text-xs text-gray-500">Drag to reorder</span>
+                                                                            <button className="text-red-600 text-xs" onClick={()=>{const nextImgs=(sec.images || []).filter((_,k)=>k!==i); const next=[...(siteSettings.about.extraSections || [])]; next[idx]={ ...(next[idx] as any), images: nextImgs } as any; setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });}}>Remove</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between">
+                                                <button className="text-red-600" onClick={()=>{
+                                                    const next=(siteSettings.about.extraSections || []).filter((_,k)=>k!==idx);
+                                                    setSiteSettings({ ...siteSettings, about: { ...siteSettings.about, extraSections: next } });
+                                                }}>Delete Section</button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
 
@@ -2569,8 +2817,61 @@ export default function AdminPage() {
                                     <ImageUpload
                                         value={newAchievement.image || ''}
                                         onChange={(image) => setNewAchievement({ ...newAchievement, image })}
-                                        label="Achievement Image"
+                                        label="Primary Image (optional)"
                                     />
+                                </div>
+
+                                <div>
+                                    <MultiImageUpload
+                                        label="Additional Images (with captions/subtitles)"
+                                        onUpload={(urls) => setNewAchievement({
+                                            ...newAchievement,
+                                            images: [
+                                                ...((newAchievement.images as any) || []),
+                                                ...urls.map(u => ({ url: u, caption: '', subtitle: '' }))
+                                            ]
+                                        })}
+                                    />
+                                    {newAchievement.images && (newAchievement as any).images.length > 0 && (
+                                        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {(newAchievement as any).images.map((img: any, i: number) => (
+                                                <div key={`${img.url}-${i}`} className="border rounded overflow-hidden">
+                                                    <div className="relative h-28">
+                                                        <Image src={img.url} alt="" fill className="object-cover" />
+                                                    </div>
+                                                    <div className="p-2 space-y-2">
+                                                        <label className="block text-xs text-gray-600 mb-1">Caption</label>
+                                                        <RichTextEditor
+                                                            value={img.caption || ''}
+                                                            onChange={(value: string) => {
+                                                                const nextImgs = [ ...((newAchievement as any).images || []) ];
+                                                                nextImgs[i] = { ...nextImgs[i], caption: value };
+                                                                setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
+                                                            }}
+                                                            placeholder="Write caption..."
+                                                        />
+                                                        <label className="block text-xs text-gray-600 mb-1 mt-2">Subcaption</label>
+                                                        <RichTextEditor
+                                                            value={img.subtitle || ''}
+                                                            onChange={(value: string) => {
+                                                                const nextImgs = [ ...((newAchievement as any).images || []) ];
+                                                                nextImgs[i] = { ...nextImgs[i], subtitle: value };
+                                                                setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
+                                                            }}
+                                                            placeholder="Write subcaption..."
+                                                        />
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-xs text-gray-500">Drag to reorder</span>
+                                                            <button className="text-red-600 text-xs" onClick={()=>{
+                                                                const nextImgs = ((newAchievement as any).images || []).filter((_: any, k: number) => k !== i);
+                                                                setNewAchievement({ ...(newAchievement as any), images: nextImgs } as any);
+                                                            }}>Remove</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2638,6 +2939,62 @@ export default function AdminPage() {
                                                         value={editingAchievement.image || ''}
                                                         onChange={(image) => setEditingAchievement({ ...editingAchievement, image })}
                                                     />
+                                                    <div>
+                                                        <MultiImageUpload
+                                                            label="Additional Images (with captions/subtitles)"
+                                                            onUpload={(urls) => setEditingAchievement({
+                                                                ...editingAchievement,
+                                                                images: [
+                                                                    ...((editingAchievement as any).images || []),
+                                                                    ...urls.map(u => ({ url: u, caption: '', subtitle: '' }))
+                                                                ]
+                                                            })}
+                                                        />
+                                                        {(editingAchievement as any).images && (editingAchievement as any).images.length > 0 && (
+                                                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                                {(editingAchievement as any).images.map((img: any, i: number) => (
+                                                                    <div key={`${img.url}-${i}`} className="border rounded overflow-hidden">
+                                                                        <div className="relative h-28">
+                                                                            <Image src={img.url} alt="" fill className="object-cover" />
+                                                                        </div>
+                                                                        <div className="p-2 space-y-3">
+                                                                            <div>
+                                                                                <label className="block text-xs text-gray-600 mb-1">Caption</label>
+                                                                                <RichTextEditor
+                                                                                    value={img.caption || ''}
+                                                                                    onChange={(value: string) => {
+                                                                                        const nextImgs = [ ...((editingAchievement as any).images || []) ];
+                                                                                        nextImgs[i] = { ...nextImgs[i], caption: value };
+                                                                                        setEditingAchievement({ ...(editingAchievement as any), images: nextImgs } as any);
+                                                                                    }}
+                                                                                    placeholder="Write caption..."
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-xs text-gray-600 mb-1">Subcaption</label>
+                                                                                <RichTextEditor
+                                                                                    value={img.subtitle || ''}
+                                                                                    onChange={(value: string) => {
+                                                                                        const nextImgs = [ ...((editingAchievement as any).images || []) ];
+                                                                                        nextImgs[i] = { ...nextImgs[i], subtitle: value };
+                                                                                        setEditingAchievement({ ...(editingAchievement as any), images: nextImgs } as any);
+                                                                                    }}
+                                                                                    placeholder="Write subcaption..."
+                                                                                />
+                                                                            </div>
+                                                                            <div className="flex items-center justify-between">
+                                                                                <span className="text-xs text-gray-500">Drag to reorder</span>
+                                                                                <button className="text-red-600 text-xs" onClick={()=>{
+                                                                                    const nextImgs = ((editingAchievement as any).images || []).filter((_: any, k: number) => k !== i);
+                                                                                    setEditingAchievement({ ...(editingAchievement as any), images: nextImgs } as any);
+                                                                                }}>Remove</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     <div className="flex gap-2">
                                                         <select
                                                             value={editingAchievement.alignment}

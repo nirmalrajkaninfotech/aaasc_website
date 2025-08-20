@@ -36,16 +36,30 @@ export default function AchievementsSection({ achievements }: AchievementsSectio
                 item.alignment === 'right' || index % 2 === 1 ? 'lg:flex-row-reverse' : ''
               }`}
             >
-              {item.image && (
-                <div className="lg:w-1/2">
-                  <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+              {(item.image || (item as any).images?.length) && (
+                <div className="lg:w-1/2 w-full">
+                  {item.image && (
+                    <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden mb-4">
+                      <Image src={item.image} alt={item.title} fill className="object-cover" />
+                    </div>
+                  )}
+                  {(item as any).images && (item as any).images.length > 0 && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {(item as any).images.map((img: any, idx: number) => (
+                        <div key={`${img.url}-${idx}`} className="border rounded overflow-hidden">
+                          <div className="relative h-28">
+                            <Image src={img.url} alt={img.caption || item.title} fill className="object-cover" />
+                          </div>
+                          {(img.caption || img.subtitle) && (
+                            <div className="p-2 bg-white">
+                              {img.caption && <div className="text-sm font-medium text-gray-800">{img.caption}</div>}
+                              {img.subtitle && <div className="text-xs text-gray-500">{img.subtitle}</div>}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               
