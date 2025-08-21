@@ -1,18 +1,14 @@
 import AcademicSection from '@/components/AcademicSection';
+import fs from 'fs';
+import path from 'path';
 
 async function getAcademicData() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/academics/public`, {
-      cache: 'no-store'
-    });
-    
-    if (!res.ok) {
-      throw new Error('Failed to fetch academic data');
-    }
-    
-    return await res.json();
+    const filePath = path.join(process.cwd(), 'data', 'academics.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
   } catch (error) {
-    console.error('Error fetching academic data:', error);
+    console.error('Error reading academic data:', error);
     return {
       title: 'Academic Programs',
       subtitle: 'Explore our diverse range of academic programs',

@@ -1,21 +1,20 @@
-import { API_BASE_URL } from '@/config';
 import { OthersSection } from '@/types';
+import fs from 'fs';
+import path from 'path';
 
 async function getOthers(): Promise<OthersSection> {
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
   try {
-    const res = await fetch(`${API_BASE_URL}/api/site`, { 
-      cache: 'no-store',
-      next: { revalidate: 300 } // Revalidate every 5 minutes
-    });
-    
-    if (!res.ok) {
-      throw new Error(`Failed to fetch site settings: ${res.status}`);
-    }    
-    const data = await res.json();
-    return data.others;
+    const data = fs.readFileSync(filePath, 'utf8');
+    const siteData = JSON.parse(data);
+    return siteData.others;
   } catch (error) {
-    console.error('Error fetching others data:', error);
-    throw error;
+    console.error('Error reading site settings:', error);
+    // Return default values if file reading fails
+    return {
+      aishe: { title: "AISHE", subtitle: "All India Survey on Higher Education", content: "AISHE content will be displayed here." },
+      academicCoordinator: { title: "Academic Coordinator", subtitle: "Academic coordination details", content: "Academic coordinator information will be displayed here." }
+    };
   }
 }
 

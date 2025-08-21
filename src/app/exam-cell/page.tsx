@@ -1,12 +1,29 @@
-import { API_BASE_URL } from '@/config';
 import { ExamCellSection } from '@/types';
 import { ChevronRight, Calendar, FileText, Users, Clock, Award } from 'lucide-react';
+import fs from 'fs';
+import path from 'path';
 
 async function getExamCell(): Promise<ExamCellSection> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  const data = await res.json();
-  return data.examCell;
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    const siteData = JSON.parse(data);
+    return siteData.examCell;
+  } catch (error) {
+    console.error('Error reading site settings:', error);
+    // Return default values if file reading fails
+    return {
+      title: "Exam Cell",
+      subtitle: "Examination information",
+      content: "Exam cell details",
+      showHero: false,
+      showFeatures: false,
+      showQuickLinks: false,
+      showCTA: false,
+      heroButtonText: "",
+      ctaButtonText: ""
+    };
+  }
 }
 
 export default async function ExamCellPage() {

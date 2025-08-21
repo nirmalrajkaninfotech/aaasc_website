@@ -4,13 +4,92 @@ import HeaderWrapper from '@/components/HeaderWrapper';
 import Footer from '@/components/Footer';
 import { SiteSettings } from '@/types';
 import React from 'react';
-import { API_BASE_URL } from "@/config";
-
+import fs from 'fs';
+import path from 'path';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading site settings:', error);
+    // Return default values if file reading fails
+    return {
+      siteTitle: "My Collage Website",
+      logo: "/logo.png",
+      navLinks: [
+        { label: "Home", href: "/" },
+        { label: "Gallery", href: "/gallery" },
+        { label: "About", href: "/about" }
+      ],
+      hero: {
+        title: "Welcome to Our College",
+        subtitle: "Excellence in Education",
+        backgroundImage: "/images/hero-bg.jpg",
+        ctaText: "Learn More",
+        ctaLink: "/about"
+      },
+      about: {
+        title: "About Us",
+        content: "Welcome to our institution.",
+        image: "/images/about.jpg",
+        stats: []
+      },
+      placements: {
+        title: "Placements",
+        subtitle: "Our successful placements",
+        items: []
+      },
+      achievements: {
+        title: "Achievements",
+        subtitle: "Our proud moments",
+        items: []
+      },
+      facilities: {
+        title: "Facilities",
+        subtitle: "World-class infrastructure",
+        items: []
+      },
+      carousel: {
+        title: "Highlights",
+        subtitle: "Campus life",
+        items: []
+      },
+      contact: {
+        address: "123 College Street, City",
+        phone: "+1234567890",
+        email: "info@college.edu",
+        officeHours: "Mon-Fri: 9AM - 5PM"
+      },
+      homepage: {
+        sections: []
+      },
+      footer: {
+        text: "© 2025 My Collage Website. All rights reserved.",
+        socialLinks: []
+      },
+      examCell: {
+        title: "Exam Cell",
+        subtitle: "Examination information",
+        content: "Exam cell details",
+        showHero: false,
+        showFeatures: false,
+        showQuickLinks: false,
+        showCTA: false,
+        heroButtonText: "",
+        ctaButtonText: ""
+      },
+      others: {
+        aishe: { title: "AISHE", subtitle: "", content: "" },
+        academicCoordinator: { title: "Academic Coordinator", subtitle: "", content: "" }
+      },
+      faculty: {
+        title: "Our Faculty",
+        items: []
+      }
+    };
+  }
 }
 
 export const metadata: Metadata = {

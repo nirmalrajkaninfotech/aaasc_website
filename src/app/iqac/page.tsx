@@ -1,9 +1,16 @@
 import IQACSection from '@/components/IQACSection';
+import fs from 'fs';
+import path from 'path';
 
 async function getIQACData() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/iqac`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  return res.json();
+  const filePath = path.join(process.cwd(), 'data', 'iqac.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading IQAC data:', error);
+    return null;
+  }
 }
 
 export default async function IQACPage() {

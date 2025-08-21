@@ -1,13 +1,16 @@
 
 import AboutSection from '@/components/AboutSection';
 import { SiteSettings } from '@/types';
+import fs from 'fs';
+import path from 'path';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading site settings:', error);
     return {
       siteTitle: "My Collage Website",
       logo: "/logo.png",
@@ -62,11 +65,33 @@ async function getSiteSettings(): Promise<SiteSettings> {
           { id: "hero", name: "Hero Section", enabled: true, order: 1 },
           { id: "about", name: "About Section", enabled: true, order: 2 }
         ]
+      },
+      examCell: {
+        title: "Exam Cell",
+        subtitle: "Examination information",
+        content: "Exam cell details",
+        showHero: false,
+        showFeatures: false,
+        showQuickLinks: false,
+        showCTA: false,
+        heroButtonText: "",
+        ctaButtonText: ""
+      },
+      others: {
+        aishe: { title: "AISHE", subtitle: "", content: "" },
+        academicCoordinator: { title: "Academic Coordinator", subtitle: "", content: "" }
+      },
+      faculty: {
+        title: "Our Faculty",
+        items: []
+      },
+      carousel: {
+        title: "Highlights",
+        subtitle: "Campus life",
+        items: []
       }
     };
   }
-  
-  return res.json();
 }
 
 export default async function AboutPage() {

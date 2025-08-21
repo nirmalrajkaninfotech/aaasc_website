@@ -2,7 +2,6 @@ import { Collage, SiteSettings } from '@/types';
 import fs from 'fs';
 import path from 'path';
 import CollageCard from '@/components/CollageCard';
-import CategoryFilter from '@/components/CategoryFilter';
 
 // This tells Next.js this page is static
 export const dynamic = 'force-static';
@@ -85,11 +84,6 @@ export default async function GalleryPage() {
             Explore our collection of memorable moments and experiences
           </p>
         </div>
-
-        <CategoryFilter 
-          collages={publishedCollages} 
-          onFilterChange={() => {}} // Client-side filtering will be handled by the component
-        />
 
         {publishedCollages.length === 0 ? (
           <div className="text-center py-12">

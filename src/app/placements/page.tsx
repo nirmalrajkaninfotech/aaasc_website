@@ -1,9 +1,16 @@
 import PlacementSection from '@/components/PlacementSection';
+import fs from 'fs';
+import path from 'path';
 
 async function getPlacements() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/placements`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  return res.json();
+  const filePath = path.join(process.cwd(), 'data', 'placements.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading placements data:', error);
+    return null;
+  }
 }
 
 export default async function PlacementsPage() {

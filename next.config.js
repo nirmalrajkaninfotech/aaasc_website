@@ -6,9 +6,6 @@ const nextConfig = {
   // Optional: Add a trailing slash to all paths
   trailingSlash: true,
   
-  // Disable server-side rendering for static export
-  // This is automatically handled by 'output: export'
-  
   // Configure images for static export
   images: {
     unoptimized: true, // Required for static export
