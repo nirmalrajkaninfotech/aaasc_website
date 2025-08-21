@@ -5,7 +5,7 @@ const ComponentHeader: React.FC = () => {
   return (
     <header className="w-full overflow-hidden">
       {/* Top bar */}
-      <div className="bg-white text-black text-sm flex flex-col sm:flex-row justify-between items-center px-4 py-1 gap-2 w-full">
+      <div className="bg-blue-600 text-white text-sm flex flex-col sm:flex-row justify-between items-center px-4 py-1 gap-2 w-full">
         <div className="flex items-center gap-6">
           <span className="flex items-center gap-2">
             <Phone size={16} /> 04288 – 260333
@@ -23,14 +23,16 @@ const ComponentHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Full-width image (uses viewport width for reliable centering) */}
-      <div className="relative h-32 sm:h-40 md:h-52 lg:h-60 w-[100vw] left-1/2 -translate-x-1/2">
+      {/* Full-width image with optimized height */}
+      <div className="relative h-28 md:h-33 w-full overflow-hidden">
         <Image
           src="/uploads/image.png"
-          alt="College Header"
-          fill
-          className="object-cover"
+          alt="College Campus"
+          width={1000}
+          height={400}
+          className="w-full h-full object-cover object-center"
           priority
+          quality={85}
         />
       </div>
     </header>

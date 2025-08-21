@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 import { Collage, SiteSettings } from '@/types';
 
@@ -60,12 +60,7 @@ export default async function CollagePage({ params }: { params: { id: string } }
       
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Link 
-            href="/" 
-            className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
-          >
-            ← Back to Gallery
-          </Link>
+          <BackButton />
         </div>
 
         <div className="max-w-6xl mx-auto">
@@ -101,19 +96,6 @@ export default async function CollagePage({ params }: { params: { id: string } }
                 day: 'numeric'
               })}</span>
             </div>
-            
-            {collage.tags && collage.tags.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2 mt-6">
-                {collage.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Images Grid */}

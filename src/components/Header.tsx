@@ -42,21 +42,22 @@ export default function Header({ siteSettings }: HeaderProps) {
   };
 
   return (
-    <>
+    <div className="relative">
       <ComponentHeader />
-
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 w-full full-width-header ${
+        className={`sticky top-0 z-50 transition-all duration-300 w-full ${
           isScrolled 
-            ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-white/20' 
-            : 'bg-white shadow-md'
+            ? 'bg-blue-700/95 backdrop-blur-xl shadow-lg border-b border-blue-600/20' 
+            : 'bg-blue-700 shadow-md'
         }`}
       >
-        <div className="w-full px-4">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo + Title */}
-            <div>
-        
+        <div className="max-w-7xl mx-auto px-4 w-full">
+          <div className="flex items-center justify-between h-12 lg:h-14">
+            {/* Logo + Title - Removed */}
+            <div className="flex-shrink-0">
+              <Link href="/" className="flex items-center">
+                {/* Logo image can be added here in the future */}
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
@@ -111,11 +112,11 @@ export default function Header({ siteSettings }: HeaderProps) {
         {isMobileMenuOpen && (
           <MobileMenu 
             siteSettings={siteSettings} 
-            onClose={() => setIsMobileMenuOpen(false)} 
+            onClose={toggleMobileMenu} 
           />
         )}
       </header>
-    </>
+    </div>
   );
 }
 
@@ -125,7 +126,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <div>
       <Link
         href={href}
-        className="relative px-4 py-2.5 text-gray-700 hover:text-blue-600 font-medium text-sm transition-all duration-300 rounded-xl hover:bg-blue-50 group"
+        className="relative px-3 py-1.5 text-white hover:text-white font-medium text-sm transition-all duration-300 rounded-xl hover:bg-blue-600/30 group"
       >
         {label}
         <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-3/4 group-hover:-translate-x-1/2" />
