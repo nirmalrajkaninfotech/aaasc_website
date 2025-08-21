@@ -10,12 +10,13 @@ async function getFaculty(): Promise<FacultySection> {
 }
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function FacultyDetailPage({ params }: PageProps) {
+  const { slug } = await params;
   const faculty = await getFaculty();
-  const item = faculty.items.find(i => i.slug === params.slug && i.published);
+  const item = faculty.items.find(i => i.slug === slug && i.published);
   if (!item) return notFound();
   return (
     <div className="container mx-auto py-8">

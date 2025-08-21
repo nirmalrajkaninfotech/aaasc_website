@@ -15,14 +15,10 @@ export default function AcademicsAdmin() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'programs'>('programs');
+  const [activeTab] = useState<'programs'>('programs');
   const [editingProgram, setEditingProgram] = useState<AcademicProgram | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSection, setFilterSection] = useState('all');
-
-  useEffect(() => {
-    fetchAcademicData();
-  }, []);
 
   const fetchAcademicData = async () => {
     try {
@@ -41,6 +37,10 @@ export default function AcademicsAdmin() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAcademicData();
+  }, []);
 
   const saveAll = async (payload: AcademicSection = academic) => {
     try {
@@ -157,7 +157,7 @@ export default function AcademicsAdmin() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">
                 Academic Programs Management
               </h1>
-              <p className="text-gray-600 text-lg">Manage your institution's academic programs and content</p>
+                              <p className="text-gray-600 text-lg">Manage your institution&apos;s academic programs and content</p>
             </div>
             <div className="flex gap-3">
               <motion.button 

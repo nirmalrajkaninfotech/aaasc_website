@@ -8,9 +8,10 @@ async function getSiteSettings(): Promise<SiteSettings> {
   return res.json();
 }
 
-export default async function FacilityDetailPage({ params }: { params: { id: string } }) {
+export default async function FacilityDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const site = await getSiteSettings();
-  const facility = site.facilities.items.find(i => i.id === params.id);
+  const facility = site.facilities.items.find(i => i.id === id);
 
   if (!facility) {
     return (

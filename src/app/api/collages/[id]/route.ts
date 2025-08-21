@@ -20,11 +20,12 @@ function writeCollages(collages: Collage[]): void {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const collages = readCollages();
-    const collage = collages.find(c => c.id === parseInt(params.id));
+    const collage = collages.find(c => c.id === parseInt(id));
     
     if (!collage) {
       return NextResponse.json({ error: 'Collage not found' }, { status: 404 });
@@ -38,19 +39,20 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { title, description, category, featured, tags, images } = body;
-    const id = parseInt(params.id);
+    const idNum = parseInt(id);
 
     if (!title || !category || !images || !Array.isArray(images)) {
       return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
     }
 
     const collages = readCollages();
-    const index = collages.findIndex(c => c.id === id);
+    const index = collages.findIndex(c => c.id === idNum);
 
     if (index === -1) {
       return NextResponse.json({ error: 'Collage not found' }, { status: 404 });
@@ -75,12 +77,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;
+    const idNum = parseInt(id);
     const collages = readCollages();
-    const filteredCollages = collages.filter(c => c.id !== id);
+    const filteredCollages = collages.filter(c => c.id !== idNum);
 
     if (filteredCollages.length === collages.length) {
       return NextResponse.json({ error: 'Collage not found' }, { status: 404 });

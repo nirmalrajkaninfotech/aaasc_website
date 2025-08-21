@@ -2702,7 +2702,7 @@ export default function AdminPage() {
                                             }]);
                                         } else {
                                             const updated = [...placements];
-                                            updated[0] = { ...updated, content };
+                                            updated[0] = { ...updated[0], content };
                                             setPlacements(updated);
                                         }
                                     }}
@@ -2737,7 +2737,7 @@ export default function AdminPage() {
                                             }]);
                                         } else {
                                             const updated = [...placements];
-                                            updated[0] = { ...updated, images: [...(updated.images || []), ...urls] };
+                                            updated[0] = { ...updated[0], images: [...(updated[0].images || []), ...urls] };
                                             setPlacements(updated);
                                         }
                                     }}
@@ -2774,7 +2774,7 @@ export default function AdminPage() {
                                                             const [moved] = reordered.splice(from, 1);
                                                             reordered.splice(to, 0, moved);
                                                             const updated = [...placements];
-                                                            updated[0] = { ...updated, images: reordered };
+                                                            updated[0] = { ...updated[0], images: reordered };
                                                             setPlacements(updated);
                                                             imageDragIndexRef.current = null;
                                                         }}
@@ -2794,7 +2794,7 @@ export default function AdminPage() {
                                                             className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
                                                             onClick={() => {
                                                                 const updated = [...placements];
-                                                                updated[0] = { ...updated, images: updated.images.filter((_, i) => i !== idx) };
+                                                                updated[0] = { ...updated[0], images: updated[0].images.filter((_, i) => i !== idx) };
                                                                 setPlacements(updated);
                                                             }}
                                                         >
@@ -2846,7 +2846,7 @@ export default function AdminPage() {
                                                     }]);
                                                 } else {
                                                     const updated = [...placements];
-                                                    updated[0] = { ...updated, title: e.target.value };
+                                                    updated[0] = { ...updated[0], title: e.target.value };
                                                     setPlacements(updated);
                                                 }
                                             }}
@@ -2865,7 +2865,7 @@ export default function AdminPage() {
                                             onChange={(e) => {
                                                 if (placements.length === 0) return;
                                                 const updated = [...placements];
-                                                updated[0] = { ...updated, alignment: e.target.value as 'left' | 'center' | 'right' };
+                                                updated[0] = { ...updated[0], alignment: e.target.value as 'left' | 'center' | 'right' };
                                                 setPlacements(updated);
                                             }}
                                             className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"

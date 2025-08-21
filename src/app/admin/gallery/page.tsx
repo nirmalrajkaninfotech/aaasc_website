@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaPlus, FaEdit, FaTrash, FaUpload, FaSave, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaUpload, FaSave, FaTimes, FaImage } from 'react-icons/fa';
 import { Collage } from '@/types';
 
 export default function GalleryAdmin() {

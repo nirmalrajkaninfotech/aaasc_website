@@ -62,6 +62,38 @@ async function getSiteSettings(): Promise<SiteSettings> {
           { id: "hero", name: "Hero Section", enabled: true, order: 1 },
           { id: "about", name: "About Section", enabled: true, order: 2 }
         ]
+      },
+      carousel: {
+        title: "Carousel",
+        subtitle: "Featured content",
+        items: []
+      },
+      examCell: {
+        title: "Exam Cell",
+        subtitle: "Examination information",
+        content: "Welcome to our exam cell",
+        showHero: true,
+        showFeatures: true,
+        showQuickLinks: true,
+        showCTA: true,
+        heroButtonText: "Learn More",
+        ctaButtonText: "Contact Us"
+      },
+      others: {
+        aishe: {
+          title: "AISHE",
+          subtitle: "All India Survey on Higher Education",
+          content: "Information about AISHE"
+        },
+        academicCoordinator: {
+          title: "Academic Coordinator",
+          subtitle: "Academic coordination information",
+          content: "Details about academic coordination"
+        }
+      },
+      faculty: {
+        title: "Faculty",
+        items: []
       }
     };
   }

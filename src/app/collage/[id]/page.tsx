@@ -41,10 +41,11 @@ async function getCollage(id: string): Promise<Collage | null> {
   return collages.find(c => c.id === parseInt(id)) || null;
 }
 
-export default async function CollagePage({ params }: { params: { id: string } }) {
+export default async function CollagePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const [siteSettings, collage] = await Promise.all([
     getSiteSettings(),
-    getCollage(params.id)
+    getCollage(id)
   ]);
 
   if (!collage) {
