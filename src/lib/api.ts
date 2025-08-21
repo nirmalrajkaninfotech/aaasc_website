@@ -31,8 +31,8 @@ export async function fetchApi<T = any>(
     ? `${baseUrl}${path}`
     : path;
 
-  // Prepare headers
-  const headers: Record<string, string> = {
+  // Get any existing headers
+  const requestHeaders: HeadersInit = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
@@ -40,15 +40,23 @@ export async function fetchApi<T = any>(
   // For server-side requests, ensure proper headers
   if (typeof window === 'undefined') {
     try {
+      // Get the session cookie from the environment if it exists
+      const adminSession = process.env.ADMIN_SESSION_COOKIE;
+      
+      // Add the session cookie to the request if available
+      if (adminSession) {
+        requestHeaders['Cookie'] = `admin_session=${adminSession}`;
+      }
+
       // In Vercel, we need to set the host header
       if (process.env.VERCEL) {
         const { host } = new URL(baseUrl);
         if (host) {
-          headers.host = host;
+          requestHeaders.host = host;
         }
         // Add Vercel specific headers if needed
         if (process.env.VERCEL_ENV) {
-          headers['x-vercel-deployment-url'] = process.env.VERCEL_URL || '';
+          requestHeaders['x-vercel-deployment-url'] = process.env.VERCEL_URL || '';
         }
       }
     } catch (error) {
@@ -58,7 +66,7 @@ export async function fetchApi<T = any>(
 
   const response = await fetch(url, {
     ...options,
-    headers,
+    headers: requestHeaders,
   });
 
   if (!response.ok) {
