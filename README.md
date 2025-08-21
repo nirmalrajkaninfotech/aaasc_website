@@ -29,6 +29,36 @@ A fully customizable collage website built with Next.js 13+, TypeScript, and Tai
 │   └── types/             # TypeScript definitions
 ```
 
+## Deployment
+
+### Vercel Deployment
+
+1. **Fork and Import**
+   - Fork this repository
+   - Go to [Vercel](https://vercel.com) and import your forked repository
+
+2. **Environment Variables**
+   - `NEXT_PUBLIC_SITE_URL`: Your Vercel deployment URL (e.g., `https://your-app.vercel.app`)
+   - `NEXT_PUBLIC_API_URL`: Set to `/api` (default)
+
+3. **Build Settings**
+   - Framework: Next.js
+   - Build Command: `npm run build`
+   - Output Directory: `.next`
+   - Install Command: `npm install`
+
+4. **Deployment**
+   - Push your changes to the `main` branch for automatic deployment
+   - Or manually trigger a deployment from the Vercel dashboard
+
+### Local Development
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start the development server: `npm run dev`
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+```
+
 ## Getting Started
 
 1. **Install dependencies:**

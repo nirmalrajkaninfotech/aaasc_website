@@ -3,13 +3,13 @@ export function getBaseUrl(): string {
   // In the browser, we'll use relative URLs
   if (typeof window !== 'undefined') return '';
   
-  // Get the site URL from the environment or runtime config
-  const siteUrl = 
-    process.env.NEXT_PUBLIC_SITE_URL || 
-    (typeof window === 'undefined' && (require('next/config').default().publicRuntimeConfig.NEXT_PUBLIC_SITE_URL)) ||
-    'http://localhost:3000';
-    
-  return siteUrl;
+  // In Vercel environment
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  
+  // In local development or other environments
+  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 }
 
 interface FetchApiOptions extends RequestInit {
@@ -23,26 +23,36 @@ export async function fetchApi<T = any>(
   // Ensure endpoint starts with a slash
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   
-  // For server-side requests, we need to use the full URL
+  // Get base URL
   const baseUrl = getBaseUrl();
+  
+  // Construct the full URL for server-side requests
   const url = typeof window === 'undefined' 
     ? `${baseUrl}${path}`
     : path;
 
+  // Prepare headers
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
 
-  // For server-side requests, add the host header
+  // For server-side requests, ensure proper headers
   if (typeof window === 'undefined') {
     try {
-      const host = new URL(baseUrl).host;
-      if (host) {
-        headers.host = host;
+      // In Vercel, we need to set the host header
+      if (process.env.VERCEL) {
+        const { host } = new URL(baseUrl);
+        if (host) {
+          headers.host = host;
+        }
+        // Add Vercel specific headers if needed
+        if (process.env.VERCEL_ENV) {
+          headers['x-vercel-deployment-url'] = process.env.VERCEL_URL || '';
+        }
       }
     } catch (error) {
-      console.error('Error parsing base URL:', error);
+      console.error('Error setting up request headers:', error);
     }
   }
 
