@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+/* Ensure full width for header components */
+.full-width-header {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  position: relative;
+  left: 50%;
+  right: 50%;
+}
+
+/* 200% width header image */
+.header-image-200 {
+  width: 200%;
+  transform: translateX(-25%);
+  overflow: hidden;
+}
+
+/* 300% width header image for full fill effect */
+.header-image-300 {
+  width: 300%;
+  transform: translateX(-33.33%);
+  overflow: hidden;
+}

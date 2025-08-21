@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const ComponentHeader: React.FC = () => {
   return (
-    <header className="w-full">
+    <header className="w-full overflow-hidden">
       {/* Top bar */}
       <div className="bg-white text-black text-sm flex flex-col sm:flex-row justify-between items-center px-4 py-1 gap-2 w-full">
         <div className="flex items-center gap-6">
@@ -23,13 +23,13 @@ const ComponentHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Full-width image */}
-      <div className="relative w-full h-24 sm:h-32 md:h-32 lg:h-20">
+      {/* Full-width image (uses viewport width for reliable centering) */}
+      <div className="relative h-32 sm:h-40 md:h-52 lg:h-60 w-[100vw] left-1/2 -translate-x-1/2">
         <Image
           src="/uploads/image.png"
           alt="College Header"
           fill
-          className="object-contain"
+          className="object-cover"
           priority
         />
       </div>

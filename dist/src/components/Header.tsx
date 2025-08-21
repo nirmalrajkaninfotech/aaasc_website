@@ -46,13 +46,13 @@ export default function Header({ siteSettings }: HeaderProps) {
       <ComponentHeader />
 
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
+        className={`sticky top-0 z-50 transition-all duration-300 w-full full-width-header ${
           isScrolled 
             ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-white/20' 
             : 'bg-white shadow-md'
         }`}
       >
-        <div className="container mx-auto px-4">
+        <div className="w-full px-4">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo + Title */}
             <div>
@@ -196,8 +196,8 @@ function MobileMenu({
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
 
   return (
-    <div className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-gray-200/50 overflow-hidden">
-      <div className="container mx-auto px-4 py-6">
+    <div className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-gray-200/50 overflow-hidden full-width-header">
+      <div className="w-full px-4 py-6">
         <nav className="space-y-2">
           {siteSettings.navLinks?.map((link, index) => (
             <div key={index}>

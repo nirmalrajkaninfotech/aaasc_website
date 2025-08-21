@@ -3,7 +3,7 @@ import { FacultySection as FacultySectionType } from '@/types';
 import FacultySection from '@/components/FacultySection';
 
 async function getFaculty(): Promise<FacultySectionType> {
-  const res = await fetch('https://aasc.veetusaapadu.in/api/site', { cache: 'no-store' });
+  const res = await fetch('http://localhost:3000/api/site', { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch site settings');
   const data = await res.json();
   return data.faculty;
