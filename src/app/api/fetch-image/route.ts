@@ -1,50 +1,35 @@
+// This route is disabled for static export
+// For static sites, we'll use client-side data fetching directly from JSON files
+
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
-  try {
-    const { url } = await request.json();
-    
-    if (!url) {
-      return NextResponse.json(
-        { success: 0, message: 'No URL provided' },
-        { status: 400 }
-      );
-    }
+// This tells Next.js this route should be treated as static
+export const dynamic = 'force-static';
 
-    // Validate URL format
-    try {
-      new URL(url);
-    } catch {
-      return NextResponse.json(
-        { success: 0, message: 'Invalid URL format' },
-        { status: 400 }
-      );
-    }
+export async function GET() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 404 }
+  );
+}
 
-    // Check if URL points to an image
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-    const isImage = imageExtensions.some(ext => 
-      url.toLowerCase().includes(ext)
-    );
+export async function POST() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
 
-    if (!isImage) {
-      return NextResponse.json(
-        { success: 0, message: 'URL does not point to an image' },
-        { status: 400 }
-      );
-    }
+export async function PUT() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
 
-    return NextResponse.json({
-      success: 1,
-      file: {
-        url: url
-      }
-    });
-  } catch (error) {
-    console.error('Fetch image error:', error);
-    return NextResponse.json(
-      { success: 0, message: 'Failed to fetch image' },
-      { status: 500 }
-    );
-  }
+export async function DELETE() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
 }

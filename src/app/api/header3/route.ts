@@ -1,42 +1,35 @@
-import { NextResponse } from 'next/server';
-import { getHeader3Content, saveHeader3Content } from '@/lib/header3Storage';
-import { Header3Content } from '@/types/header3';
+// This route is disabled for static export
+// For static sites, we'll use client-side data fetching directly from JSON files
+
+import { NextRequest, NextResponse } from 'next/server';
+
+// This tells Next.js this route should be treated as static
+export const dynamic = 'force-static';
 
 export async function GET() {
-  try {
-    const content = getHeader3Content();
-    return NextResponse.json(content);
-  } catch (error) {
-    console.error('Error fetching header3 content:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch header content' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 404 }
+  );
 }
 
-export async function POST(request: Request) {
-  try {
-    const content: Header3Content = await request.json();
-    await saveHeader3Content(content);
-    
-    // Return the saved content
-    const savedContent = getHeader3Content();
-    return NextResponse.json(savedContent);
-  } catch (error) {
-    console.error('Error saving header3 content:', error);
-    return NextResponse.json(
-      { error: 'Failed to save header content' },
-      { status: 500 }
-    );
-  }
+export async function POST() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
 }
 
-// For pre-Next.js 13.4
-// export const config = {
-//   api: {
-//     bodyParser: {
-//       sizeLimit: '1mb',
-//     },
-//   },
-// };
+export async function PUT() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
+
+export async function DELETE() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}

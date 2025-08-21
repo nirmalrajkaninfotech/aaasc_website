@@ -1,56 +1,35 @@
+// This route is disabled for static export
+// For static sites, we'll use client-side data fetching directly from JSON files
+
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get('image') as File;
-    
-    if (!file) {
-      return NextResponse.json(
-        { success: 0, message: 'No file provided' },
-        { status: 400 }
-      );
-    }
+// This tells Next.js this route should be treated as static
+export const dynamic = 'force-static';
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
-        { success: 0, message: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.' },
-        { status: 400 }
-      );
-    }
+export async function GET() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 404 }
+  );
+}
 
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { success: 0, message: 'File too large. Maximum size is 10MB.' },
-        { status: 400 }
-      );
-    }
+export async function POST() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
 
-    // For demo purposes, convert to base64
-    // In production, upload to cloud storage (AWS S3, Cloudinary, etc.)
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64 = buffer.toString('base64');
-    const dataUrl = `data:${file.type};base64,${base64}`;
+export async function PUT() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
 
-    return NextResponse.json({
-      success: 1,
-      file: {
-        url: dataUrl,
-        size: file.size,
-        name: file.name,
-        type: file.type
-      }
-    });
-  } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json(
-      { success: 0, message: 'Upload failed' },
-      { status: 500 }
-    );
-  }
+export async function DELETE() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
 }

@@ -1,59 +1,78 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import { Collage, SiteSettings } from '@/types';
+import fs from 'fs';
+import path from 'path';
 import CollageCard from '@/components/CollageCard';
 import CategoryFilter from '@/components/CategoryFilter';
-import { Collage, SiteSettings } from '@/types';
 
-export default function GalleryPage() {
-  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
-  const [allCollages, setAllCollages] = useState<Collage[]>([]);
-  const [filteredCollages, setFilteredCollages] = useState<Collage[]>([]);
-  const [loading, setLoading] = useState(true);
+// This tells Next.js this page is static
+export const dynamic = 'force-static';
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+// Read site settings from file
+async function getSiteSettings(): Promise<SiteSettings> {
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading site settings:', error);
+    return getDefaultSiteSettings();
+  }
+}
 
-  const fetchData = async () => {
-    try {
-      const [siteRes, collagesRes] = await Promise.all([
-        fetch('/api/site'),
-        fetch('/api/collages')
-      ]);
-
-      if (siteRes.ok) {
-        const siteData = await siteRes.json();
-        setSiteSettings(siteData);
-      }
-
-      if (collagesRes.ok) {
-        const collagesData = await collagesRes.json();
-        setAllCollages(collagesData);
-        setFilteredCollages(collagesData);
-      }
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-    } finally {
-      setLoading(false);
-    }
+// Get default site settings
+function getDefaultSiteSettings(): SiteSettings {
+  return {
+    siteTitle: 'Gallery',
+    logo: '/logo.png',
+    navLinks: [],
+    hero: { title: '', subtitle: '', backgroundImage: '', ctaText: '', ctaLink: '' },
+    about: { title: '', content: '', image: '', stats: [] },
+    placements: { title: '', subtitle: '', items: [] },
+    achievements: { title: '', subtitle: '', items: [] },
+    facilities: { title: '', subtitle: '', items: [] },
+    carousel: { title: '', subtitle: '', items: [] },
+    contact: { address: '', phone: '', email: '', officeHours: '' },
+    homepage: { sections: [] },
+    footer: { text: '', socialLinks: [] },
+    examCell: { 
+      title: '', 
+      subtitle: '', 
+      content: '', 
+      showHero: false, 
+      showFeatures: false, 
+      showQuickLinks: false, 
+      showCTA: false, 
+      heroButtonText: '', 
+      ctaButtonText: '' 
+    },
+    others: {
+      aishe: { title: '', subtitle: '', content: '' },
+      academicCoordinator: { title: '', subtitle: '', content: '' }
+    },
+    faculty: { title: '', items: [] }
   };
+}
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+// Read collages from file
+async function getCollages(): Promise<Collage[]> {
+  const filePath = path.join(process.cwd(), 'data', 'collages.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading collages:', error);
+    return [];
   }
+}
 
-  if (!siteSettings) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-red-600">Failed to load site settings</div>
-      </div>
-    );
-  }
+export default async function GalleryPage() {
+  const [siteSettings, collages] = await Promise.all([
+    getSiteSettings(),
+    getCollages()
+  ]);
+  
+  // Filter published collages
+  const publishedCollages = collages.filter(collage => collage.published !== false);
 
   return (
     <main className="flex-1 bg-gray-50">
@@ -68,24 +87,20 @@ export default function GalleryPage() {
         </div>
 
         <CategoryFilter 
-          collages={allCollages} 
-          onFilterChange={setFilteredCollages}
+          collages={publishedCollages} 
+          onFilterChange={() => {}} // Client-side filtering will be handled by the component
         />
 
-        {filteredCollages.length === 0 ? (
+        {publishedCollages.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg mb-4">No collages found!</p>
             <p className="text-gray-400">
-              Try selecting a different category or visit the{' '}
-              <a href="/admin" className="text-blue-600 hover:underline">
-                admin panel
-              </a>{' '}
-              to create new collages.
+              Please check back later for updates.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredCollages.map((collage) => (
+            {publishedCollages.map((collage) => (
               <CollageCard key={collage.id} collage={collage} />
             ))}
           </div>

@@ -1,30 +1,35 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+// This route is disabled for static export
+// For static sites, we'll use client-side data fetching directly from JSON files
+
+import { NextRequest, NextResponse } from 'next/server';
+
+// This tells Next.js this route should be treated as static
+export const dynamic = 'force-static';
 
 export async function GET() {
-  try {
-    const filePath = path.join(process.cwd(), 'data', 'iqac.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    const iqacData = JSON.parse(data);
-    
-    return NextResponse.json(iqacData);
-  } catch (error) {
-    console.error('Error reading IQAC data:', error);
-    return NextResponse.json({ error: 'Failed to load IQAC data' }, { status: 500 });
-  }
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 404 }
+  );
 }
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const filePath = path.join(process.cwd(), 'data', 'iqac.json');
-    
-    fs.writeFileSync(filePath, JSON.stringify(body, null, 2));
-    
-    return NextResponse.json({ success: true, message: 'IQAC data updated successfully' });
-  } catch (error) {
-    console.error('Error updating IQAC data:', error);
-    return NextResponse.json({ error: 'Failed to update IQAC data' }, { status: 500 });
-  }
+export async function POST() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
+
+export async function PUT() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
+
+export async function DELETE() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
 }

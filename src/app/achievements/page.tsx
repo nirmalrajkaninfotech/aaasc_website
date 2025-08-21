@@ -1,11 +1,19 @@
 import AchievementsSection from '@/components/AchievementsSection';
 import { SiteSettings } from '@/types';
+import fs from 'fs';
+import path from 'path';
 
+// This tells Next.js this page is static
+export const dynamic = 'force-static';
+
+// Read site settings from file
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
-    cache: 'no-store'
-  });
-  if (!res.ok) {
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading site settings:', error);
     // Fallback minimal settings
     return {
       siteTitle: 'Site',
@@ -16,15 +24,28 @@ async function getSiteSettings(): Promise<SiteSettings> {
       placements: { title: '', subtitle: '', items: [] },
       achievements: { title: 'Achievements', subtitle: '', items: [] },
       facilities: { title: '', subtitle: '', items: [] },
+      carousel: { title: '', subtitle: '', items: [] },
       contact: { address: '', phone: '', email: '', officeHours: '' },
       homepage: { sections: [] },
       footer: { text: '', socialLinks: [] },
-      examCell: { title: '', subtitle: '', content: '', showHero: false, showFeatures: false, showQuickLinks: false, showCTA: false, heroButtonText: '', ctaButtonText: '' },
-      others: { aishe: { title: '', subtitle: '', content: '' }, academicCoordinator: { title: '', subtitle: '', content: '' } },
+      examCell: { 
+        title: '', 
+        subtitle: '', 
+        content: '', 
+        showHero: false, 
+        showFeatures: false, 
+        showQuickLinks: false, 
+        showCTA: false, 
+        heroButtonText: '', 
+        ctaButtonText: '' 
+      },
+      others: { 
+        aishe: { title: '', subtitle: '', content: '' }, 
+        academicCoordinator: { title: '', subtitle: '', content: '' } 
+      },
       faculty: { title: '', items: [] }
-    } as unknown as SiteSettings;
+    };
   }
-  return res.json();
 }
 
 export default async function AchievementsPage() {

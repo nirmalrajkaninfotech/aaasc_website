@@ -1,12 +1,110 @@
+import fs from 'fs';
+import path from 'path';
 import Image from 'next/image';
 import { SiteSettings } from '@/types';
 import Link from 'next/link';
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+// This function runs at build time to generate all possible paths
+export async function generateStaticParams() {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'site.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    const siteSettings: SiteSettings = JSON.parse(data);
+    
+    return siteSettings.facilities?.items?.map((facility) => ({
+      id: facility.id,
+    })) || [];
+  } catch (error) {
+    console.error('Error generating static params for facilities:', error);
+    return [];
+  }
 }
+
+async function getSiteSettings(): Promise<SiteSettings> {
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading site settings:', error);
+    return {
+      siteTitle: 'College Facilities',
+      logo: '',
+      navLinks: [],
+      hero: {
+        title: '',
+        subtitle: '',
+        backgroundImage: '',
+        ctaText: '',
+        ctaLink: ''
+      },
+      about: {
+        title: '',
+        content: '',
+        image: '',
+        stats: []
+      },
+      placements: {
+        title: '',
+        subtitle: '',
+        items: []
+      },
+      achievements: {
+        title: '',
+        subtitle: '',
+        items: []
+      },
+      facilities: {
+        title: 'Our Facilities',
+        subtitle: 'World-class infrastructure for learning and growth',
+        items: []
+      },
+      carousel: {
+        title: '',
+        subtitle: '',
+        items: []
+      },
+      contact: {
+        address: '',
+        phone: '',
+        email: '',
+        officeHours: ''
+      },
+      homepage: {
+        sections: []
+      },
+      footer: {
+        text: '',
+        socialLinks: []
+      },
+      examCell: {
+        title: '',
+        subtitle: '',
+        content: '',
+        showHero: false,
+        showFeatures: false,
+        showQuickLinks: false,
+        showCTA: false,
+        heroButtonText: '',
+        ctaButtonText: ''
+      },
+      others: {
+        aishe: { title: '', subtitle: '', content: '' },
+        academicCoordinator: { title: '', subtitle: '', content: '' }
+      },
+      faculty: {
+        title: '',
+        items: []
+      }
+    };
+  }
+}
+
+// This page is statically generated at build time
+export const dynamic = 'force-static';
+
+// Disable any automatic revalidation
+export const revalidate = false;
 
 export default async function FacilityDetailPage({ params }: { params: { id: string } }) {
   const site = await getSiteSettings();

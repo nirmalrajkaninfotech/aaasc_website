@@ -1,47 +1,126 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import fs from 'fs';
+import path from 'path';
 
 import { Collage, SiteSettings } from '@/types';
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    return {
-      siteTitle: "My Collage Website",
-      logo: "/logo.png",
-      navLinks: [
-        { label: "Home", href: "/" },
-        { label: "Gallery", href: "/" },
-        { label: "About", href: "/about" }
-      ],
-      footer: {
-        text: "© 2025 My Collage Website. All rights reserved.",
-        socialLinks: [
-          { label: "Twitter", href: "https://twitter.com/myprofile" },
-          { label: "GitHub", href: "https://github.com/myprofile" }
-        ]
-      }
-    };
+// This function runs at build time to generate all possible paths
+export async function generateStaticParams() {
+  const filePath = path.join(process.cwd(), 'data', 'collages.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    const collages = JSON.parse(data);
+    return collages.map((collage: Collage) => ({
+      id: collage.id.toString(),
+    }));
+  } catch (error) {
+    console.error('Error generating static params for collages:', error);
+    return [];
   }
-  
-  return res.json();
 }
 
+function getDefaultSiteSettings(): SiteSettings {
+  return {
+    siteTitle: "My Collage Website",
+    logo: "/logo.png",
+    navLinks: [
+      { label: "Home", href: "/" },
+      { label: "Gallery", href: "/gallery" },
+      { label: "About", href: "/about" }
+    ],
+    hero: {
+      title: "Welcome to Our College",
+      subtitle: "Excellence in Education",
+      backgroundImage: "/images/hero-bg.jpg",
+      ctaText: "Learn More",
+      ctaLink: "/about"
+    },
+    about: {
+      title: "About Us",
+      content: "Welcome to our institution.",
+      image: "/images/about.jpg",
+      stats: []
+    },
+    placements: {
+      title: "Placements",
+      subtitle: "Our successful placements",
+      items: []
+    },
+    achievements: {
+      title: "Achievements",
+      subtitle: "Our proud moments",
+      items: []
+    },
+    facilities: {
+      title: "Facilities",
+      subtitle: "World-class infrastructure",
+      items: []
+    },
+    carousel: {
+      title: "Highlights",
+      subtitle: "Campus life",
+      items: []
+    },
+    contact: {
+      address: "123 College Street, City",
+      phone: "+1234567890",
+      email: "info@college.edu",
+      officeHours: "Mon-Fri: 9AM - 5PM"
+    },
+    homepage: {
+      sections: []
+    },
+    footer: {
+      text: "© 2025 My Collage Website. All rights reserved.",
+      socialLinks: []
+    },
+    examCell: {
+      title: "Exam Cell",
+      subtitle: "Examination information",
+      content: "Exam cell details",
+      showHero: false,
+      showFeatures: false,
+      showQuickLinks: false,
+      showCTA: false,
+      heroButtonText: "",
+      ctaButtonText: ""
+    },
+    others: {
+      aishe: { title: "AISHE", subtitle: "", content: "" },
+      academicCoordinator: { title: "Academic Coordinator", subtitle: "", content: "" }
+    },
+    faculty: {
+      title: "Our Faculty",
+      items: []
+    }
+  };
+}
+
+// Read site settings from file
+async function getSiteSettings(): Promise<SiteSettings> {
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading site settings:', error);
+    return getDefaultSiteSettings();
+  }
+}
+
+// Read collage data from file
 async function getCollage(id: string): Promise<Collage | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
+  const filePath = path.join(process.cwd(), 'data', 'collages.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    const collages: Collage[] = JSON.parse(data);
+    return collages.find(c => c.id.toString() === id) || null;
+  } catch (error) {
+    console.error('Error reading collage data:', error);
     return null;
   }
-  
-  const collages: Collage[] = await res.json();
-  return collages.find(c => c.id === parseInt(id)) || null;
 }
 
 export default async function CollagePage({ params }: { params: { id: string } }) {

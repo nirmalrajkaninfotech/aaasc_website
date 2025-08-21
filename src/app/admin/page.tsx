@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -93,7 +94,29 @@ interface AdminPlacement {
   published?: boolean;
 }
 
+// This page should not be statically generated
+export const dynamic = 'force-dynamic';
+
 export default function AdminPage() {
+  const router = useRouter();
+  
+  // In production, redirect to admin login
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      router.push('/admin/login');
+    }
+  }, [router]);
+  
+  if (process.env.NODE_ENV === 'production') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Admin Access Required</h1>
+          <p className="text-gray-600">Please log in to access the admin panel.</p>
+        </div>
+      </div>
+    );
+  }
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
     const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'academics'|'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities'>('site');

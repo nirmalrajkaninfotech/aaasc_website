@@ -8,32 +8,105 @@ import GallerySection from '@/components/GallerySection';
 import { Collage, SiteSettings } from '@/types';
 import Carousel from '@/components/Carousel';
 import Image from 'next/image';
+import fs from 'fs';
+import path from 'path';
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
-    cache: 'no-store'
-  });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+// Read data directly from files during build time
+function getSiteSettings(): SiteSettings {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'site.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading site settings:', error);
+    // Return default settings that match the SiteSettings interface
+    return {
+      siteTitle: 'AAASC',
+      logo: '',
+      navLinks: [],
+      hero: {
+        title: '',
+        subtitle: '',
+        backgroundImage: '',
+        ctaText: '',
+        ctaLink: ''
+      },
+      about: {
+        title: '',
+        content: '',
+        image: '',
+        stats: []
+      },
+      placements: {
+        title: '',
+        subtitle: '',
+        items: []
+      },
+      achievements: {
+        title: '',
+        subtitle: '',
+        items: []
+      },
+      facilities: {
+        title: '',
+        subtitle: '',
+        items: []
+      },
+      carousel: {
+        title: '',
+        subtitle: '',
+        items: []
+      },
+      contact: {
+        address: '',
+        phone: '',
+        email: '',
+        officeHours: ''
+      },
+      homepage: { 
+        sections: [] 
+      },
+      footer: {
+        text: '',
+        socialLinks: []
+      },
+      examCell: {
+        title: '',
+        subtitle: '',
+        content: '',
+        showHero: false,
+        showFeatures: false,
+        showQuickLinks: false,
+        showCTA: false,
+        heroButtonText: '',
+        ctaButtonText: ''
+      },
+      others: {
+        aishe: { title: '', subtitle: '', content: '' },
+        academicCoordinator: { title: '', subtitle: '', content: '' }
+      },
+      faculty: {
+        title: '',
+        items: []
+      }
+    };
+  }
 }
 
-async function getCollages(): Promise<Collage[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
+function getCollages(): Collage[] {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'collages.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading collages:', error);
     return [];
   }
-  
-  return res.json();
 }
 
-export default async function Home() {
-  const [siteSettings, collages] = await Promise.all([
-    getSiteSettings(),
-    getCollages()
-  ]);
+export default function Home() {
+  const siteSettings = getSiteSettings();
+  const collages = getCollages();
 
   // Get enabled sections from homepage layout
   const enabledSections = siteSettings.homepage.sections
@@ -56,7 +129,20 @@ export default async function Home() {
       case 'featured-collages':
         return <FeaturedCollages key="featured-collages" collages={collages} />;
       case 'gallery':
-        return <GallerySection key="gallery" items={siteSettings.gallery?.items || []} />;
+        // Map collages to gallery items
+        const galleryItems = collages.map(collage => ({
+          id: collage.id.toString(),
+          title: collage.title,
+          description: collage.description,
+          category: collage.category,
+          date: collage.date,
+          featured: collage.featured || false,
+          tags: collage.tags || [],
+          images: collage.images || [],
+          order: 0, // Add default order if not present
+          published: true // Default to published
+        }));
+        return <GallerySection key="gallery" items={galleryItems} title="Photo Gallery" subtitle="Explore our collection of memorable moments" />;
       case 'carousel':
         return <Carousel key="carousel" isTamil={false} items={siteSettings.carousel?.items || []} />;
       default:

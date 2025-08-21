@@ -1,43 +1,35 @@
+// This route is disabled for static export
+// For static sites, we'll use client-side data fetching directly from JSON files
+
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import { AlumniAssociation } from '@/types';
 
-const alumniPath = path.join(process.cwd(), 'data', 'alumni.json');
-
-function readAlumni(): AlumniAssociation {
-  try {
-    const data = fs.readFileSync(alumniPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return {
-      title: 'Alumni Association',
-      content: 'Welcome to the Alumni Association. Stay connected with your alma mater!',
-      image: '',
-      members: []
-    };
-  }
-}
-
-function writeAlumni(alumni: AlumniAssociation): void {
-  fs.writeFileSync(alumniPath, JSON.stringify(alumni, null, 2));
-}
+// This tells Next.js this route should be treated as static
+export const dynamic = 'force-static';
 
 export async function GET() {
-  try {
-    const alumni = readAlumni();
-    return NextResponse.json(alumni);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to read alumni data' }, { status: 500 });
-  }
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 404 }
+  );
 }
 
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    writeAlumni(body);
-    return NextResponse.json(body);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to update alumni data' }, { status: 500 });
-  }
+export async function POST() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
+
+export async function PUT() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
+
+export async function DELETE() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
 }

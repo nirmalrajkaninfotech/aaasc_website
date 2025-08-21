@@ -43,8 +43,12 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+// Middleware configuration
+// For static export, we'll only protect admin routes in development
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    // Only protect admin routes in development
+    // In production, this will be handled by the hosting provider
+    '/admin/:path*',
+  ],
 };
-
-

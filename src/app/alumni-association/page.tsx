@@ -1,25 +1,73 @@
 import AlumniSection from '@/components/AlumniSection';
 import { SiteSettings } from '@/types';
+import fs from 'fs';
+import path from 'path';
 
-// Fetch site settings
+// Read site settings from file
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`,
-    { cache: 'no-store' }
-  );
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+  const filePath = path.join(process.cwd(), 'data', 'site.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading site settings:', error);
+    return getDefaultSiteSettings();
+  }
 }
 
-// Fetch alumni data
-async function getAlumni() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/alumni`,
-    { cache: 'no-store' }
-  );
-  if (!res.ok) return null;
-  return res.json();
+// Get default site settings
+function getDefaultSiteSettings(): SiteSettings {
+  return {
+    siteTitle: "My Collage Website",
+    logo: "/logo.png",
+    navLinks: [],
+    hero: { title: "", subtitle: "", backgroundImage: "", ctaText: "", ctaLink: "" },
+    about: { title: "", content: "", image: "", stats: [] },
+    placements: { title: "", subtitle: "", items: [] },
+    achievements: { title: "", subtitle: "", items: [] },
+    facilities: { title: "", subtitle: "", items: [] },
+    carousel: { title: "", subtitle: "", items: [] },
+    contact: { address: "", phone: "", email: "", officeHours: "" },
+    homepage: { sections: [] },
+    footer: { text: "", socialLinks: [] },
+    examCell: { 
+      title: "", 
+      subtitle: "", 
+      content: "", 
+      showHero: false, 
+      showFeatures: false, 
+      showQuickLinks: false, 
+      showCTA: false, 
+      heroButtonText: "", 
+      ctaButtonText: "" 
+    },
+    others: {
+      aishe: { title: "", subtitle: "", content: "" },
+      academicCoordinator: { title: "", subtitle: "", content: "" }
+    },
+    faculty: { title: "", items: [] }
+  };
 }
+
+// Read alumni data from file
+async function getAlumni() {
+  const filePath = path.join(process.cwd(), 'data', 'alumni.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading alumni data:', error);
+    return {
+      title: 'Alumni Association',
+      content: 'Welcome to our alumni network. Stay connected with your alma mater!',
+      image: '',
+      members: []
+    };
+  }
+}
+
+// This function tells Next.js to pre-render this page at build time
+export const dynamic = 'force-static';
 
 // Page Component
 export default async function AlumniPage() {
@@ -52,7 +100,7 @@ export default async function AlumniPage() {
       <footer className="bg-gray-900 text-gray-300 py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0">
           <span className="text-sm">
-            &copy; {new Date().getFullYear()} {siteSettings?.siteName || 'Alumni Network'}
+            &copy; {new Date().getFullYear()} {siteSettings?.siteTitle || 'Alumni Network'}
           </span>
           <span className="text-sm">
             Built with ❤️ | Powered by Next.js

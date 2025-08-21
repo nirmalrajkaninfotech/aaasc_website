@@ -1,75 +1,35 @@
+// This route is disabled for static export
+// For static sites, we'll use client-side data fetching directly from JSON files
+
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const url = searchParams.get('url');
-    
-    if (!url) {
-      return NextResponse.json(
-        { success: 0, message: 'No URL provided' },
-        { status: 400 }
-      );
-    }
+// This tells Next.js this route should be treated as static
+export const dynamic = 'force-static';
 
-    // Validate URL format
-    try {
-      new URL(url);
-    } catch {
-      return NextResponse.json(
-        { success: 0, message: 'Invalid URL format' },
-        { status: 400 }
-      );
-    }
+export async function GET() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 404 }
+  );
+}
 
-    try {
-      // Fetch the URL to get metadata
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; LinkPreview/1.0)'
-        }
-      });
+export async function POST() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch URL');
-      }
+export async function PUT() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
+}
 
-      const html = await response.text();
-      
-      // Extract basic metadata
-      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-      const descriptionMatch = html.match(/<meta[^>]*name=["\']description["\'][^>]*content=["\']([^"']+)["\'][^>]*>/i) ||
-                              html.match(/<meta[^>]*property=["\']og:description["\'][^>]*content=["\']([^"']+)["\'][^>]*>/i);
-      const imageMatch = html.match(/<meta[^>]*property=["\']og:image["\'][^>]*content=["\']([^"']+)["\'][^>]*>/i);
-
-      return NextResponse.json({
-        success: 1,
-        meta: {
-          title: titleMatch ? titleMatch[1].trim() : url,
-          description: descriptionMatch ? descriptionMatch[1].trim() : '',
-          image: {
-            url: imageMatch ? imageMatch[1] : ''
-          }
-        }
-      });
-    } catch (error) {
-      // Fallback response
-      return NextResponse.json({
-        success: 1,
-        meta: {
-          title: url,
-          description: '',
-          image: {
-            url: ''
-          }
-        }
-      });
-    }
-  } catch (error) {
-    console.error('Fetch URL error:', error);
-    return NextResponse.json(
-      { success: 0, message: 'Failed to fetch URL metadata' },
-      { status: 500 }
-    );
-  }
+export async function DELETE() {
+  return NextResponse.json(
+    { error: 'API route not available in static export' },
+    { status: 403 }
+  );
 }
