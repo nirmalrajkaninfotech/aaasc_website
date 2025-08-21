@@ -1,7 +1,7 @@
 // API service for connecting to the admin server
 // This replaces the static JSON file loading with live API calls
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '@/config';
 
 export interface ApiResponse<T> {
   data?: T;
