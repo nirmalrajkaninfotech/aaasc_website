@@ -11,32 +11,114 @@ import Image from 'next/image';
 import { api } from '@/lib/api';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const response = await api.site();
-  if (response.error) {
-    console.error('Failed to fetch site settings:', response.error);
-    // Fallback to default settings if API fails
+  try {
+    const response = await api.site();
+    if (response.error) {
+      console.error('Failed to fetch site settings:', response.error);
+      throw new Error(response.error);
+    }
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch site settings:', error);
+    // Return comprehensive fallback settings if API fails
     return {
-      hero: { title: 'Welcome to AAASC College', subtitle: 'Excellence in Education' },
-      about: { title: 'About Us', content: 'AAASC College is committed to providing quality education.' },
-      placements: { title: 'Placements', items: [] },
-      achievements: { title: 'Achievements', items: [] },
-      facilities: { title: 'Facilities', items: [] },
-      gallery: { title: 'Gallery', items: [] },
-      carousel: { title: 'Carousel', items: [] },
-      homepage: { sections: [] },
+      siteTitle: "AAASC College",
+      logo: "",
+      navLinks: [],
+      hero: {
+        title: "Welcome to AAASC College",
+        subtitle: "Excellence in Education",
+        backgroundImage: "",
+        ctaText: "Learn More",
+        ctaLink: "/about"
+      },
+      about: {
+        title: "About Us",
+        content: "AAASC College is committed to providing quality education.",
+        image: "",
+        stats: []
+      },
+      placements: {
+        title: "Placements",
+        subtitle: "Our placement achievements",
+        items: []
+      },
+      achievements: {
+        title: "Achievements",
+        subtitle: "Our accomplishments",
+        items: []
+      },
+      facilities: {
+        title: "Facilities",
+        subtitle: "Our campus facilities",
+        items: []
+      },
+      carousel: {
+        title: "Carousel",
+        subtitle: "Featured content",
+        items: []
+      },
+      contact: {
+        email: "",
+        phone: "",
+        address: "",
+        officeHours: ""
+      },
+      homepage: {
+        sections: []
+      },
+      footer: {
+        text: "© 2024 AAASC College. All rights reserved.",
+        socialLinks: []
+      },
+      examCell: {
+        title: "Exam Cell",
+        subtitle: "Examination information",
+        content: "Welcome to our exam cell",
+        showHero: true,
+        showFeatures: true,
+        showQuickLinks: true,
+        showCTA: true,
+        heroButtonText: "Learn More",
+        ctaButtonText: "Contact Us"
+      },
+      others: {
+        aishe: {
+          title: "AISHE",
+          subtitle: "All India Survey on Higher Education",
+          content: "Information about AISHE"
+        },
+        academicCoordinator: {
+          title: "Academic Coordinator",
+          subtitle: "Academic coordination information",
+          content: "Details about academic coordination"
+        }
+      },
+      faculty: {
+        title: "Faculty",
+        items: []
+      },
+      gallery: {
+        title: "Gallery",
+        items: []
+      },
       homepage_image: null
     };
   }
-  return response.data;
 }
 
 async function getCollages(): Promise<Collage[]> {
-  const response = await api.collages();
-  if (response.error) {
-    console.error('Failed to fetch collages:', response.error);
+  try {
+    const response = await api.collages();
+    if (response.error) {
+      console.error('Failed to fetch collages:', response.error);
+      return [];
+    }
+    return response.data || [];
+  } catch (error) {
+    console.error('Failed to fetch collages:', error);
     return [];
   }
-  return response.data || [];
 }
 
 export default async function Home() {
