@@ -1,0 +1,19 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/about/page": "app/about/page.js",
+  "/achievements/page": "app/achievements/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/alumni-association/page": "app/alumni-association/page.js",
+  "/gallery/page": "app/gallery/page.js",
+  "/categories/page": "app/categories/page.js",
+  "/exam-cell/page": "app/exam-cell/page.js",
+  "/others/page": "app/others/page.js",
+  "/page": "app/page.js",
+  "/faculty/page": "app/faculty/page.js",
+  "/iqac/page": "app/iqac/page.js",
+  "/placements/page": "app/placements/page.js",
+  "/collage/[id]/page": "app/collage/[id]/page.js",
+  "/faculty/[slug]/page": "app/faculty/[slug]/page.js",
+  "/academics/page": "app/academics/page.js"
+}

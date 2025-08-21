@@ -1,0 +1,19 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/about/page": "/about",
+  "/achievements/page": "/achievements",
+  "/contact/page": "/contact",
+  "/alumni-association/page": "/alumni-association",
+  "/gallery/page": "/gallery",
+  "/categories/page": "/categories",
+  "/exam-cell/page": "/exam-cell",
+  "/others/page": "/others",
+  "/page": "/",
+  "/faculty/page": "/faculty",
+  "/iqac/page": "/iqac",
+  "/placements/page": "/placements",
+  "/collage/[id]/page": "/collage/[id]",
+  "/faculty/[slug]/page": "/faculty/[slug]",
+  "/academics/page": "/academics"
+}

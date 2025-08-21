@@ -3,15 +3,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Collage, SiteSettings } from '@/types';
+import { api } from '@/lib/api';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
+  const response = await api.site();
+  if (response.error) {
+    console.error('Failed to fetch site settings:', response.error);
+    // Fallback to default settings if API fails
     return {
-      siteTitle: "My Collage Website",
+      siteTitle: "AAASC College",
       logo: "/logo.png",
       navLinks: [
         { label: "Home", href: "/" },
@@ -19,28 +19,25 @@ async function getSiteSettings(): Promise<SiteSettings> {
         { label: "About", href: "/about" }
       ],
       footer: {
-        text: "© 2025 My Collage Website. All rights reserved.",
+        text: "© 2025 AAASC College. All rights reserved.",
         socialLinks: [
-          { label: "Twitter", href: "https://twitter.com/myprofile" },
-          { label: "GitHub", href: "https://github.com/myprofile" }
+          { label: "Twitter", href: "https://twitter.com/aaasc" },
+          { label: "Facebook", href: "https://facebook.com/aaasc" }
         ]
       }
     };
   }
-  
-  return res.json();
+  return response.data;
 }
 
 async function getCollage(id: string): Promise<Collage | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
+  const response = await api.collages();
+  if (response.error) {
+    console.error('Failed to fetch collages:', response.error);
     return null;
   }
   
-  const collages: Collage[] = await res.json();
+  const collages: Collage[] = response.data || [];
   return collages.find(c => c.id === parseInt(id)) || null;
 }
 

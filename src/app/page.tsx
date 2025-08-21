@@ -8,25 +8,35 @@ import GallerySection from '@/components/GallerySection';
 import { Collage, SiteSettings } from '@/types';
 import Carousel from '@/components/Carousel';
 import Image from 'next/image';
+import { api } from '@/lib/api';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
-    cache: 'no-store'
-  });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+  const response = await api.site();
+  if (response.error) {
+    console.error('Failed to fetch site settings:', response.error);
+    // Fallback to default settings if API fails
+    return {
+      hero: { title: 'Welcome to AAASC College', subtitle: 'Excellence in Education' },
+      about: { title: 'About Us', content: 'AAASC College is committed to providing quality education.' },
+      placements: { title: 'Placements', items: [] },
+      achievements: { title: 'Achievements', items: [] },
+      facilities: { title: 'Facilities', items: [] },
+      gallery: { title: 'Gallery', items: [] },
+      carousel: { title: 'Carousel', items: [] },
+      homepage: { sections: [] },
+      homepage_image: null
+    };
+  }
+  return response.data;
 }
 
 async function getCollages(): Promise<Collage[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
+  const response = await api.collages();
+  if (response.error) {
+    console.error('Failed to fetch collages:', response.error);
     return [];
   }
-  
-  return res.json();
+  return response.data || [];
 }
 
 export default async function Home() {
@@ -36,9 +46,9 @@ export default async function Home() {
   ]);
 
   // Get enabled sections from homepage layout
-  const enabledSections = siteSettings.homepage.sections
-    .filter(section => section.enabled)
-    .sort((a, b) => a.order - b.order);
+  const enabledSections = siteSettings.homepage?.sections
+    ?.filter(section => section.enabled)
+    .sort((a, b) => a.order - b.order) || [];
 
   // Function to render each section based on its ID
   const renderSection = (sectionId: string) => {
