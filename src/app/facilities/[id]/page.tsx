@@ -1,9 +1,10 @@
 import Image from 'next/image';
 import { SiteSettings } from '@/types';
+import { fetchApi } from '@/lib/api';
 import Link from 'next/link';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, { cache: 'no-store' });
+  const res = await fetch(`/api/site`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch site settings');
   return res.json();
 }

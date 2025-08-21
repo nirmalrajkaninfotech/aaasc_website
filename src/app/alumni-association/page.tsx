@@ -1,5 +1,6 @@
 import AlumniSection from '@/components/AlumniSection';
 import { SiteSettings } from '@/types';
+import { fetchApi } from '@/lib/api';
 
 // Fetch site settings
 async function getSiteSettings(): Promise<SiteSettings> {

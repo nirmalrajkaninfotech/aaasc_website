@@ -2,9 +2,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Collage, SiteSettings } from '@/types';
+import { fetchApi } from '@/lib/api';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
+  const res = await fetch(`/api/site`, {
     cache: 'no-store'
   });
   
@@ -16,7 +17,7 @@ async function getSiteSettings(): Promise<SiteSettings> {
 }
 
 async function getCollages(): Promise<Collage[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
+  const res = await fetch(`/api/collages`, {
     cache: 'no-store'
   });
   

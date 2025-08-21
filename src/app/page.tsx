@@ -8,37 +8,23 @@ import GallerySection from '@/components/GallerySection';
 import { Collage, SiteSettings } from '@/types';
 import Carousel from '@/components/Carousel';
 import Image from 'next/image';
+import { fetchApi } from '@/lib/api';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch('/api/site', {
+  return fetchApi<SiteSettings>('/api/site', {
     cache: 'no-store',
-    // For server-side requests, we need to include the full URL
-    ...(typeof window === 'undefined' && {
-      headers: {
-        host: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').host,
-      },
-    })
   });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
 }
 
 async function getCollages(): Promise<Collage[]> {
-  const res = await fetch('/api/collages', {
-    cache: 'no-store',
-    // For server-side requests, we need to include the full URL
-    ...(typeof window === 'undefined' && {
-      headers: {
-        host: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').host,
-      },
-    })
-  });
-  
-  if (!res.ok) {
+  try {
+    return await fetchApi<Collage[]>('/api/collages', {
+      cache: 'no-store',
+    });
+  } catch (error) {
+    console.error('Failed to fetch collages:', error);
     return [];
   }
-  
-  return res.json();
 }
 
 export default async function Home() {

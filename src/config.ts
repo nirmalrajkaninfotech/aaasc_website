@@ -1,12 +1,6 @@
-// Base API URL for the application
-// Use relative URL for API routes in the same domain
-const getBaseUrl = (): string => {
-  // In the browser, we'll use relative URLs
-  if (typeof window !== 'undefined') return '';
-  // On server, use the Vercel URL if available, otherwise default to localhost
-  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-};
+import { getBaseUrl } from './lib/api';
 
+// Base API URL for the application
 export const API_BASE_URL = getBaseUrl();
 
 // Helper function to get full image URL
