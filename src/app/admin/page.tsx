@@ -1,5 +1,5 @@
 'use client';
-
+import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -94,6 +94,8 @@ interface AdminPlacement {
 }
 
 export default function AdminPage() {
+    useDisableRightClick();
+
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
     const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'academics'|'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities'>('site');

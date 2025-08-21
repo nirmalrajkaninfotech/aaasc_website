@@ -1,11 +1,13 @@
 'use client';
-
+import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState, useEffect } from 'react';
 import CollageCard from '@/components/CollageCard';
 import CategoryFilter from '@/components/CategoryFilter';
 import { Collage, SiteSettings } from '@/types';
 
 export default function GalleryPage() {
+    useDisableRightClick();
+
   const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
   const [allCollages, setAllCollages] = useState<Collage[]>([]);
   const [filteredCollages, setFilteredCollages] = useState<Collage[]>([]);
@@ -13,6 +15,20 @@ export default function GalleryPage() {
 
   useEffect(() => {
     fetchData();
+    
+    // Disable right-click
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    // Add event listener
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    // Clean up
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
   }, []);
 
   const fetchData = async () => {

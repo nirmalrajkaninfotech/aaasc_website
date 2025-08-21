@@ -1,11 +1,13 @@
 'use client';
-
+import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPlus, FaEdit, FaTrash, FaUpload, FaSave, FaTimes } from 'react-icons/fa';
 import { Collage } from '@/types';
 
 export default function GalleryAdmin() {
+    useDisableRightClick();
+
   const [collages, setCollages] = useState<Collage[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCollage, setEditingCollage] = useState<Collage | null>(null);

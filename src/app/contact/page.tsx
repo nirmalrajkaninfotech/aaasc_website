@@ -1,5 +1,5 @@
 'use client';
-
+import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import React, { useState, useEffect } from 'react';
 
 import { SiteSettings } from '@/types';
@@ -12,6 +12,8 @@ type FormState = {
 };
 
 export default function ContactPage() {
+    useDisableRightClick();
+
   const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<FormState>({

@@ -1,5 +1,5 @@
 'use client';
-
+import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AcademicProgram, AcademicSection } from '@/types';
@@ -7,6 +7,8 @@ import RichTextEditor from '@/components/RichTextEditor';
 import ImageUpload from '@/components/ImageUpload';
 
 export default function AcademicsAdmin() {
+    useDisableRightClick();
+
   const [academic, setAcademic] = useState<AcademicSection>({
     title: 'Academic Programs',
     subtitle: 'Explore our diverse range of academic programs',

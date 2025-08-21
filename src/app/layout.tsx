@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { SiteSettings } from '@/types';
 import React from 'react';
 import { API_BASE_URL } from "@/config";
-
+import DisableRightClick from '@/components/DisableRightClick';
 
 async function getSiteSettings(): Promise<SiteSettings> {
  const res = await fetch('http://localhost:3000/api/site', {
@@ -31,11 +31,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-50 flex flex-col">
-        <HeaderWrapper siteSettings={siteSettings} />
-        <main className="flex-1">
-          {children}
-        </main>
-        {!isAdminRoute && <Footer siteSettings={siteSettings} />}
+        <DisableRightClick>
+          <HeaderWrapper siteSettings={siteSettings} />
+          <main className="flex-1">
+            {children}
+          </main>
+          {!isAdminRoute && <Footer siteSettings={siteSettings} />}
+        </DisableRightClick>
       </body>
     </html>
   );

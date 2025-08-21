@@ -1,10 +1,12 @@
 'use client';
-
+import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState, useEffect } from 'react';
 import Header3 from '@/components/Header3';
 import { Header3Content } from '@/types/header3';
 
 export default function AdminHeaderPage() {
+    useDisableRightClick();
+
   const [content, setContent] = useState<Header3Content | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
