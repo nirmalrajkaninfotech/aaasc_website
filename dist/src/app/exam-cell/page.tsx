@@ -3,7 +3,7 @@ import { ExamCellSection } from '@/types';
 import { ChevronRight, Calendar, FileText, Users, Clock, Award } from 'lucide-react';
 
 async function getExamCell(): Promise<ExamCellSection> {
- const res = await fetch(`/api/site`, {
+ const res = await fetch('https://aasc.veetusaapadu.in/api/site', {
   cache: 'default' // or simply omit the cache option
 });
   if (!res.ok) throw new Error('Failed to fetch site settings');

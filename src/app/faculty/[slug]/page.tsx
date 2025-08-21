@@ -3,7 +3,7 @@ import { FacultySection } from '@/types';
 import { notFound } from 'next/navigation';
 
 async function getFaculty(): Promise<FacultySection> {
- const res = await fetch(`/api/site`, {
+ const res = await fetch('https://aasc.veetusaapadu.in/api/site', {
   cache: 'default' // or simply omit the cache option
 });
   if (!res.ok) throw new Error('Failed to fetch site settings');

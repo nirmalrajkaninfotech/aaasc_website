@@ -8,7 +8,7 @@ import { API_BASE_URL } from "@/config";
 
 
 async function getSiteSettings(): Promise<SiteSettings> {
- const res = await fetch(`/api/site`, {
+ const res = await fetch('https://aasc.veetusaapadu.in/api/site', {
   cache: 'default' // or simply omit the cache option
 });
   if (!res.ok) throw new Error('Failed to fetch site settings');
