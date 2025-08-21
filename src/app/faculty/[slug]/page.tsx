@@ -3,7 +3,9 @@ import { FacultySection } from '@/types';
 import { notFound } from 'next/navigation';
 
 async function getFaculty(): Promise<FacultySection> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
+ const res = await fetch(`/api/site`, {
+  cache: 'default' // or simply omit the cache option
+});
   if (!res.ok) throw new Error('Failed to fetch site settings');
   const data = await res.json();
   return data.faculty;

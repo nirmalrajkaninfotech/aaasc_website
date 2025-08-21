@@ -3,7 +3,7 @@ import { OthersSection } from '@/types';
 
 async function getOthers(): Promise<OthersSection> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/site`, { 
+    const res = await fetch(`/api/site`, { 
       cache: 'no-store',
       next: { revalidate: 300 } // Revalidate every 5 minutes
     });

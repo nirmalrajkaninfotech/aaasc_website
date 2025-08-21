@@ -8,7 +8,9 @@ import { API_BASE_URL } from "@/config";
 
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
+ const res = await fetch(`/api/site`, {
+  cache: 'default' // or simply omit the cache option
+});
   if (!res.ok) throw new Error('Failed to fetch site settings');
   return res.json();
 }

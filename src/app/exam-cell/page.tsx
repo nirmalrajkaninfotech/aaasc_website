@@ -3,7 +3,9 @@ import { ExamCellSection } from '@/types';
 import { ChevronRight, Calendar, FileText, Users, Clock, Award } from 'lucide-react';
 
 async function getExamCell(): Promise<ExamCellSection> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
+ const res = await fetch(`/api/site`, {
+  cache: 'default' // or simply omit the cache option
+});
   if (!res.ok) throw new Error('Failed to fetch site settings');
   const data = await res.json();
   return data.examCell;
