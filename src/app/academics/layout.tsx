@@ -5,7 +5,10 @@ import { SiteSettings } from '@/types';
 
 async function getSiteSettings(): Promise<SiteSettings> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site/public`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site/public`, { 
+      cache: 'force-cache',
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
     if (!res.ok) throw new Error('Failed to fetch site settings');
     return res.json();
   } catch (error) {

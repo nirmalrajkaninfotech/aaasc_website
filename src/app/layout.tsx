@@ -10,7 +10,10 @@ import { API_BASE_URL } from "@/config";
 async function getSiteSettings(): Promise<SiteSettings> {
   try {
     // Try the public endpoint first (no authentication required)
-    const res = await fetch(`${API_BASE_URL}/api/site/public`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE_URL}/api/site/public`, { 
+      cache: 'force-cache',
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
     if (!res.ok) throw new Error('Failed to fetch site settings');
     return res.json();
   } catch (error) {

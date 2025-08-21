@@ -3,7 +3,8 @@ import AcademicSection from '@/components/AcademicSection';
 async function getAcademicData() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/academics/public`, {
-      cache: 'no-store'
+      cache: 'force-cache',
+    next: { revalidate: 3600 } // Revalidate every hour
     });
     
     if (!res.ok) {
