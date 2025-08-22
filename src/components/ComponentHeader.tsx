@@ -24,7 +24,7 @@ const ComponentHeader: React.FC = () => {
       </div>
 
       {/* Full-width image with optimized height */}
-      <div className="relative h-28 md:h-33 w-full overflow-hidden">
+      <div className="relative h-28 md:h-28 w-full overflow-hidden">
         <Image
           src="/uploads/image.png"
           alt="College Campus"
