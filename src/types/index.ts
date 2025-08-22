@@ -65,6 +65,8 @@ export interface ContactInfo {
   email: string;
   officeHours: string;
   googleMapsUrl?: string;
+  googleMapsApiKey?: string;
+  googleMapsEmbedQuery?: string;
 }
 
 export interface RichTextContent {

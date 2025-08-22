@@ -23,7 +23,6 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
 		<section className="py-16 bg-gray-50">
 			<div className="container mx-auto px-4">
 				<div className="text-center mb-12">
-					<h2 className="text-4xl font-bold text-gray-800 mb-4">{faculty.title}</h2>
 					<p className="text-xl text-gray-600">Explore departments and staff information</p>
 				</div>
 
@@ -58,13 +57,22 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
 						{/* Images with captions on the right */}
 						<div className="md:w-2/3 flex flex-wrap gap-4 p-6 items-center justify-center">
 							{(activeItem.images && activeItem.images.length > 0 ? activeItem.images : activeItem.image ? [{ url: activeItem.image }] : []).map((img, idx) => (
-								<div key={idx} className="flex flex-col items-center">
-									<div className="relative w-32 h-32 mb-2 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
-										<Image src={img.url} alt={activeItem.title} fill className="object-contain rounded" />
-									</div>
-									{img.caption && <div className="text-xs text-gray-700 font-medium text-center">{img.caption}</div>}
-									{img.subtitle && <div className="text-xs text-gray-500 text-center">{img.subtitle}</div>}
+							<div key={idx} className="flex flex-col items-center group">
+								<div className="relative w-36 h-36 mb-2 flex items-center justify-center bg-white p-1 rounded-xl overflow-hidden">
+								<div className="relative w-full h-full">
+									<Image 
+										src={img.url} 
+										alt={activeItem.title} 
+										fill 
+										className="object-contain" 
+										sizes="(max-width: 768px) 100vw, 33vw"
+										style={{ objectFit: 'contain' }}
+									/>
 								</div>
+							</div>
+								{img.caption && <div className="text-sm font-medium text-gray-800 text-center mt-1">{img.caption}</div>}
+								{img.subtitle && <div className="text-xs text-gray-600 text-center">{img.subtitle}</div>}
+							</div>
 							))}
 						</div>
 					</div>

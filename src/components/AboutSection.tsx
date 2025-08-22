@@ -357,17 +357,19 @@ function ContentSection({ section }: {
     images?: Array<{ url: string; caption?: string; subtitle?: string }>;
   } 
 }) {
+  const isCenteredSection = section.title === 'Temple Administration' || section.title === 'Management Committee';
+  
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-start ${
+    <div className={`grid grid-cols-1 ${isCenteredSection ? 'max-w-4xl mx-auto' : 'lg:grid-cols-2'} gap-12 items-start ${
       section.alignment === 'right' ? 'lg:flex-row-reverse' : ''
     }`}>
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className={section.image ? (section.alignment === 'right' ? 'lg:order-1' : 'lg:order-2') : ''}
+        className={section.image && !isCenteredSection ? (section.alignment === 'right' ? 'lg:order-1' : 'lg:order-2') : 'w-full'}
       >
-        <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
-          <h3 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+        <div className={`bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20 ${isCenteredSection ? 'text-center' : ''}`}>
+          <h3 className="text-3xl font-bold text-gray-800 mb-6 flex items-center justify-center gap-3">
             <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></span>
             {section.title}
           </h3>
@@ -412,13 +414,16 @@ function ContentSection({ section }: {
           animate={{ opacity: 1, x: 0 }}
           className={`relative ${section.alignment === 'right' ? 'lg:order-2' : 'lg:order-1'}`}
         >
-          <div className="relative h-96 rounded-3xl overflow-hidden shadow-2xl">
-            <Image 
-              src={section.image} 
-              alt={section.title} 
-              fill 
-              className="object-cover transition-transform duration-700 hover:scale-105" 
-            />
+          <div className="relative rounded-3xl shadow-xl overflow-hidden  flex items-center  w-[500px] h-[400px]">
+            <div className="relative w-[500px] h-[500px]">
+              <Image 
+                src={section.image} 
+                alt={section.title}
+                fill
+                sizes="(max-width: 68px) 50vw, 50vw"
+                className="object-contain p-4 transition-transform duration-700 hover:scale-105"
+              />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
           </div>
           <div className="absolute -z-10 -bottom-4 -left-4 w-full h-full bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-3xl" />

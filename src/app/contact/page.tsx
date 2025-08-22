@@ -1,6 +1,7 @@
 'use client';
 import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import React, { useState, useEffect } from 'react';
+import { FaCopy, FaCheck } from 'react-icons/fa';
 
 import { SiteSettings } from '@/types';
 
@@ -12,8 +13,8 @@ type FormState = {
 };
 
 export default function ContactPage() {
-    useDisableRightClick();
-
+  useDisableRightClick();
+  const [copied, setCopied] = useState(false);
   const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<FormState>({
@@ -308,17 +309,42 @@ export default function ContactPage() {
                 <div className="w-1 h-8 bg-blue-600 rounded-full mr-3"></div>
                 <h2 className="text-2xl font-bold text-gray-800">Find Us</h2>
               </div>
-              <div className="w-full h-80 rounded-xl overflow-hidden shadow-md border border-gray-100">
-                <iframe
-                  title="Google Map"
-                  src={iframeSrc}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  allowFullScreen
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+              <div className="relative w-full">
+                <div className="absolute top-4 right-4 z-10">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(iframeSrc);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="bg-white/90 hover:bg-white text-gray-800 font-medium py-2 px-3 rounded-lg shadow-md flex items-center gap-2 transition-all duration-200 hover:shadow-lg"
+                    title="Copy map URL"
+                  >
+                    {copied ? (
+                      <>
+                        <FaCheck className="text-green-500" />
+                        <span className="text-sm">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaCopy />
+                        <span className="text-sm">Copy Map URL</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="w-full h-80 rounded-xl overflow-hidden shadow-md border border-gray-100">
+                  <iframe
+                    title="Google Map"
+                    src={iframeSrc}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
               </div>
               {!hasEmbedApi && (
                 <p className="text-xs text-gray-500 mt-1">
