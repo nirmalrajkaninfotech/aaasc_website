@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css';
 import { PlacementSection } from '@/types';
 
 export default function PlacementSectionComponent({ placements }: { placements: PlacementSection }) {
@@ -24,8 +26,16 @@ export default function PlacementSectionComponent({ placements }: { placements: 
         </div>
 
         {mainImage && (
-          <div className="relative w-full max-w-4xl mx-auto aspect-[4/3] bg-white shadow-lg rounded-xl overflow-hidden ring-1 ring-black/5 transition-all duration-300 transform hover:shadow-2xl hover:-translate-y-1">
-            <Image src={mainImage} alt={firstItem?.title || 'Placement'} fill className="object-contain" />
+          <div className="relative w-full max-w-4xl mx-auto aspect-[4/3] bg-white shadow-lg rounded-xl overflow-hidden ring-1 ring-black/5 transition-all duration-300 transform hover:shadow-2xl hover:-translate-y-1 cursor-zoom-in">
+            <Zoom>
+              <Image 
+                src={mainImage} 
+                alt={firstItem?.title || 'Placement'} 
+                fill 
+                className="object-contain" 
+                sizes="(max-width: 768px) 100vw, 80vw"
+              />
+            </Zoom>
           </div>
         )}
 
@@ -42,7 +52,17 @@ export default function PlacementSectionComponent({ placements }: { placements: 
           <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
             {galleryImages.map((img, idx) => (
               <div key={idx} className="group relative w-full aspect-[4/3] bg-white shadow-md rounded-lg overflow-hidden ring-1 ring-black/5 transition-all duration-300 transform hover:shadow-xl hover:-translate-y-1">
-                <Image src={img} alt={`Placement image ${idx + 1}`} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                <Zoom>
+                  <div className="w-full h-full">
+                    <Image 
+                      src={img} 
+                      alt={`Placement image ${idx + 1}`} 
+                      fill 
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    />
+                  </div>
+                </Zoom>
               </div>
             ))}
           </div>

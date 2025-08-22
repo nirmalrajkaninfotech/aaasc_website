@@ -1,17 +1,28 @@
-import { API_BASE_URL } from '@/config';
 import { OthersSection } from '@/types';
 
 async function getOthers(): Promise<OthersSection> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/site`, { 
+    // Use absolute URL for server-side rendering
+    const baseUrl = process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:3000' 
+      : 'https://aasc.veetusaapadu.in';
+    
+    console.log('Fetching from:', `${baseUrl}/api/site`);
+    const res = await fetch(`${baseUrl}/api/site`, { 
       cache: 'no-store',
       next: { revalidate: 300 } // Revalidate every 5 minutes
     });
     
     if (!res.ok) {
-      throw new Error(`Failed to fetch site settings: ${res.status}`);
+      throw new Error(`Failed to fetch site settings: ${res.status} ${res.statusText}`);
     }    
     const data = await res.json();
+    console.log('Received data:', data);
+    
+    if (!data.others) {
+      throw new Error('Others section not found in site data');
+    }
+    
     return data.others;
   } catch (error) {
     console.error('Error fetching others data:', error);

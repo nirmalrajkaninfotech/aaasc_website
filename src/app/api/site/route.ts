@@ -30,7 +30,7 @@ function readSiteSettings(): SiteSettings {
       about: {
         title: "About Our College",
         content: "Our institution has been a beacon of academic excellence.",
-        image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&h=400&fit=crop",
+        image: "/img/1.jpg",
         stats: [
           { label: "Students", value: "15,000+" },
           { label: "Faculty", value: "800+" }
@@ -164,10 +164,9 @@ export async function PUT(request: NextRequest) {
       body.about = {
         title: "About Our College",
         content: "Our institution has been a beacon of academic excellence.",
-        image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&h=400&fit=crop",
+        image: "/img/1.jpg",
         stats: [
-          { label: "Students", value: "15,000+" },
-          { label: "Faculty", value: "800+" }
+          { label: "Students", value: "800+" }
         ],
         committee: {
           title: "College Management Committee",

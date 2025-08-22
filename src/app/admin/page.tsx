@@ -98,7 +98,7 @@ export default function AdminPage() {
 
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
-    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'academics'|'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities'>('site');
+    const [activeTab, setActiveTab] = useState<'collages' | 'site' | 'contact' | 'about' | 'academics'|'placements' | 'achievements' | 'homepage' | 'others' | 'carousel' | 'gallery' | 'homepage_image' | 'alumni' | 'navigation' | 'iqac' | 'examCell' | 'faculty' | 'facilities' | 'admissionForms'>('site');
   const [newNavItem, setNewNavItem] = useState({ label: '', href: '' });
   const [editingNavItem, setEditingNavItem] = useState<{ index: number; item: { label: string; href: string } } | null>(null);
 
@@ -363,6 +363,26 @@ export default function AdminPage() {
     const [newFacilityImages, setNewFacilityImages] = useState<string[]>([]);
     const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error' | '', message: string }>({ type: '', message: '' });
     const [isSaving, setIsSaving] = useState(false);
+
+    // Admission Forms state
+    const [admissionForms, setAdmissionForms] = useState<Array<{
+        id: string;
+        title: string;
+        description: string;
+        fileUrl: string;
+        fileName: string;
+        fileSize: number;
+        uploadDate: string;
+        isActive: boolean;
+        order: number;
+    }>>([]);
+    const [newAdmissionForm, setNewAdmissionForm] = useState({
+        title: '',
+        description: '',
+        file: null as File | null
+    });
+    const [editingAdmissionForm, setEditingAdmissionForm] = useState<any | null>(null);
+    const [admissionFormsLoading, setAdmissionFormsLoading] = useState(false);
 
     // Handle escape key for modal
     useEffect(() => {
@@ -1061,6 +1081,103 @@ export default function AdminPage() {
       }
     };
 
+    // Admission Forms handlers
+    const handleSaveAdmissionForm = async () => {
+        if (!newAdmissionForm.title || !newAdmissionForm.file) return;
+
+        try {
+            setAdmissionFormsLoading(true);
+            const formData = new FormData();
+            formData.append('file', newAdmissionForm.file);
+            formData.append('title', newAdmissionForm.title);
+            formData.append('description', newAdmissionForm.description);
+
+            const response = await fetch('/api/admission-forms', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const savedForm = await response.json();
+                setAdmissionForms(prev => [...prev, savedForm]);
+                setNewAdmissionForm({ title: '', description: '', file: null });
+                alert('Admission form uploaded successfully!');
+            } else {
+                alert('Failed to upload admission form');
+            }
+        } catch (error) {
+            console.error('Error uploading admission form:', error);
+            alert('Error uploading admission form');
+        } finally {
+            setAdmissionFormsLoading(false);
+        }
+    };
+
+    const handleEditAdmissionForm = (form: any) => {
+        setEditingAdmissionForm(form);
+        setNewAdmissionForm({
+            title: form.title,
+            description: form.description,
+            file: null
+        });
+    };
+
+    const handleToggleAdmissionForm = async (formId: string) => {
+        try {
+            const response = await fetch(`/api/admission-forms/${formId}/toggle`, {
+                method: 'PUT'
+            });
+            if (response.ok) {
+                setAdmissionForms(prev => prev.map(form => 
+                    form.id === formId ? { ...form, isActive: !form.isActive } : form
+                ));
+            }
+        } catch (error) {
+            console.error('Error toggling form status:', error);
+        }
+    };
+
+    const handleDeleteAdmissionForm = async (formId: string) => {
+        if (!confirm('Are you sure you want to delete this admission form?')) return;
+
+        try {
+            const response = await fetch(`/api/admission-forms/${formId}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                setAdmissionForms(prev => prev.filter(form => form.id !== formId));
+                alert('Admission form deleted successfully!');
+            } else {
+                alert('Failed to delete admission form');
+            }
+        } catch (error) {
+            console.error('Error deleting admission form:', error);
+            alert('Error deleting admission form');
+        }
+    };
+
+    // Fetch admission forms
+    useEffect(() => {
+        if (activeTab === 'admissionForms') {
+            fetchAdmissionForms();
+        }
+    }, [activeTab]);
+
+    const fetchAdmissionForms = async () => {
+        try {
+            setAdmissionFormsLoading(true);
+            const response = await fetch('/api/admission-forms');
+            if (response.ok) {
+                const data = await response.json();
+                setAdmissionForms(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch admission forms:', error);
+        } finally {
+            setAdmissionFormsLoading(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -1182,7 +1299,144 @@ export default function AdminPage() {
                     >
                         Faculty
                     </button>
+                    <button
+                        onClick={() => setActiveTab('admissionForms')}
+                        className={`px-4 py-2 rounded ${activeTab === 'admissionForms' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    >
+                        Admission Forms
+                    </button>
                 </nav>
+
+                {/* Admission Forms Tab */}
+                {activeTab === 'admissionForms' && (
+                    <div className="space-y-6">
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-semibold mb-4">Manage Admission Forms</h2>
+                            
+                            {/* Add/Edit Form */}
+                            <div className="bg-gray-50 p-4 rounded-md mb-6">
+                                <h3 className="text-lg font-medium mb-3">
+                                    {editingAdmissionForm ? 'Edit Admission Form' : 'Add New Admission Form'}
+                                </h3>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Title *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newAdmissionForm.title}
+                                            onChange={(e) => setNewAdmissionForm({ ...newAdmissionForm, title: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                            placeholder="e.g., Undergraduate Admission Form 2024-25"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Description
+                                        </label>
+                                        <textarea
+                                            value={newAdmissionForm.description}
+                                            onChange={(e) => setNewAdmissionForm({ ...newAdmissionForm, description: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                            rows={3}
+                                            placeholder="Brief description of the form..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            PDF File *
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept=".pdf"
+                                            onChange={(e) => setNewAdmissionForm({ 
+                                                ...newAdmissionForm, 
+                                                file: e.target.files ? e.target.files[0] : null 
+                                            })}
+                                            className="w-full p-2 border border-gray-300 rounded-md"
+                                        />
+                                        <p className="text-sm text-gray-500 mt-1">Only PDF files are allowed</p>
+                                    </div>
+                                    <div className="flex justify-end space-x-2">
+                                        {editingAdmissionForm && (
+                                            <button
+                                                onClick={() => {
+                                                    setNewAdmissionForm({ title: '', description: '', file: null });
+                                                    setEditingAdmissionForm(null);
+                                                }}
+                                                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                                            >
+                                                Cancel
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={handleSaveAdmissionForm}
+                                            disabled={!newAdmissionForm.title || !newAdmissionForm.file}
+                                            className={`px-4 py-2 text-sm text-white rounded-md ${
+                                                !newAdmissionForm.title || !newAdmissionForm.file
+                                                    ? 'bg-blue-300 cursor-not-allowed' 
+                                                    : 'bg-blue-600 hover:bg-blue-700'
+                                            }`}
+                                        >
+                                            {editingAdmissionForm ? 'Update Form' : 'Upload Form'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Forms List */}
+                            <div>
+                                <h3 className="text-lg font-medium mb-3">Current Admission Forms</h3>
+                                {admissionForms.length === 0 ? (
+                                    <p className="text-gray-500 italic">No admission forms uploaded yet.</p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {admissionForms.map((form) => (
+                                            <div key={form.id} className="flex items-center justify-between p-4 border rounded-lg">
+                                                <div className="flex-1">
+                                                    <h4 className="font-medium text-gray-800">{form.title}</h4>
+                                                    {form.description && (
+                                                        <p className="text-sm text-gray-600 mt-1">{form.description}</p>
+                                                    )}
+                                                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                                        <span>File: {form.fileName}</span>
+                                                        <span>Size: {(form.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                                                        <span>Uploaded: {new Date(form.uploadDate).toLocaleDateString()}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => handleEditAdmissionForm(form)}
+                                                        className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleToggleAdmissionForm(form.id)}
+                                                        className={`px-3 py-1 text-sm rounded ${
+                                                            form.isActive 
+                                                                ? 'text-green-600 hover:text-green-800' 
+                                                                : 'text-gray-600 hover:text-gray-800'
+                                                        }`}
+                                                    >
+                                                        {form.isActive ? 'Active' : 'Inactive'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteAdmissionForm(form.id)}
+                                                        className="px-3 py-1 text-sm text-red-600 hover:text-red-800"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Navigation Management Tab */}
                 {activeTab === 'navigation' && siteSettings && (
@@ -2598,7 +2852,6 @@ export default function AdminPage() {
 
 
                 {/* Placements Tab */}
-{/* Placements Tab */}
 {activeTab === 'placements' && (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -6625,5 +6878,4 @@ export default function AdminPage() {
     );
 }
 
-// Handlers moved inside component
 // Handlers moved inside component

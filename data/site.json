@@ -65,7 +65,7 @@
   "about": {
     "title": "About Our College",
     "content": "Our institution has been a beacon of academic excellence and personal growth for over decades. We pride ourselves on fostering an environment where students can thrive academically, socially, and personally. Through our comprehensive programs and vibrant campus life, we prepare students for successful careers and meaningful contributions to society.",
-    "image": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&h=400&fit=crop",
+    "image": "/uploads/1755857534565_istockphoto-1409722748-612x612.jpg",
     "stats": [
       {
         "label": "Students",
@@ -188,12 +188,12 @@
       }
     ],
     "principalMessage": {
-      "title": "Secretary’s Message",
+      "title": "Principal’s Message",
       "content": "<p>With the blessings of Lord Arthanareeswarar, Arulmigu Arthanareeswarar Arts and Science College, Tiruchengode, was established in 2021 to bestow quality education to rural students. Our college inculcates good qualities and skills in students and makes them heterogeneous thinkers. Our college is an ideal place to pursue higher education as it offers various job opportunities, fulfils students’ dreams, and makes students excel in their lives. Indeed, our college offers a holistic environment where students may polish their abilities, knowledge, and creative thinking.</p><p style=\"text-align: left;\"><br><strong>My best wishes for all our students to shine and&nbsp;excel&nbsp;in&nbsp;life. </strong></p><p style=\"text-align: right;\"><strong>M. Ramanikandan BA., B.L.,</strong></p><h4 style=\"text-align: right;\"><strong>Secretary / Assistant Comm</strong></h4><p></p>",
       "image": "/uploads/1755674588058_DSC_4464-1-1-1-1024x682.jpg"
     },
     "secretaryMessage": {
-      "title": "Principal’s Message",
+      "title": "Secretary’s Message",
       "content": "<p>Arulmigu Arthanareeswarar Arts and Science College, Tiruchengode, started with the aim of providing quality education to underprivileged students. Our college instills qualities such as creativity, confidence, perseverance, leadership, equality, motivation, etc. in students. With a team of dedicated and experienced professors, our college bestows multiple knowledge by adopting innovative methodology, offers umpteen opportunities to students to kindle their hidden talents, and grants placement for the students. Indeed, our college is a holistic place to hone students’ skills, knowledge, creative thinking, etc.</p><p><br>I wish every one of you to possess good health, wealth and prosperity&nbsp;in&nbsp;life.</p><h2 style=\"text-align: right;\"><strong>Dr. K. Venkatachalam</strong> <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" class=\"tiptap-link\" href=\"http://M.Com\"><strong>M.Com</strong></a><strong>., M.Phil., Ph.D., SET, M.B.A.,</strong></h2><h4 style=\"text-align: right;\"><strong>Principal</strong></h4><p></p>",
       "image": "/uploads/1755674642317_1-1.jpg",
       "alignment": "right"

@@ -1,6 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css';
 import { AchievementsSection as AchievementsSectionType } from '@/types';
 
 interface AchievementsSectionProps {
@@ -39,16 +42,32 @@ export default function AchievementsSection({ achievements }: AchievementsSectio
               {(item.image || (item as any).images?.length) && (
                 <div className="lg:w-1/2 w-full">
                   {item.image && (
-                    <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden mb-4">
-                      <Image src={item.image} alt={item.title} fill className="object-cover" />
+                    <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden mb-4 cursor-zoom-in">
+                      <Zoom>
+                        <Image 
+                          src={item.image} 
+                          alt={item.title} 
+                          fill 
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      </Zoom>
                     </div>
                   )}
                   {(item as any).images && (item as any).images.length > 0 && (
                     <div className="grid grid-cols-2 gap-3">
                       {(item as any).images.map((img: any, idx: number) => (
                         <div key={`${img.url}-${idx}`} className="border rounded overflow-hidden">
-                          <div className="relative h-28">
-                            <Image src={img.url} alt={img.caption || item.title} fill className="object-cover" />
+                          <div className="relative h-28 cursor-zoom-in">
+                            <Zoom>
+                              <Image 
+                                src={img.url} 
+                                alt={img.caption || item.title} 
+                                fill 
+                                className="object-cover"
+                                sizes="(max-width: 768px) 50vw, 25vw"
+                              />
+                            </Zoom>
                           </div>
                           {(img.caption || img.subtitle) && (
                             <div className="p-2 bg-white">
