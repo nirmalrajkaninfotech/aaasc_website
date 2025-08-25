@@ -54,9 +54,7 @@ export default async function AlumniPage() {
           <span className="text-sm">
             &copy; {new Date().getFullYear()} {siteSettings?.siteName || 'Alumni Network'}
           </span>
-          <span className="text-sm">
-            Built with ❤️ | Powered by Next.js
-          </span>
+        
         </div>
       </footer>
     </div>

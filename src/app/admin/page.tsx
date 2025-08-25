@@ -351,6 +351,7 @@ export default function AdminPage() {
     const [iqac, setIqac] = useState<any | null>(null);
     const [iqacLoading, setIqacLoading] = useState(false);
     const [iqacSaving, setIqacSaving] = useState(false);
+    const [iqacSaveStatus, setIqacSaveStatus] = useState<{ type: 'success' | 'error' | '', message: string }>({ type: '', message: '' });
 
     const [faculty, setFaculty] = useState(siteSettings?.faculty || { title: 'Faculty', items: [] });
     const [editingFacultyItem, setEditingFacultyItem] = useState<any | null>(null);
@@ -5758,6 +5759,28 @@ export default function AdminPage() {
                     </div>
                 </motion.div>
 
+                {/* Save Status Message */}
+                {iqacSaveStatus.type && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`flex justify-center mb-6`}
+                    >
+                        <div className={`px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 ${
+                            iqacSaveStatus.type === 'success'
+                                ? 'bg-green-100 border border-green-300 text-green-800'
+                                : 'bg-red-100 border border-red-300 text-red-800'
+                        }`}>
+                            {iqacSaveStatus.type === 'success' ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                                <FaTimes className="text-red-600 text-xl" />
+                            )}
+                            <span className="font-medium">{iqacSaveStatus.message}</span>
+                        </div>
+                    </motion.div>
+                )}
+
                 {/* Save Button */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -5769,9 +5792,32 @@ export default function AdminPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={async ()=>{
+                            if (!siteSettings) return;
+                            
                             setIqacSaving(true);
-                            await fetch('/api/iqac', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(iqac) });
-                            setIqacSaving(false);
+                            try {
+                                // Update site settings with IQAC data
+                                const updatedSettings = {
+                                    ...siteSettings,
+                                    iqac: iqac
+                                };
+                                
+                                // Save using the main site settings save function
+                                const savedSettings = await saveSiteSettings(updatedSettings);
+                                
+                                if (savedSettings) {
+                                    setIqacSaveStatus({ type: 'success', message: 'IQAC configuration saved successfully!' });
+                                    setTimeout(() => setIqacSaveStatus({ type: '', message: '' }), 3000);
+                                } else {
+                                    throw new Error('Failed to save IQAC configuration');
+                                }
+                            } catch (error) {
+                                console.error('Error saving IQAC:', error);
+                                setIqacSaveStatus({ type: 'error', message: 'Failed to save IQAC configuration. Please try again.' });
+                                setTimeout(() => setIqacSaveStatus({ type: '', message: '' }), 5000);
+                            } finally {
+                                setIqacSaving(false);
+                            }
                         }}
                         className={`px-12 py-4 rounded-2xl shadow-xl font-bold text-lg transition-all duration-200 flex items-center gap-3 ${
                             iqacSaving 

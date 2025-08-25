@@ -4,11 +4,11 @@
   "heroImage": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=600&fit=crop",
   "mission": {
     "title": "Our Mission",
-    "content": "The IQAC is committed to developing a quality system for conscious, consistent, and catalytic programmed action to improve the academic and administrative performance of the institution."
+    "content": "<p style=\"text-align: justify;\">The IQAC is committed to developing a quality system for conscious, consistent, and catalytic programmed action to improve the academic and administrative performance of the institution..</p><p style=\"text-align: justify;\"></p><p style=\"text-align: justify;\"></p><p style=\"text-align: justify;\"></p>"
   },
   "vision": {
     "title": "Our Vision",
-    "content": "To promote measures for institutional functioning towards quality enhancement through internalization of quality culture and institutionalization of best practices."
+    "content": "<p style=\"text-align: justify;\">To promote measures for institutional functioning towards quality enhancement through internalization of quality culture and institutionalization of best practices.</p>"
   },
   "objectives": [
     "To develop a quality system for conscious, consistent, and catalytic improvement in the overall performance of the institution",
