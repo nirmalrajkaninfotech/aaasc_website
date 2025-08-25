@@ -111,7 +111,7 @@ function GallerySection({ images }: { images?: Array<{ url: string; caption?: st
         <motion.div key={`${img.url}-${idx}`} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ y: -5 }} className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
           <div className="relative w-full h-48 rounded-lg overflow-hidden cursor-zoom-in">
             <Zoom>
-              <Image src={img.url} alt={img.caption || `Gallery image ${idx + 1}`} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+              <Image src={img.url} alt={img.caption || `Gallery image ${idx + 1}`} fill className="object-fit" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" />
             </Zoom>
           </div>
           {(img.caption || img.subtitle) && (<div className="p-4">{img.caption && <h4 className="font-semibold text-gray-800 mb-1">{img.caption}</h4>}{img.subtitle && <p className="text-sm text-gray-500">{img.subtitle}</p>}</div>)}
@@ -121,7 +121,7 @@ function GallerySection({ images }: { images?: Array<{ url: string; caption?: st
   );
 }
 
-function ContentSection({ section, isSecretary = false }: { section: { title: string; content: string; image?: string; alignment?: string; images?: Array<{ url: string; caption?: string; subtitle?: string }>; }; isSecretary?: boolean; }) {
+function ContentSection({ section, isSecretary = false }: { section: { title: string; content: string; image?: string; alignment?: string; images?: Array<{ url: string; caption?: string; subtitle?: string }> }; isSecretary?: boolean }) {
   if (isSecretary) {
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-lg overflow-hidden max-w-lg mx-auto">
@@ -139,6 +139,140 @@ function ContentSection({ section, isSecretary = false }: { section: { title: st
   }
 
   const isCenteredSection = section.title === 'Temple Administration' || section.title === 'Management Committee';
+  const isCommitteeSection = section.title.includes('Committee');
+
+  if (isCommitteeSection) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        className="max-w-4xl mx-auto"
+      >
+        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold text-gray-800 mb-2">{section.title}</h2>
+            <div className="text-gray-600">Arulmigu Arthanareeswarar Arts and Science College</div>
+          </div>
+
+          {/* Vertical Layout */}
+          <div className="flex flex-col items-center gap-8">
+            {/* Main Image */}
+            {section.image && (
+              <div className="relative w-full max-w-2xl h-[400px] rounded-xl overflow-hidden">
+                <Image 
+                  src={section.image}
+                  alt={section.title}
+                  fill
+                  className="object-fit"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="w-full max-w-2xl">
+              <div 
+                className="prose max-w-none text-gray-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: section.content }}
+              />
+            </div>
+
+            {/* Additional Images Gallery */}
+            {section.images && section.images.length > 0 && (
+              <div className="w-full mt-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  {section.images.map((img, i) => (
+                    <div key={i} className="relative h-64 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
+                      <Image
+                        src={img.url}
+                        alt={img.caption || `Committee image ${i + 1}`}
+                        fill
+                        className="object-fit"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                      {img.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
+                          {img.caption}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (section.title === 'Temple Administration') {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        className="max-w-4xl mx-auto"
+      >
+        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold text-gray-800 mb-2">{section.title}</h2>
+            <div className="text-gray-600">Arulmigu Arthanareeswarar Arts and Science College</div>
+          </div>
+
+          {/* Vertical Layout */}
+          <div className="flex flex-col items-center gap-8">
+            {/* Main Image */}
+            {section.image && (
+              <div className="relative w-full max-w-2xl h-[400px] rounded-xl overflow-hidden">
+                <Image 
+                  src={section.image}
+                  alt={section.title}
+                  fill
+                  className="object-fit"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="w-full max-w-2xl">
+              <div 
+                className="prose max-w-none text-gray-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: section.content }}
+              />
+            </div>
+
+            {/* Additional Images Gallery */}
+            {section.images && section.images.length > 0 && (
+              <div className="w-full mt-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  {section.images.map((img, i) => (
+                    <div key={i} className="relative h-64 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
+                      <Image
+                        src={img.url}
+                        alt={img.caption || `Temple Administration image ${i + 1}`}
+                        fill
+                        className="object-fit"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                      {img.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
+                          {img.caption}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <div className={`grid grid-cols-1 ${isCenteredSection ? 'max-w-3xl mx-auto' : 'lg:grid-cols-2'} gap-4 items-start`}>
       <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="w-full">
@@ -156,7 +290,7 @@ function ContentSection({ section, isSecretary = false }: { section: { title: st
               <div key={i} className="group relative rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 bg-white/5 backdrop-blur-md">
                 <div className="relative w-full h-48 flex items-center justify-center bg-gradient-to-br from-blue-600/90 to-blue-800/90">
                   <div className="relative w-4/5 h-4/5">
-                    <Image src={img.url} alt={img.caption || `${section.title} image ${i + 1}`} fill className="object-contain transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" />
+                    <Image src={img.url} alt={img.caption || `${section.title} image ${i + 1}`} fill className="object-fit transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" />
                   </div>
                 </div>
                 {(img.caption || img.subtitle) && (<div className="p-3 bg-white">{img.caption && <div className="text-base font-medium text-gray-800">{img.caption}</div>}{img.subtitle && <div className="text-sm text-gray-600">{img.subtitle}</div>}</div>)}
@@ -170,7 +304,7 @@ function ContentSection({ section, isSecretary = false }: { section: { title: st
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="relative">
           <div className="relative rounded-3xl shadow-xl overflow-hidden flex items-center w-[500px] h-[400px]">
             <div className="relative w-[500px] h-[500px]">
-              <Image src={section.image} alt={section.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-contain p-4 transition-transform duration-700 hover:scale-105" />
+              <Image src={section.image} alt={section.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-fit p-4 transition-transform duration-700 hover:scale-105" />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
           </div>
