@@ -3,52 +3,46 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Collage, SiteSettings } from '@/types';
+import { getCollagesData, getSiteData } from '@/lib/data';
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
-    cache: 'no-store'
-  });
+// Generate static params for all collage IDs
+export async function generateStaticParams() {
+  const collages = getCollagesData() as Collage[];
   
-  if (!res.ok) {
-    return {
-      siteTitle: "My Collage Website",
-      logo: "/logo.png",
-      navLinks: [
-        { label: "Home", href: "/" },
-        { label: "Gallery", href: "/" },
-        { label: "About", href: "/about" }
-      ],
-      footer: {
-        text: "© 2025 My Collage Website. All rights reserved.",
-        socialLinks: [
-          { label: "Twitter", href: "https://twitter.com/myprofile" },
-          { label: "GitHub", href: "https://github.com/myprofile" }
-        ]
-      }
-    };
-  }
-  
-  return res.json();
+  return collages.map((collage) => ({
+    id: collage.id.toString(),
+  }));
 }
 
-async function getCollage(id: string): Promise<Collage | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
-    cache: 'no-store'
-  });
+function getSiteSettings(): SiteSettings {
+  const siteData = getSiteData() as SiteSettings;
   
-  if (!res.ok) {
-    return null;
-  }
-  
-  const collages: Collage[] = await res.json();
+  return siteData || {
+    siteTitle: "My Collage Website",
+    logo: "/logo.png",
+    navLinks: [
+      { label: "Home", href: "/" },
+      { label: "Gallery", href: "/" },
+      { label: "About", href: "/about" }
+    ],
+    footer: {
+      text: "© 2025 My Collage Website. All rights reserved.",
+      socialLinks: [
+        { label: "Twitter", href: "https://twitter.com/myprofile" },
+        { label: "GitHub", href: "https://github.com/myprofile" }
+      ]
+    }
+  };
+}
+
+function getCollage(id: string): Collage | null {
+  const collages = getCollagesData() as Collage[];
   return collages.find(c => c.id === parseInt(id)) || null;
 }
 
-export default async function CollagePage({ params }: { params: { id: string } }) {
-  const [siteSettings, collage] = await Promise.all([
-    getSiteSettings(),
-    getCollage(params.id)
-  ]);
+export default function CollagePage({ params }: { params: { id: string } }) {
+  const siteSettings = getSiteSettings();
+  const collage = getCollage(params.id);
 
   if (!collage) {
     notFound();

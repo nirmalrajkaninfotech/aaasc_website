@@ -1,32 +1,21 @@
 import AlumniSection from '@/components/AlumniSection';
 import { SiteSettings } from '@/types';
+import { getSiteData, getAlumniData } from '@/lib/data';
 
 // Fetch site settings
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`,
-    { cache: 'no-store' }
-  );
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+function getSiteSettings(): SiteSettings {
+  return getSiteData() as SiteSettings;
 }
 
 // Fetch alumni data
-async function getAlumni() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/alumni`,
-    { cache: 'no-store' }
-  );
-  if (!res.ok) return null;
-  return res.json();
+function getAlumni() {
+  return getAlumniData();
 }
 
 // Page Component
-export default async function AlumniPage() {
-  const [siteSettings, alumni] = await Promise.all([
-    getSiteSettings(),
-    getAlumni(),
-  ]);
+export default function AlumniPage() {
+  const siteSettings = getSiteSettings();
+  const alumni = getAlumni();
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">

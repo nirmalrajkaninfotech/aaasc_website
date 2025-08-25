@@ -8,32 +8,19 @@ import GallerySection from '@/components/GallerySection';
 import { Collage, SiteSettings } from '@/types';
 import Carousel from '@/components/Carousel';
 import Image from 'next/image';
+import { getSiteData, getCollagesData } from '@/lib/data';
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
-    cache: 'no-store'
-  });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+function getSiteSettings(): SiteSettings {
+  return getSiteData() as SiteSettings;
 }
 
-async function getCollages(): Promise<Collage[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    return [];
-  }
-  
-  return res.json();
+function getCollages(): Collage[] {
+  return getCollagesData() as Collage[];
 }
 
-export default async function Home() {
-  const [siteSettings, collages] = await Promise.all([
-    getSiteSettings(),
-    getCollages()
-  ]);
+export default function Home() {
+  const siteSettings = getSiteSettings();
+  const collages = getCollages();
 
   // Get enabled sections from homepage layout
   const enabledSections = siteSettings.homepage.sections

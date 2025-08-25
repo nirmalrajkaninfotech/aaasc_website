@@ -4,13 +4,10 @@ import HeaderWrapper from '@/components/HeaderWrapper';
 import Footer from '@/components/Footer';
 import { SiteSettings } from '@/types';
 import React from 'react';
-import { API_BASE_URL } from "@/config";
+import { getSiteData } from '@/lib/data';
 
-
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+function getSiteSettings(): SiteSettings {
+  return getSiteData() as SiteSettings;
 }
 
 export const metadata: Metadata = {
@@ -18,14 +15,14 @@ export const metadata: Metadata = {
   description: "A customizable collage website",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const siteSettings = await getSiteSettings();
+  const siteSettings = getSiteSettings();
   const isAdminRoute = false; // This will be determined client-side by HeaderWrapper
-  
+
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-50 flex flex-col">

@@ -1,20 +1,29 @@
-import { API_BASE_URL } from '@/config';
-import { FacultySection } from '@/types';
+import { FacultySection, SiteSettings } from '@/types';
 import { notFound } from 'next/navigation';
+import { getSiteData } from '@/lib/data';
 
-async function getFaculty(): Promise<FacultySection> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  const data = await res.json();
-  return data.faculty;
+// Generate static params for all faculty slugs
+export async function generateStaticParams() {
+  const siteData = getSiteData() as SiteSettings;
+  
+  return siteData.faculty.items
+    .filter(item => item.published && item.slug)
+    .map((item) => ({
+      slug: item.slug,
+    }));
+}
+
+function getFaculty(): FacultySection {
+  const siteData = getSiteData() as SiteSettings;
+  return siteData.faculty;
 }
 
 interface PageProps {
   params: { slug: string };
 }
 
-export default async function FacultyDetailPage({ params }: PageProps) {
-  const faculty = await getFaculty();
+export default function FacultyDetailPage({ params }: PageProps) {
+  const faculty = getFaculty();
   const item = faculty.items.find(i => i.slug === params.slug && i.published);
   if (!item) return notFound();
   return (

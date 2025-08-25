@@ -1,16 +1,14 @@
-import { API_BASE_URL } from '@/config';
-import { ExamCellSection } from '@/types';
+import { ExamCellSection, SiteSettings } from '@/types';
 import { ChevronRight, Calendar, FileText, Users, Clock, Award } from 'lucide-react';
+import { getSiteData } from '@/lib/data';
 
-async function getExamCell(): Promise<ExamCellSection> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  const data = await res.json();
+function getExamCell(): ExamCellSection {
+  const data = getSiteData() as SiteSettings;
   return data.examCell;
 }
 
-export default async function ExamCellPage() {
-  const examCell = await getExamCell();
+export default function ExamCellPage() {
+  const examCell = getExamCell();
 
   const examFeatures = [
     {

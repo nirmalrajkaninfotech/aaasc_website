@@ -5,9 +5,15 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --no-lint",
-    "build:static": "next build --no-lint && cp -r .next/static out/ && cp -r public/* out/",
+    "build:static": "next build --no-lint",
+    "export": "next build --no-lint && next export",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "serve:static": "npx serve out",
+    "admin:install": "cd admin-server && npm install",
+    "admin:dev": "cd admin-server && npm run dev",
+    "admin:start": "cd admin-server && npm start",
+    "dev:full": "concurrently \"npm run dev\" \"npm run admin:dev\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

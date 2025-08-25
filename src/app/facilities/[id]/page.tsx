@@ -1,15 +1,23 @@
 import Image from 'next/image';
 import { SiteSettings } from '@/types';
 import Link from 'next/link';
+import { getSiteData } from '@/lib/data';
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+// Generate static params for all facility IDs
+export async function generateStaticParams() {
+  const siteData = getSiteData() as SiteSettings;
+  
+  return siteData.facilities.items.map((facility) => ({
+    id: facility.id,
+  }));
 }
 
-export default async function FacilityDetailPage({ params }: { params: { id: string } }) {
-  const site = await getSiteSettings();
+function getSiteSettings(): SiteSettings {
+  return getSiteData() as SiteSettings;
+}
+
+export default function FacilityDetailPage({ params }: { params: { id: string } }) {
+  const site = getSiteSettings();
   const facility = site.facilities.items.find(i => i.id === params.id);
 
   if (!facility) {
