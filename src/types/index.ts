@@ -25,30 +25,39 @@ export interface SocialLink {
   href: string;
 }
 
+// Support both object and string for logo
+export type Logo = string | {
+  url: string;
+  alt: string;
+};
+
 export interface HeroSection {
-  title: string;
-  subtitle: string;
-  backgroundImage: string;
-  ctaText: string;
-  ctaLink: string;
+  title?: string;
+  subtitle?: string;
+  backgroundImage?: string;
+  image?: string; // Alternative to backgroundImage
+  ctaText?: string;
+  ctaLink?: string;
+  [key: string]: any; // Allow additional properties
 }
 
 export interface AboutSection {
-  title: string;
-  content: string;
-  image: string;
-  images?: AboutImage[]; // optional gallery images with ordering
-  masterCaption?: string; // global caption/strapline for About section
-  galleryEnabled?: boolean; // toggle About Gallery tab visibility
-  stats: {
+  title?: string;
+  content?: string;
+  image?: string;
+  images?: AboutImage[];
+  masterCaption?: string;
+  galleryEnabled?: boolean;
+  stats?: Array<{
     label: string;
     value: string;
-  }[];
+  }>;
   committee?: AboutSubsection;
   templeAdministration?: AboutSubsection;
   secretaryMessage?: AboutSubsection;
   principalMessage?: AboutSubsection;
-  extraSections?: AboutSubsection[]; // user-defined additional sections
+  extraSections?: AboutSubsection[];
+  [key: string]: any; // Allow additional properties
 }
 
 export interface AboutSubsection {
@@ -60,13 +69,14 @@ export interface AboutSubsection {
 }
 
 export interface ContactInfo {
-  address: string;
-  phone: string;
-  email: string;
-  officeHours: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  officeHours?: string;
   googleMapsUrl?: string;
   googleMapsApiKey?: string;
   googleMapsEmbedQuery?: string;
+  [key: string]: any; // Allow additional properties
 }
 
 export interface RichTextContent {
@@ -149,45 +159,57 @@ export interface Header2 {
   published: boolean;
 }
 
-// Added to SiteSettings
+export interface FooterSettings {
+  copyright?: string;
+  text?: string;
+  links?: NavLink[];
+  socialLinks?: SocialLink[];
+  [key: string]: any; // Allow additional properties
+}
+
 export interface SiteSettings {
-  siteTitle: string;
-  logo: string;
-  navLinks: NavLink[];
-  hero: HeroSection;
-  about: AboutSection;
-  placements: PlacementsSection;
-  achievements: AchievementsSection;
-  facilities: FacilitiesSection;
-  carousel: CarouselSection;
-  contact: ContactInfo;
-  homepage: HomepageLayout;
-  homepage_image?: {
-    image: string;
-    title?: string;
+  // Basic site info
+  siteTitle?: string;
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  
+  // Media
+  logo: Logo;
+  favicon?: string;
+  
+  // Navigation
+  navLinks?: NavLink[];
+  
+  // Content sections
+  hero?: HeroSection;
+  about?: AboutSection;
+  facilities?: FacilitiesSection;
+  faculty?: FacultySection;
+  placements?: PlacementsSection;
+  achievements?: AchievementsSection;
+  carousel?: CarouselSection;
+  
+  // Contact and footer
+  contact?: ContactInfo;
+  footer?: FooterSettings;
+  
+  // Additional sections
+  homepage?: HomepageLayout;
+  examCell?: ExamCellSection;
+  others?: OthersSection;
+  
+  // Metadata
+  metadata?: {
+    title?: string | { default: string; template?: string };
     description?: string;
+    keywords?: string[];
+    authors?: Array<{ name: string; url?: string }>;
+    [key: string]: any;
   };
-  gallery?: {
-    title: string;
-    subtitle?: string;
-    items: Array<{
-      id?: string;
-      image: string;
-      title?: string;
-      description?: string;
-      published?: boolean;
-      order?: number;
-      homepage_image?: boolean;
-    }>;
-  };
-  footer: {
-    text: string;
-    socialLinks: SocialLink[];
-  };
-  examCell: ExamCellSection;
-  others: OthersSection;
-  faculty: FacultySection;
-  header2?: Header2;
+  
+  // Allow any additional properties
+  [key: string]: any;
 }
 
 export interface AlumniAssociation {

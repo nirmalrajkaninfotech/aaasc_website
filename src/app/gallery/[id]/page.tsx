@@ -1,42 +1,92 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { Collage } from '@/types';
 
-export default function CollageDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [collage, setCollage] = useState<Collage | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(0);
+// Add revalidation to the page
+export const revalidate = 3600; // Revalidate this page every hour
 
-  useEffect(() => {
-    if (params.id) {
-      fetchCollage();
+// This function generates static params at build time
+export async function generateStaticParams() {
+  // For static export, we need to return at least one valid path
+  // If the API is not available during build, return a default path
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages`, {
+      cache: 'no-store',
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
+    
+    if (!res.ok) {
+      console.error('Failed to fetch collages for static params:', res.status, res.statusText);
+      // Return a default path to prevent build failure
+      return [{ id: '1' }];
     }
-  }, [params.id]);
-
-  const fetchCollage = async () => {
-    try {
-      const response = await fetch(`/api/collages/${params.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setCollage(data);
-      } else {
-        console.error('Failed to fetch collage');
-        router.push('/gallery');
-      }
-    } catch (error) {
-      console.error('Error fetching collage:', error);
-      router.push('/gallery');
-    } finally {
-      setLoading(false);
+    
+    const collages = await res.json();
+    
+    if (!Array.isArray(collages) || collages.length === 0) {
+      console.error('No collages found or invalid response format');
+      return [{ id: '1' }];
     }
-  };
+    
+    // Return all collages as static params
+    return collages.map((collage: { id: number | string }) => ({
+      id: collage.id.toString(),
+    }));
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    // Return a default path to prevent build failure
+    return [{ id: '1' }];
+  }
+}
 
+async function getCollage(id: string): Promise<Collage | null> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages/${id}`, {
+      cache: 'no-store',
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
+    
+    if (!res.ok) {
+      console.error(`Failed to fetch collage ${id}:`, res.status, res.statusText);
+      return null;
+    }
+    
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error(`Error fetching collage ${id}:`, error);
+    return null;
+  }
+}
+
+export default async function CollageDetailPage({ params }: { params: { id: string } }) {
+  const collage = await getCollage(params.id);
+  
+  if (!collage) {
+    // If in production, show a fallback page instead of 404
+    if (process.env.NODE_ENV === 'production') {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+          <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Gallery Item Not Available</h1>
+            <p className="text-gray-600 mb-6">The requested gallery item could not be loaded. It may have been moved or deleted.</p>
+            <Link 
+              href="/gallery"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Gallery
+            </Link>
+          </div>
+        </div>
+      );
+    }
+    notFound();
+  }
+  
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -44,22 +94,6 @@ export default function CollageDetailPage() {
       day: 'numeric'
     });
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!collage) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-red-600">Collage not found</div>
-      </div>
-    );
-  }
 
   return (
     <main className="flex-1 bg-gray-50 min-h-screen">
@@ -141,78 +175,39 @@ export default function CollageDetailPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold text-gray-800">Main Image</h3>
               <span className="text-sm text-gray-500">
-                {selectedImage + 1} of {collage.images.length}
+                1 of {collage.images.length}
               </span>
             </div>
             
-            <div className="relative w-full" style={{ aspectRatio: '16/9', minHeight: 500 }}>
+            <div className="relative w-full h-96 md:h-[500px] rounded-lg overflow-hidden mb-6">
               <Image
-                src={collage.images[selectedImage]}
-                alt={`${collage.title} - Image ${selectedImage + 1}`}
+                src={collage.images[0]}
+                alt={collage.title}
                 fill
-                className="object-contain rounded-lg"
-                unoptimized={process.env.NODE_ENV !== 'production'}
+                className="object-cover"
+                priority
               />
             </div>
-            
-            {/* Image Navigation */}
-            {collage.images.length > 1 && (
-              <div className="mt-6">
-                <div className="flex items-center justify-center gap-4">
-                  <button
-                    onClick={() => setSelectedImage(prev => prev > 0 ? prev - 1 : collage.images.length - 1)}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center"
-                    disabled={collage.images.length <= 1}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Previous
-                  </button>
-                  
-                  <button
-                    onClick={() => setSelectedImage(prev => prev < collage.images.length - 1 ? prev + 1 : 0)}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center"
-                    disabled={collage.images.length <= 1}
-                  >
-                    Next
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* Thumbnail Grid */}
-        {collage.images.length > 1 && (
+            {/* Thumbnail Grid */}
+            {collage.images.length > 1 && (
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">All Images ({collage.images.length})</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-4 gap-2 mt-4">
               {collage.images.map((image, index) => (
-                <div
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
-                    selectedImage === index ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-blue-300'
-                  }`}
-                >
+                <div key={index} className="relative w-full aspect-square rounded overflow-hidden">
                   <Image
                     src={image}
-                    alt={`${collage.title} - Thumbnail ${index + 1}`}
+                    alt={`${collage.title} thumbnail ${index + 1}`}
                     fill
                     className="object-cover"
-                    unoptimized={process.env.NODE_ENV !== 'production'}
                   />
-                  {/* Image number overlay */}
-                  <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-                    {index + 1}
-                  </div>
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
           </div>
         )}
 

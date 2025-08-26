@@ -7,6 +7,7 @@ import { dirname, join } from 'path';
 import rateLimit from 'express-rate-limit';
 import 'dotenv/config';
 import { existsSync, mkdirSync } from 'fs';
+import fsPromises from 'fs/promises';
 
 // Import routes
 import carouselRoutes from './routes/carousel.js';
@@ -103,17 +104,30 @@ app.use('/api/site', siteRoutes);
 app.use('/api/academics/public', academicsRoutes);
 app.use('/api/alumni', alumniRoutes);
 app.use('/api/placements', placementsRoutes);
-app.use('/api/iqac/public', iqacRoutes);
+app.use('/api/iqac', iqacRoutes);
 app.use('/api/admission-forms', admissionFormsRoutes);
 app.use('/api/collages', collagesRoutes);
 app.use('/api/header3', header3Routes);
+
+// Add a fallback public endpoint that returns sample collages data
+app.get('/api/collages/public', async (req, res) => {
+  try {
+    const dataPath = join(__dirname, '..', 'data', 'collages.json');
+    const raw = await fsPromises.readFile(dataPath, 'utf8');
+    const json = JSON.parse(raw);
+    return res.json(json);
+  } catch (err) {
+    console.error('Failed to load sample collages data', err);
+    // Return an empty array to keep the frontend stable
+    return res.json({ collages: [] });
+  }
+});
 
 // Protected routes
 app.use('/api/carousel', authenticate, carouselRoutes);
 app.use('/api/upload', authenticate, uploadRoutes);
 app.use('/api/academics', authenticate, academicsRoutes);
 app.use('/api/gallery', authenticate, galleryRoutes);
-app.use('/api/iqac', authenticate, iqacRoutes);
 app.use('/api/admin/admission-forms', authenticate, authorize(['admin', 'admission']), admissionFormsRoutes);
 app.use('/api/admin/collages', authenticate, authorize(['admin']), collagesRoutes);
 app.use('/api/admin/header3', authenticate, authorize(['admin', 'editor']), header3Routes);
@@ -192,4 +206,5 @@ process.on('unhandledRejection', (err) => {
   server.close(() => process.exit(1));
 });
 
+// Keep a single default export
 export default server;

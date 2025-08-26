@@ -5,44 +5,192 @@ import BackButton from '@/components/BackButton';
 import { Collage, SiteSettings } from '@/types';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    return {
-      siteTitle: "My Collage Website",
-      logo: "/logo.png",
-      navLinks: [
-        { label: "Home", href: "/" },
-        { label: "Gallery", href: "/" },
-        { label: "About", href: "/about" }
-      ],
-      footer: {
-        text: "© 2025 My Collage Website. All rights reserved.",
-        socialLinks: [
-          { label: "Twitter", href: "https://twitter.com/myprofile" },
-          { label: "GitHub", href: "https://github.com/myprofile" }
-        ]
-      }
-    };
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
+      cache: 'no-store'
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+    
+    console.error('Failed to fetch site settings:', res.status, res.statusText);
+  } catch (error) {
+    console.error('Error fetching site settings:', error);
   }
   
-  return res.json();
+  // Return a minimal valid SiteSettings object with all required properties as fallback
+  return {
+    siteTitle: "My Collage Website",
+    logo: "/logo.png",
+    navLinks: [
+      { label: "Home", href: "/" },
+      { label: "Gallery", href: "/gallery" },
+      { label: "About", href: "/about" }
+    ],
+    hero: {
+      title: "Welcome to Our College",
+      subtitle: "Excellence in Education",
+      backgroundImage: "/hero-bg.jpg",
+      ctaText: "Learn More",
+      ctaLink: "/about"
+    },
+    about: {
+      title: "About Us",
+      content: "Welcome to our college.",
+      image: "/about.jpg",
+      stats: []
+    },
+    placements: {
+      title: "Placements",
+      subtitle: "Our Successful Placements",
+      items: []
+    },
+    achievements: {
+      title: "Achievements",
+      subtitle: "Our Proud Achievements",
+      items: []
+    },
+    facilities: {
+      title: "Our Facilities",
+      subtitle: "World-class facilities for students",
+      items: []
+    },
+    carousel: {
+      title: "Highlights",
+      subtitle: "Campus Highlights",
+      items: []
+    },
+    contact: {
+      address: "123 College St, City, Country",
+      phone: "+1 234 567 8900",
+      email: "info@college.edu",
+      officeHours: "Mon-Fri: 9:00 AM - 5:00 PM"
+    },
+    homepage: {
+      sections: []
+    },
+    examCell: {
+      title: "Exam Cell",
+      subtitle: "Examination Information",
+      content: "Exam cell information",
+      showHero: true,
+      showFeatures: true,
+      showQuickLinks: true,
+      showCTA: true,
+      heroButtonText: "Learn More",
+      ctaButtonText: "Contact Us"
+    },
+    others: {
+      aishe: {
+        title: "AISHE",
+        subtitle: "All India Survey on Higher Education",
+        content: "AISHE information"
+      },
+      academicCoordinator: {
+        title: "Academic Coordinator",
+        subtitle: "Academic Coordination",
+        content: "Academic coordinator information"
+      }
+    },
+    faculty: {
+      title: "Our Faculty",
+      items: []
+    },
+    footer: {
+      text: "© 2025 My Collage Website. All rights reserved.",
+      socialLinks: [
+        { label: "Twitter", href: "https://twitter.com/myprofile" },
+        { label: "GitHub", href: "https://github.com/myprofile" }
+      ]
+    }
+  };
 }
 
 async function getCollage(id: string): Promise<Collage | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages/${id}`, {
+      cache: 'no-store',
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
+    
+    if (res.ok) {
+      return await res.json();
+    }
+    
+    console.error(`Failed to fetch collage ${id}:`, res.status, res.statusText);
+    
+    // Return a minimal fallback collage to prevent build failure
+    if (process.env.NODE_ENV === 'production') {
+      return {
+        id: parseInt(id, 10),
+        title: `Collage ${id}`,
+        images: [],
+        category: 'General',
+        date: new Date().toISOString(),
+        featured: false,
+        tags: []
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`Error fetching collage ${id}:`, error);
+    
+    // Return a minimal fallback collage to prevent build failure
+    if (process.env.NODE_ENV === 'production') {
+      return {
+        id: parseInt(id, 10),
+        title: `Collage ${id}`,
+        images: [],
+        category: 'General',
+        date: new Date().toISOString(),
+        featured: false,
+        tags: []
+      };
+    }
+    
     return null;
   }
-  
-  const collages: Collage[] = await res.json();
-  return collages.find(c => c.id === parseInt(id)) || null;
 }
+
+// This function generates static params at build time
+export async function generateStaticParams() {
+  // For static export, we need to return at least one valid path
+  // If the API is not available during build, return a default path
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages`, {
+      cache: 'no-store',
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
+    
+    if (!res.ok) {
+      console.error('Failed to fetch collages for static params:', res.status, res.statusText);
+      // Return a default path to prevent build failure
+      return [{ id: '1' }];
+    }
+    
+    const collages = await res.json();
+    
+    if (!Array.isArray(collages) || collages.length === 0) {
+      console.error('No collages found or invalid response format');
+      return [{ id: '1' }];
+    }
+    
+    // Return all collages as static params
+    return collages.map((collage: { id: number | string }) => ({
+      id: collage.id.toString(),
+    }));
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    // Return a default path to prevent build failure
+    return [{ id: '1' }];
+  }
+}
+
+// Add revalidation to the page
+export const revalidate = 3600; // Revalidate this page every hour
 
 export default async function CollagePage({ params }: { params: { id: string } }) {
   const [siteSettings, collage] = await Promise.all([

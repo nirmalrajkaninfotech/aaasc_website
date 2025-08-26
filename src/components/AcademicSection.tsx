@@ -9,9 +9,13 @@ interface AcademicSectionProps {
 
 export default function AcademicSectionComponent({ academic }: AcademicSectionProps) {
   const [activeTab, setActiveTab] = useState<string>('');
+  const [hasMounted, setHasMounted] = useState(false);
 
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
-  if (!academic) {
+  if (!academic || !hasMounted) {
     return <div className="p-8 text-center">No academic information available.</div>;
   }
 

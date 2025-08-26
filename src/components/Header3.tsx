@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Header3Content, defaultHeader3Content } from '@/types/header3';
-
+import { getImageUrl } from '@/config';
 interface Header3Props {
   isAdmin?: boolean;
   onSave?: (content: Header3Content) => Promise<boolean> | Promise<void> | void;
@@ -47,7 +47,7 @@ export default function Header3({
       {/* Header Image */}
       <div className="relative w-full h-64 md:h-96 overflow-hidden">
         <Image
-          src={content.imageUrl}
+          src={getImageUrl(content.imageUrl)}
           alt={content.title}
           fill
           className="object-cover object-center"

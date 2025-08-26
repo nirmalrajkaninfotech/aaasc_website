@@ -10,27 +10,36 @@ interface FacilitiesSectionProps {
 }
 
 export default function FacilitiesSection({ facilities }: FacilitiesSectionProps) {
-  const publishedItems = facilities.items
-    .filter(item => item.published)
-    .sort((a, b) => a.order - b.order);
+  const publishedItems = useMemo(() => 
+    facilities.items
+      .filter(item => item.published)
+      .sort((a, b) => a.order - b.order)
+  , [facilities.items]);
 
-  if (publishedItems.length === 0) {
-    return null;
-  }
-
-  // Build category list and active filter
   const categories = useMemo(() => {
+    if (publishedItems.length === 0) return [];
     const unique = Array.from(new Set(publishedItems.map(f => f.category)));
     return ['All', ...unique];
   }, [publishedItems]);
+
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [activeFacilityId, setActiveFacilityId] = useState<string | null>(null);
+
   const visibleItems = useMemo(
     () => (activeCategory === 'All' ? publishedItems : publishedItems.filter(f => f.category === activeCategory)),
     [activeCategory, publishedItems]
   );
 
-  const [activeFacilityId, setActiveFacilityId] = useState<string | null>(null);
-  const activeFacility = useMemo(() => visibleItems.find(f => f.id === activeFacilityId) || publishedItems.find(f => f.id === activeFacilityId) || null, [activeFacilityId, visibleItems, publishedItems]);
+  const activeFacility = useMemo(() => 
+    visibleItems.find(f => f.id === activeFacilityId) || 
+    publishedItems.find(f => f.id === activeFacilityId) || 
+    null, 
+    [activeFacilityId, visibleItems, publishedItems]
+  );
+
+  if (publishedItems.length === 0) {
+    return null;
+  }
 
   const getPreviewText = (html: string, maxChars = 220): string => {
     const tmp = typeof window !== 'undefined' ? document.createElement('div') : null;

@@ -2,15 +2,282 @@ import Image from 'next/image';
 import { SiteSettings } from '@/types';
 import Link from 'next/link';
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+async function getSiteSettings(): Promise<SiteSettings | null> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, { 
+      cache: 'no-store',
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
+    
+    if (res.ok) {
+      return await res.json();
+    }
+    
+    console.error('Failed to fetch site settings:', res.status, res.statusText);
+    
+    // Return a minimal fallback site settings to prevent build failure
+    if (process.env.NODE_ENV === 'production') {
+      const minimalSiteSettings: Partial<SiteSettings> = {
+        siteTitle: 'College Website',
+        logo: '/logo.png',
+        navLinks: [
+          { label: 'Home', href: '/' },
+          { label: 'Facilities', href: '/facilities' }
+        ],
+        hero: {
+          title: 'Welcome',
+          subtitle: 'Welcome to our college',
+          backgroundImage: '',
+          ctaText: 'Learn More',
+          ctaLink: '/about'
+        },
+        about: {
+          title: 'About Us',
+          content: 'About our college',
+          image: '',
+          stats: []
+        },
+        placements: {
+          title: 'Placements',
+          subtitle: 'Our Placements',
+          items: []
+        },
+        achievements: {
+          title: 'Achievements',
+          subtitle: 'Our Achievements',
+          items: []
+        },
+        facilities: {
+          title: 'Facilities',
+          subtitle: 'Our Facilities',
+          items: [{
+            id: '1',
+            name: 'Facility',
+            description: 'Facility description',
+            category: 'General',
+            features: [],
+            published: true,
+            order: 1
+          }]
+        },
+        carousel: {
+          title: 'Gallery',
+          subtitle: 'Our Gallery',
+          items: []
+        },
+        contact: {
+          address: '',
+          phone: '',
+          email: '',
+          officeHours: ''
+        },
+        homepage: {
+          sections: []
+        },
+        examCell: {
+          title: 'Exam Cell',
+          subtitle: 'Examination Information',
+          content: '',
+          showHero: false,
+          showFeatures: false,
+          showQuickLinks: false,
+          showCTA: false,
+          heroButtonText: '',
+          ctaButtonText: ''
+        },
+        others: {
+          aishe: {
+            title: 'AISHE',
+            subtitle: '',
+            content: ''
+          },
+          academicCoordinator: {
+            title: 'Academic Coordinator',
+            subtitle: '',
+            content: ''
+          }
+        },
+        faculty: {
+          title: 'Faculty',
+          items: []
+        },
+        footer: {
+          text: '© 2025 College Website',
+          socialLinks: []
+        }
+      };
+      
+      return minimalSiteSettings as SiteSettings;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching site settings:', error);
+    
+    // Return a minimal fallback site settings to prevent build failure
+    if (process.env.NODE_ENV === 'production') {
+      const minimalSiteSettings: Partial<SiteSettings> = {
+        siteTitle: 'College Website',
+        logo: '/logo.png',
+        navLinks: [
+          { label: 'Home', href: '/' },
+          { label: 'Facilities', href: '/facilities' }
+        ],
+        hero: {
+          title: 'Welcome',
+          subtitle: 'Welcome to our college',
+          backgroundImage: '',
+          ctaText: 'Learn More',
+          ctaLink: '/about'
+        },
+        about: {
+          title: 'About Us',
+          content: 'About our college',
+          image: '',
+          stats: []
+        },
+        placements: {
+          title: 'Placements',
+          subtitle: 'Our Placements',
+          items: []
+        },
+        achievements: {
+          title: 'Achievements',
+          subtitle: 'Our Achievements',
+          items: []
+        },
+        facilities: {
+          title: 'Facilities',
+          subtitle: 'Our Facilities',
+          items: [{
+            id: '1',
+            name: 'Facility',
+            description: 'Facility description',
+            category: 'General',
+            features: [],
+            published: true,
+            order: 1
+          }]
+        },
+        carousel: {
+          title: 'Gallery',
+          subtitle: 'Our Gallery',
+          items: []
+        },
+        contact: {
+          address: '',
+          phone: '',
+          email: '',
+          officeHours: ''
+        },
+        homepage: {
+          sections: []
+        },
+        examCell: {
+          title: 'Exam Cell',
+          subtitle: 'Examination Information',
+          content: '',
+          showHero: false,
+          showFeatures: false,
+          showQuickLinks: false,
+          showCTA: false,
+          heroButtonText: '',
+          ctaButtonText: ''
+        },
+        others: {
+          aishe: {
+            title: 'AISHE',
+            subtitle: '',
+            content: ''
+          },
+          academicCoordinator: {
+            title: 'Academic Coordinator',
+            subtitle: '',
+            content: ''
+          }
+        },
+        faculty: {
+          title: 'Faculty',
+          items: []
+        },
+        footer: {
+          text: '© 2025 College Website',
+          socialLinks: []
+        }
+      };
+      
+      return minimalSiteSettings as SiteSettings;
+    }
+    
+    return null;
+  }
 }
+
+// This function generates static params at build time
+export async function generateStaticParams() {
+  // For static export, we need to return at least one valid path
+  // If the API is not available during build, return a default path
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
+      cache: 'no-store',
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
+    
+    if (!res.ok) {
+      console.error('Failed to fetch site settings for static params:', res.status, res.statusText);
+      // Return a default path to prevent build failure
+      return [{ id: '1' }];
+    }
+    
+    const site = await res.json();
+    
+    if (!site?.facilities?.items || !Array.isArray(site.facilities.items)) {
+      console.error('No facilities data available or invalid format');
+      return [{ id: '1' }];
+    }
+    
+    // Return all facilities as static params
+    return site.facilities.items
+      .filter((facility: { id?: string | number }) => facility?.id)
+      .map((facility: { id: string | number }) => ({
+        id: facility.id.toString(),
+      }));
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    // Return a default path to prevent build failure
+    return [{ id: '1' }];
+  }
+}
+
+// Add revalidation to the page
+export const revalidate = 3600; // Revalidate this page every hour
 
 export default async function FacilityDetailPage({ params }: { params: { id: string } }) {
   const site = await getSiteSettings();
-  const facility = site.facilities.items.find(i => i.id === params.id);
+  
+  if (!site) {
+    return (
+      <main className="container mx-auto px-4 py-16">
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">
+                Failed to load facility data. Please try again later.
+              </p>
+            </div>
+          </div>
+        </div>
+        <Link href="/facilities" className="text-blue-700 hover:text-blue-900">← Back to Facilities</Link>
+      </main>
+    );
+  }
+  
+  const facility = site.facilities?.items?.find(i => i.id === params.id);
 
   if (!facility) {
     return (

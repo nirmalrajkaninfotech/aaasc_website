@@ -119,5 +119,30 @@
       "/uploads/1755586274179_g17-1024x768.jpeg",
       "/uploads/1755586274201_g20-1024x576.jpeg"
     ]
+  },
+  {
+    "collages": [
+      {
+        "id": "c1",
+        "title": "Freshers' Welcome 2024",
+        "category": "Events",
+        "image": "/uploads/collages/freshers-2024.jpg",
+        "description": "A warm welcome to the new batch — performances, games and more."
+      },
+      {
+        "id": "c2",
+        "title": "Alumni Meet Highlights",
+        "category": "Alumni",
+        "image": "/uploads/collages/alumni-meet.jpg",
+        "description": "Snapshots from the alumni meet — reconnecting and sharing experiences."
+      },
+      {
+        "id": "c3",
+        "title": "Campus Life",
+        "category": "Campus",
+        "image": "/uploads/collages/campus-life.jpg",
+        "description": "Everyday moments from around campus — learning and leisure."
+      }
+    ]
   }
 ]

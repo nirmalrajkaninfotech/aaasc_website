@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { FacultySection as FacultySectionType } from '@/types';
+import { getImageUrl } from '@/config';
 
 interface FacultySectionProps {
 	faculty: FacultySectionType;
@@ -61,7 +62,7 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
 								<div className="relative w-36 h-36 mb-2 flex items-center justify-center bg-white p-1 rounded-xl overflow-hidden">
 								<div className="relative w-full h-full">
 									<Image 
-										src={img.url} 
+										src={getImageUrl(img.url)} 
 										alt={activeItem.title} 
 										fill 
 										className="object-contain" 
