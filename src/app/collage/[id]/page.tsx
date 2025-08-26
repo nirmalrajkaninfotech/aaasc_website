@@ -5,7 +5,7 @@ import BackButton from '@/components/BackButton';
 import { Collage, SiteSettings } from '@/types';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
     cache: 'no-store'
   });
   
@@ -32,7 +32,7 @@ async function getSiteSettings(): Promise<SiteSettings> {
 }
 
 async function getCollage(id: string): Promise<Collage | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages`, {
     cache: 'no-store'
   });
   

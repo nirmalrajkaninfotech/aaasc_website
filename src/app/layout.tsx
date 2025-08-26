@@ -8,7 +8,7 @@ import { API_BASE_URL } from "@/config";
 import DisableRightClick from '@/components/DisableRightClick';
 
 async function getSiteSettings(): Promise<SiteSettings> {
- const res = await fetch('http://localhost:3000/api/site', {
+ const res = await fetch('http://localhost:3001/api/site', {
   cache: 'default' // or simply omit the cache option
 });
   if (!res.ok) throw new Error('Failed to fetch site settings');

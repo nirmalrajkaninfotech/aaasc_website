@@ -14,7 +14,7 @@ The application now uses a centralized configuration for the API base URL. The d
 1. **For Production**: The default URL `https://aasc.veetusaapadu.in` will be used automatically
 2. **For Local Development**: Set the environment variable in your `.env.local` file:
    ```
-   NEXT_PUBLIC_API_URL=http://localhost:3000
+   NEXT_PUBLIC_API_URL=http://localhost:3001
    ```
 3. **For Custom Domains**: Set the environment variable to your desired domain:
    ```

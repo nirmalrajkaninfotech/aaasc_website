@@ -2,7 +2,7 @@ import AchievementsSection from '@/components/AchievementsSection';
 import { SiteSettings } from '@/types';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
     cache: 'no-store'
   });
   if (!res.ok) {

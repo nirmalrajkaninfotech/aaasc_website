@@ -4,7 +4,7 @@ async function getOthers(): Promise<OthersSection> {
   try {
     // Use absolute URL for server-side rendering
     const baseUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000' 
+      ? 'http://localhost:3001' 
       : 'https://aasc.veetusaapadu.in';
     
     console.log('Fetching from:', `${baseUrl}/api/site`);

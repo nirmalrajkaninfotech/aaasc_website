@@ -10,7 +10,7 @@ import Carousel from '@/components/Carousel';
 import Image from 'next/image';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/site`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
     cache: 'no-store'
   });
   if (!res.ok) throw new Error('Failed to fetch site settings');
@@ -18,7 +18,7 @@ async function getSiteSettings(): Promise<SiteSettings> {
 }
 
 async function getCollages(): Promise<Collage[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/collages`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages`, {
     cache: 'no-store'
   });
   

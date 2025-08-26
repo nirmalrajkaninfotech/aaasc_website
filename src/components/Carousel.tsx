@@ -6,6 +6,7 @@ import Image from 'next/image';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { CarouselItem } from '@/types';
+import { getImageUrl } from '@/config';
 
 interface CarouselProps {
   isTamil: boolean;
@@ -153,7 +154,7 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
                 {/* Proper fallback path for images */}
                 {imageState !== 'error' && (
                   <Image
-                    src={slide.image.startsWith('/') ? slide.image : `/${slide.image}`}
+                    src={getImageUrl(slide.image)}
                     alt={slide.title || 'Carousel image'}
                     fill
                     className="object-cover"

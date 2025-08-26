@@ -42,10 +42,10 @@ A fully customizable collage website built with Next.js 13+, TypeScript, and Tai
    ```
 
 3. **Open your browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+   Navigate to [http://localhost:3001](http://localhost:3001)
 
 4. **Access the admin panel:**
-   Go to [http://localhost:3000/admin](http://localhost:3000/admin) to manage content
+   Go to [http://localhost:3001/admin](http://localhost:3001/admin) to manage content
 
 ## Data Structure
 
