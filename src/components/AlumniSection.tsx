@@ -47,12 +47,14 @@ export default function AlumniSection({ alumni }: { alumni: AlumniAssociation })
           </div>
         )}
 
-        <div className="mb-8">
-          <div 
-            className="text-gray-700 space-y-4 [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:mt-5 [&_h4]:mb-2 [&_a]:text-blue-600 [&_a]:hover:underline"
-            dangerouslySetInnerHTML={{ __html: alumni.content }}
-          />
-        </div>
+        {alumni.content && (
+          <div className="mb-8">
+            <div 
+              className="text-gray-700 space-y-4 [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:mt-5 [&_h4]:mb-2 [&_a]:text-blue-600 [&_a]:hover:underline"
+              dangerouslySetInnerHTML={{ __html: String(alumni.content || '') }}
+            />
+          </div>
+        )}
 
         {alumni.members && alumni.members.length > 0 && (
           <div className="mt-12">
@@ -86,5 +88,5 @@ export default function AlumniSection({ alumni }: { alumni: AlumniAssociation })
         )}
       </div>
     </section>
-  );
+  ); 
 }

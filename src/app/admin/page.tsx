@@ -112,11 +112,11 @@ export default function AdminPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
+const apiurl = "http://localhost:3001";
   const saveSiteSettings = async (updatedSettings: SiteSettings) => {
     try {
       setSaving(true);
-      const response = await fetch('/api/site', {
+      const response = await fetch(apiurl + '/api/site', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -297,7 +297,7 @@ export default function AdminPage() {
       try {
         // Create a gallery item for each uploaded image
         const uploadPromises = urls.map(async (url) => {
-          await fetch('/api/gallery', {
+          await fetch(apiurl + '/api/gallery', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -423,7 +423,7 @@ export default function AdminPage() {
 
     const fetchCarousel = async () => {
         try {
-            const res = await fetch('/api/carousel');
+            const res = await fetch(apiurl + '/api/carousel');
             if (res.ok) {
                 const data = await res.json();
                 setCarouselItems(data.sort((a: CarouselItem, b: CarouselItem) => a.order - b.order));
@@ -463,7 +463,7 @@ export default function AdminPage() {
     const handleEditCarousel = (item: CarouselItem) => setEditingCarousel(item);
     const handleUpdateCarousel = async () => {
         if (!editingCarousel) return;
-        const res = await fetch('/api/carousel', {
+        const res = await fetch(apiurl + '/api/carousel', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(editingCarousel),
@@ -475,7 +475,7 @@ export default function AdminPage() {
     };
     const handleDeleteCarousel = async (id: string) => {
         if (!window.confirm('Delete this carousel item?')) return;
-        const res = await fetch(`/api/carousel?id=${id}`, {
+        const res = await fetch(apiurl + `/api/carousel?id=${id}`, {
             method: 'DELETE'
         });
         if (res.ok) fetchCarousel();
@@ -523,8 +523,8 @@ export default function AdminPage() {
     const fetchData = async () => {
         try {
             const [siteRes, collagesRes] = await Promise.all([
-                fetch('/api/site'),
-                fetch('/api/collages')
+                fetch('http://localhost:3001/api/site'),
+                fetch('http://localhost:3001/api/collages')
             ]);
 
             if (siteRes.ok) {
@@ -548,7 +548,7 @@ export default function AdminPage() {
 
         setSaving(true);
         try {
-            const res = await fetch('/api/site', {
+            const res = await fetch('http://localhost:3000/api/site', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(siteSettings)
@@ -586,7 +586,7 @@ export default function AdminPage() {
         const tagsArray = newCollage.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
 
         try {
-            const res = await fetch('/api/collages', {
+            const res = await fetch('http://localhost:3001/api/collages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -623,7 +623,7 @@ export default function AdminPage() {
         if (!editingCollage) return;
 
         try {
-            const res = await fetch('/api/collages', {
+            const res = await fetch('http://localhost:3001/api/collages', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editingCollage)
@@ -645,7 +645,7 @@ export default function AdminPage() {
         if (!confirm('Are you sure you want to delete this collage?')) return;
 
         try {
-            const res = await fetch(`/api/collages?id=${id}`, {
+            const res = await fetch(`http://localhost:3001/api/collages?id=${id}`, {
                 method: 'DELETE'
             });
 
@@ -671,7 +671,7 @@ export default function AdminPage() {
         const updated = [...placements, newItem];
         setPlacements(updated);
         setNewPlacement({ id: '', title: '', content: '', images: [], alignment: 'left', published: true });
-        await fetch('/api/placements', {
+        await fetch('http://localhost:3001/api/placements', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: 'Student Placements', subtitle: '', items: updated }),
@@ -728,7 +728,7 @@ export default function AdminPage() {
 
         setSiteSettings(updatedSettings);
         setNewAchievement({ title: '', content: '', image: '', alignment: 'left', published: true });
-        fetch('/api/site', {
+        fetch('http://localhost:3000/api/site', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedSettings),
@@ -750,7 +750,7 @@ export default function AdminPage() {
 
         setSiteSettings(updatedSettings);
         setEditingAchievement(null);
-        fetch('/api/site', {
+        fetch('http://localhost:3000/api/site', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedSettings),
@@ -769,7 +769,7 @@ export default function AdminPage() {
         };
 
         setSiteSettings(updatedSettings);
-        fetch('/api/site', {
+        fetch('http://localhost:3000/api/site', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedSettings),
@@ -928,7 +928,7 @@ export default function AdminPage() {
     const fetchHomepageImage = async () => {
         setHomepageImageLoading(true);
         try {
-            const res = await fetch('/api/site');
+            const res = await fetch('http://localhost:3000/api/site');
             if (res.ok) {
                 const data = await res.json();
                 setHomepageImage(data.homepage_image || { image: '', title: '', description: '' });
@@ -952,13 +952,13 @@ export default function AdminPage() {
         setHomepageImageLoading(true);
         try {
             // Fetch current site settings
-            const res = await fetch('/api/site');
+            const res = await fetch('http://localhost:3000/api/site');
             if (!res.ok) return;
             const siteData = await res.json();
             // Update homepage_image
             siteData.homepage_image = homepageImage;
             // Save
-            await fetch('/api/site', {
+            await fetch('http://localhost:3000/api/site', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(siteData)

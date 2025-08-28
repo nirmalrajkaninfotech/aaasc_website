@@ -1,24 +1,50 @@
 'use client';
+import { getImageUrl } from '@/config';
 import { AcademicSection } from '@/types';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 interface AcademicSectionProps {
   academic: AcademicSection;
 }
 
 export default function AcademicSectionComponent({ academic }: AcademicSectionProps) {
+  // All hooks at the top - always called in same order
   const [activeTab, setActiveTab] = useState<string>('');
-  const [hasMounted, setHasMounted] = useState(false);
 
+  // Memoize processed data to prevent unnecessary recalculations
+  const publishedPrograms = useMemo(() => {
+    if (!academic?.programs || !Array.isArray(academic.programs)) {
+      return [];
+    }
+    return academic.programs
+      .filter(program => program && program.published !== false)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [academic]);
+
+  // Group programs by section - memoized for stability
+  const programsBySection = useMemo(() => {
+    return publishedPrograms.reduce((acc, program) => {
+      const section = program.section || 'Other';
+      if (!acc[section]) acc[section] = [];
+      acc[section].push(program);
+      return acc;
+    }, {} as Record<string, typeof publishedPrograms>);
+  }, [publishedPrograms]);
+
+  // Get section names - memoized for stability
+  const sectionNames = useMemo(() => {
+    return Object.keys(programsBySection);
+  }, [programsBySection]);
+
+  // Set initial active tab when sections are available
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
+    if (sectionNames.length > 0 && !activeTab) {
+      setActiveTab(sectionNames[0]);
+    }
+  }, [sectionNames, activeTab]);
 
-  if (!academic || !hasMounted) {
-    return <div className="p-8 text-center">No academic information available.</div>;
-  }
-
+  // Utility function for converting HTML to plain text
   const getPlainText = (html: string): string => {
     if (!html) return '';
     if (typeof window === 'undefined') return html;
@@ -27,25 +53,22 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
     return (div.textContent || div.innerText || '').trim();
   };
 
-  const publishedPrograms = academic.programs
-    .filter(program => program.published !== false)
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  // Early returns after all hooks are declared
+  if (!academic) {
+    return (
+      <div className="p-8 text-center">
+        <div className="animate-pulse">Loading academic programs...</div>
+      </div>
+    );
+  }
 
-  // Group programs by section
-  const programsBySection = publishedPrograms.reduce((acc, program) => {
-    const section = program.section || 'Other';
-    if (!acc[section]) acc[section] = [];
-    acc[section].push(program);
-    return acc;
-  }, {} as Record<string, typeof publishedPrograms>);
-
-  // Set initial active tab
-  useEffect(() => {
-    const sections = Object.keys(programsBySection);
-    if (sections.length > 0 && !activeTab) {
-      setActiveTab(sections[0]);
-    }
-  }, [programsBySection, activeTab]);
+  if (publishedPrograms.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-gray-600">No academic programs are currently available.</p>
+      </div>
+    );
+  }
 
   return (
     <section className="py-16 bg-white" aria-labelledby="academic-section-title">
@@ -65,77 +88,88 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap justify-center mb-8 border-b border-gray-200">
-          {Object.keys(programsBySection).map((sectionName) => (
-            <button
-              key={sectionName}
-              onClick={() => setActiveTab(sectionName)}
-              className={`px-6 py-3 font-medium text-sm md:text-base transition-colors duration-200 ${
-                activeTab === sectionName
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-              aria-selected={activeTab === sectionName}
-              role="tab"
-            >
-              {sectionName}
-            </button>
-          ))}
-        </div>
+        {sectionNames.length > 1 && (
+          <div className="flex flex-wrap justify-center mb-8 border-b border-gray-200">
+            {sectionNames.map((sectionName) => (
+              <button
+                key={sectionName}
+                onClick={() => setActiveTab(sectionName)}
+                className={`px-6 py-3 font-medium text-sm md:text-base transition-colors duration-200 ${
+                  activeTab === sectionName
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                aria-selected={activeTab === sectionName}
+                role="tab"
+              >
+                {sectionName}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Tab Content */}
         <div className="mb-12">
-          {Object.entries(programsBySection).map(([sectionName, programs]) => (
-            <div
-              key={sectionName}
-              className={`${activeTab === sectionName ? 'block' : 'hidden'}`}
-              role="tabpanel"
-              aria-labelledby={`tab-${sectionName}`}
-            >
-              <div className={`grid ${programs.length === 1 ? 'grid-cols-1 max-w-2xl' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'} gap-8 w-full max-w-7xl mx-auto px-4`}>
-                {programs.map((program) => (
-                  <div 
-                    key={program.id} 
-                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 flex flex-col h-full w-full"
-                  >
-                    {program.image && (
-                      <div className="relative h-48 w-full bg-gray-200">
-                        <Image
-                          src={program.image}
-                          alt={program.title}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="p-6 flex flex-col flex-grow">
-                      <h3 className="text-xl font-semibold mb-2 text-gray-800">
-                        {program.title}
-                      </h3>
-                      
-                      <div className="prose prose-sm text-gray-600 mb-4 flex-grow">
-                        {program.content ? (
-                          <div dangerouslySetInnerHTML={{ __html: program.content }} />
-                        ) : (
-                          <p>{program.description}</p>
-                        )}
-                      </div>
-                      
-                      {program.eligibility && (
-                        <div className="mt-auto pt-4 border-t border-gray-100">
-                          <p className="text-sm text-gray-700">
-                            <span className="font-medium">Eligibility:</span> {program.eligibility}
-                          </p>
+          {sectionNames.map((sectionName) => {
+            const programs = programsBySection[sectionName];
+            const isActive = activeTab === sectionName || sectionNames.length === 1;
+            
+            return (
+              <div
+                key={sectionName}
+                className={`${isActive ? 'block' : 'hidden'}`}
+                role="tabpanel"
+                aria-labelledby={`tab-${sectionName}`}
+              >
+                <div className={`grid ${
+                  programs.length === 1 
+                    ? 'grid-cols-1 max-w-2xl' 
+                    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                } gap-8 w-full max-w-7xl mx-auto px-4`}>
+                  {programs.map((program) => (
+                    <div 
+                      key={program.id} 
+                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 flex flex-col h-full w-full"
+                    >
+                      {program.image && (
+                        <div className="relative h-48 w-full bg-gray-200">
+                          <Image
+                            src={getImageUrl(program.image)}
+                            alt={program.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
                         </div>
                       )}
+                      
+                      <div className="p-6 flex flex-col flex-grow">
+                        <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                          {program.title}
+                        </h3>
+                        
+                        <div className="prose prose-sm text-gray-600 mb-4 flex-grow">
+                          {program.content ? (
+                            <div dangerouslySetInnerHTML={{ __html: program.content }} />
+                          ) : (
+                            <p>{program.description}</p>
+                          )}
+                        </div>
+                        
+                        {program.eligibility && (
+                          <div className="mt-auto pt-4 border-t border-gray-100">
+                            <p className="text-sm text-gray-700">
+                              <span className="font-medium">Eligibility:</span> {program.eligibility}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {academic.additionalInfo && (

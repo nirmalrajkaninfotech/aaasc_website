@@ -2,30 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Collage, SiteSettings } from '@/types';
-
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch site settings');
-  }
-  
-  return res.json();
-}
-
-async function getCollages(): Promise<Collage[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    return [];
-  }
-  
-  return res.json();
-}
+import { getSiteSettings, getCollages } from '@/lib/api-utils';
 
 export default async function CategoriesPage() {
   const [siteSettings, collages] = await Promise.all([
@@ -34,13 +11,15 @@ export default async function CategoriesPage() {
   ]);
 
   // Group collages by category
-  const categoriesMap = collages.reduce((acc, collage) => {
-    if (!acc[collage.category]) {
-      acc[collage.category] = [];
+  const categoriesMap = Array.isArray(collages) ? collages.reduce((acc, collage) => {
+    if (collage && collage.category) {
+      if (!acc[collage.category]) {
+        acc[collage.category] = [];
+      }
+      acc[collage.category].push(collage);
     }
-    acc[collage.category].push(collage);
     return acc;
-  }, {} as Record<string, Collage[]>);
+  }, {} as Record<string, Collage[]>) : {};
 
   const categories = Object.entries(categoriesMap);
 
@@ -73,7 +52,7 @@ export default async function CategoriesPage() {
                 >
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-1">
                     <div className="aspect-video relative bg-gray-200">
-                      {categoryCollages[0]?.images[0] ? (
+                      {categoryCollages[0]?.images?.[0] ? (
                         <Image
                           src={categoryCollages[0].images[0]}
                           alt={category}
@@ -99,7 +78,7 @@ export default async function CategoriesPage() {
                     <div className="p-4">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">
-                          {categoryCollages.reduce((total, collage) => total + collage.images.length, 0)} images total
+                          {categoryCollages.reduce((total, collage) => total + (collage.images?.length || 0), 0)} images total
                         </span>
                         <span className="text-blue-600 group-hover:text-blue-700 font-medium">
                           View All →

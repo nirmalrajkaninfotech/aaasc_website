@@ -4,6 +4,7 @@ import { Phone, Mail, Megaphone, FileText, Download } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
+
 interface AdmissionForm {
   id: string;
   title: string;

@@ -4,7 +4,7 @@ import { readJsonFile, writeJsonFile } from '../utils/fileUtils.js';
 const router = express.Router();
 const DATA_FILE = 'academics';
 
-// GET /api/academics - Get all academic programs
+// GET /api/academics - Get all academic programs (protected)
 router.get('/', (req, res) => {
   try {
     const data = readJsonFile(DATA_FILE);
@@ -22,6 +22,34 @@ router.get('/', (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Error reading academics data:', error);
+    res.status(500).json({ error: 'Failed to fetch academic programs' });
+  }
+});
+
+// GET /api/academics/public - Get public academic programs
+router.get('/public', (req, res) => {
+  try {
+    const data = readJsonFile(DATA_FILE);
+    if (!data) {
+      return res.json({
+        title: 'Academic Programs',
+        subtitle: 'Explore our diverse range of academic programs',
+        programs: [],
+        additionalInfo: ''
+      });
+    }
+    
+    // Filter only published programs
+    const publicData = {
+      title: data.title,
+      subtitle: data.subtitle,
+      programs: data.programs.filter(program => program.published !== false),
+      additionalInfo: data.additionalInfo
+    };
+    
+    res.json(publicData);
+  } catch (error) {
+    console.error('Error fetching public academics data:', error);
     res.status(500).json({ error: 'Failed to fetch academic programs' });
   }
 });

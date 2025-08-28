@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CommitteeMember {
   name: string;
@@ -70,54 +70,28 @@ interface IQACSectionProps {
   iqacData: IQACData | null;
 }
 
+// Helper function to safely get initials
+const getInitials = (name?: string): string => {
+  if (!name) return '??';
+  return name.split(' ')
+    .map(n => n.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+};
+
 export default function IQACSection({ iqacData }: IQACSectionProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<IQACData | null>(iqacData ?? null);
-  const [loading, setLoading] = useState<boolean>(!iqacData);
 
-  useEffect(() => {
-    // if parent provided data, use it; otherwise fetch from backend
-    if (iqacData) {
-      setData(iqacData);
-      setLoading(false);
-      return;
-    }
-
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:3001';
-    let mounted = true;
-    setLoading(true);
-    fetch(`${API_BASE}/api/iqac`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        return res.json();
-      })
-      .then((json: IQACData) => {
-        if (!mounted) return;
-        setData(json);
-      })
-      .catch((err) => {
-        if (!mounted) return;
-        console.error('Failed to fetch IQAC data', err);
-        setError('Failed to load IQAC data from backend');
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, [iqacData]);
-
-  // show existing loading/error UI while we have no data
-  if (loading || !data) {
+  // If no data provided, show loading state
+  if (!iqacData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">IQAC Section Loading...</h2>
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 max-w-md mx-auto">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -136,8 +110,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
     );
   }
 
-  // local variable for rendering
-  const iqac = data;
+  const iqac = iqacData;
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: '🏛️' },
@@ -145,7 +118,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
     { id: 'activities', label: 'Activities', icon: '📊' },
     { id: 'reports', label: 'Reports', icon: '📄' },
     { id: 'practices', label: 'Best Practices', icon: '⭐' }
-  ].filter(tab => tab.id === 'committee' ? true : (iqac.enabled ? iqac.enabled[tab.id] !== false : true));
+  ].filter(tab => tab.id === 'committee' ? true : (iqac?.enabled ? iqac.enabled[tab.id] !== false : true));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -157,103 +130,300 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
         className="relative h-96 bg-gradient-to-r from-blue-600 to-indigo-700 overflow-hidden"
       >
         <div className="absolute inset-0">
-          <Image
-            src={iqac.heroImage || '/images/iqac-hero.jpg'}
-            alt="IQAC Hero"
-            fill
-            className="object-cover opacity-20"
-            priority
-          />
+          {iqac?.heroImage && (
+            <Image
+              src={iqac.heroImage}
+              alt="IQAC Hero"
+              fill
+              className="object-cover opacity-20"
+              priority
+            />
+          )}
         </div>
+        
+        <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+          <div className="text-white">
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-4xl md:text-5xl font-bold mb-4"
+            >
+              Internal Quality Assurance Cell
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-lg md:text-xl opacity-90"
+            >
+              Ensuring Excellence in Higher Education
+            </motion.p>
+          </div>
+        </div>
+      </motion.div>
 
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+      {/* Navigation Container */}
+      <div className="bg-white shadow-sm sticky top-0 z-20">
+        <div className="container mx-auto px-4">
+          {/* Tabs */}
+          <nav className="flex space-x-1 md:space-x-8 overflow-x-auto" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-blue-500 text-blue-600 bg-blue-50'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2`}
+                } whitespace-nowrap py-4 px-3 md:px-6 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all duration-200`}
               >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
+                <span className="text-base md:text-lg">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </nav>
         </div>
+      </div>
 
-        {/* Tab Panels */}
-        <div className="mt-8">
+      {/* Content Area */}
+      <div className="container mx-auto px-4 py-8">
+        <AnimatePresence mode="wait">
           {/* Overview Tab */}
           {activeTab === 'overview' && (
-            <div className="space-y-12">
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-8"
+            >
               {/* About Section */}
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">About IQAC</h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    {iqac.about.description || 'No description available.'}
-                  </p>
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                  <h3 className="text-xl font-semibold text-white flex items-center">
+                    <span className="mr-2">ℹ️</span>
+                    About IQAC
+                  </h3>
                 </div>
+                <div className="p-6">
+                  {iqac?.about?.description && (
+                    <p className="text-gray-700 leading-relaxed mb-6">
+                      {iqac.about.description}
+                    </p>
+                  )}
 
-                {/* Objectives */}
-                <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                  <h4 className="text-md font-medium text-gray-900 mb-4">Objectives</h4>
-                  <ul className="list-disc pl-5 space-y-2">
-                    {iqac.about.objectives?.length > 0 ? (
-                      iqac.about.objectives.map((objective, index) => (
-                        <li key={index} className="text-sm text-gray-600">
-                          {objective}
-                        </li>
-                      ))
-                    ) : (
-                      <li className="text-sm text-gray-500">No objectives listed.</li>
-                    )}
-                  </ul>
-                </div>
+                  <div className="grid md:grid-cols-2 gap-8">
+                    {/* Objectives */}
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span className="mr-2">🎯</span>
+                        Objectives
+                      </h4>
+                      <ul className="space-y-3">
+                        {iqac?.about?.objectives && iqac.about.objectives.length > 0 ? (
+                          iqac.about.objectives.map((objective, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="text-blue-500 mr-2 mt-1 flex-shrink-0">•</span>
+                              <span className="text-gray-600">{objective}</span>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="text-gray-500">No objectives listed.</li>
+                        )}
+                      </ul>
+                    </div>
 
-                {/* Functions */}
-                <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                  <h4 className="text-md font-medium text-gray-900 mb-4">Functions</h4>
-                  <ul className="list-disc pl-5 space-y-2">
-                    {iqac.about.functions?.length > 0 ? (
-                      iqac.about.functions.map((func, index) => (
-                        <li key={index} className="text-sm text-gray-600">
-                          {func}
-                        </li>
-                      ))
-                    ) : (
-                      <li className="text-sm text-gray-500">No functions listed.</li>
-                    )}
-                  </ul>
+                    {/* Functions */}
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span className="mr-2">⚙️</span>
+                        Functions
+                      </h4>
+                      <ul className="space-y-3">
+                        {iqac?.about?.functions && iqac.about.functions.length > 0 ? (
+                          iqac.about.functions.map((func, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="text-green-500 mr-2 mt-1 flex-shrink-0">•</span>
+                              <span className="text-gray-600">{func}</span>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="text-gray-500">No functions listed.</li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Best Practices */}
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">Best Practices</h3>
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+                  <h3 className="text-xl font-semibold text-white flex items-center">
+                    <span className="mr-2">⭐</span>
+                    Best Practices
+                  </h3>
                 </div>
-                <div className="px-4 py-5 sm:p-6 space-y-4">
-                  {iqac.bestPractices && iqac.bestPractices.length > 0 ? (
-                    iqac.bestPractices.map((practice, index) => (
-                      <div key={index} className="border-l-4 border-blue-500 pl-4 py-2">
-                        <p className="text-gray-600">{practice}</p>
-                      </div>
-                    ))
+                <div className="p-6">
+                  {iqac?.bestPractices && iqac.bestPractices.length > 0 ? (
+                    <div className="grid gap-4">
+                      {iqac.bestPractices.map((practice, index) => (
+                        <motion.div 
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="border-l-4 border-green-500 bg-green-50 pl-4 py-3 rounded-r-lg"
+                        >
+                          <p className="text-gray-700">{practice}</p>
+                        </motion.div>
+                      ))}
+                    </div>
                   ) : (
                     <p className="text-gray-500">No best practices available.</p>
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
-        </div>
-      </motion.div>
+
+          {/* Committee Tab */}
+          {activeTab === 'committee' && (
+            <motion.div
+              key="committee"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-8"
+            >
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+                  <h3 className="text-xl font-semibold text-white flex items-center">
+                    <span className="mr-2">👥</span>
+                    IQAC Committee
+                  </h3>
+                </div>
+                <div className="p-6">
+                  {/* Leadership */}
+                  {(iqac?.committee?.chairman || iqac?.committee?.coordinator) && (
+                    <div className="grid md:grid-cols-2 gap-6 mb-8">
+                      {/* Chairman */}
+                      {iqac?.committee?.chairman && (
+                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg">
+                          <div className="flex items-center mb-3">
+                            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4 flex-shrink-0">
+                              {getInitials(iqac.committee.chairman.name)}
+                            </div>
+                            <div>
+                              {iqac.committee.chairman.name && (
+                                <h4 className="font-semibold text-gray-800">{iqac.committee.chairman.name}</h4>
+                              )}
+                              <p className="text-sm text-gray-600">{iqac.committee.chairman.role || 'Chairman'}</p>
+                            </div>
+                          </div>
+                          {iqac.committee.chairman.designation && (
+                            <p className="text-gray-700 text-sm">{iqac.committee.chairman.designation}</p>
+                          )}
+                          {iqac.committee.chairman.department && (
+                            <p className="text-sm text-gray-600">{iqac.committee.chairman.department}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Coordinator */}
+                      {iqac?.committee?.coordinator && (
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg">
+                          <div className="flex items-center mb-3">
+                            <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4 flex-shrink-0">
+                              {getInitials(iqac.committee.coordinator.name)}
+                            </div>
+                            <div>
+                              {iqac.committee.coordinator.name && (
+                                <h4 className="font-semibold text-gray-800">{iqac.committee.coordinator.name}</h4>
+                              )}
+                              <p className="text-sm text-gray-600">{iqac.committee.coordinator.role || 'Coordinator'}</p>
+                            </div>
+                          </div>
+                          {iqac.committee.coordinator.designation && (
+                            <p className="text-gray-700 text-sm">{iqac.committee.coordinator.designation}</p>
+                          )}
+                          {iqac.committee.coordinator.department && (
+                            <p className="text-sm text-gray-600">{iqac.committee.coordinator.department}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Members */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4">Committee Members</h4>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {iqac?.committee?.members && iqac.committee.members.length > 0 ? (
+                        iqac.committee.members.map((member, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-gray-50 p-4 rounded-lg hover:shadow-md transition-shadow"
+                          >
+                            <div className="flex items-center mb-2">
+                              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3 flex-shrink-0">
+                                {getInitials(member?.name)}
+                              </div>
+                              <div className="min-w-0">
+                                {member?.name && (
+                                  <h5 className="font-medium text-gray-800 text-sm truncate">{member.name}</h5>
+                                )}
+                              </div>
+                            </div>
+                            {member?.designation && (
+                              <p className="text-xs text-gray-600 mb-1">{member.designation}</p>
+                            )}
+                            {member?.department && (
+                              <p className="text-xs text-gray-500">{member.department}</p>
+                            )}
+                            {member?.role && (
+                              <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mt-2">
+                                {member.role}
+                              </span>
+                            )}
+                          </motion.div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 col-span-full">No committee members listed.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Other tabs placeholder */}
+          {(activeTab === 'activities' || activeTab === 'reports' || activeTab === 'practices') && (
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white shadow-lg rounded-lg p-8 text-center"
+            >
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+                {tabs.find(tab => tab.id === activeTab)?.label}
+              </h3>
+              <p className="text-gray-600">
+                Content for {activeTab} tab will be displayed here.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

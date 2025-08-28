@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { PlacementSection } from '@/types';
+import { getImageUrl } from '@/config';
 
 export default function PlacementSectionComponent({ placements }: { placements: PlacementSection }) {
   if (!placements) return <div className="p-8 text-center">No placement data found.</div>;
@@ -29,7 +30,7 @@ export default function PlacementSectionComponent({ placements }: { placements: 
           <div className="relative w-full max-w-4xl mx-auto aspect-[4/3] bg-white shadow-lg rounded-xl overflow-hidden ring-1 ring-black/5 transition-all duration-300 transform hover:shadow-2xl hover:-translate-y-1 cursor-zoom-in">
             <Zoom>
               <Image 
-                src={mainImage} 
+                src={getImageUrl(mainImage)} 
                 alt={firstItem?.title || 'Placement'} 
                 fill 
                 className="object-contain" 
@@ -55,7 +56,7 @@ export default function PlacementSectionComponent({ placements }: { placements: 
                 <Zoom>
                   <div className="w-full h-full">
                     <Image 
-                      src={img} 
+                      src={getImageUrl(img)} 
                       alt={`Placement image ${idx + 1}`} 
                       fill 
                       className="object-cover transition-transform duration-300 group-hover:scale-105"

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { Collage } from '@/types';
+import { getImageUrl } from '@/config';
 
 interface CollageCardProps {
   collage: Collage;
@@ -24,10 +25,10 @@ export default function CollageCard({ collage }: CollageCardProps) {
       <div className="h-full flex flex-col bg-white/95 dark:bg-gray-800/95 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-500/30 transition-all duration-500 group-hover:-translate-y-1">
         {/* Image Container */}
         <div className="aspect-video relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 overflow-hidden">
-          {collage.images.length > 0 ? (
+          {collage.images && collage.images.length > 0 ? (
             <div className="relative w-full h-full">
               <Image
-                src={collage.images[0].startsWith('/') ? collage.images[0] : `/${collage.images[0]}`}
+                src={getImageUrl(collage.images[0])}
                 alt={collage.title}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -46,10 +47,13 @@ export default function CollageCard({ collage }: CollageCardProps) {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-600">
-              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
+            <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-700 p-4">
+              <div className="text-center">
+                <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm text-gray-500 dark:text-gray-400">No images available</p>
+              </div>
             </div>
           )}
           
@@ -83,7 +87,7 @@ export default function CollageCard({ collage }: CollageCardProps) {
               <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
-              {collage.images.length} {collage.images.length === 1 ? 'Image' : 'Images'}
+              {collage.images ? `${collage.images.length} ${collage.images.length === 1 ? 'Image' : 'Images'}` : 'No images'}
             </span>
             
             <span className="inline-flex items-center text-xs text-gray-500 dark:text-gray-400">

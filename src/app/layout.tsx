@@ -50,6 +50,17 @@ const defaultSiteSettings: SiteSettings = {
     title: "Our Faculty",
     items: []
   },
+  header: {
+    navigation: [
+      { name: "Home", href: "/" },
+      { name: "About", href: "/about" },
+      { name: "Academics", href: "/academics" },
+      { name: "Faculty", href: "/faculty" },
+      { name: "Facilities", href: "/facilities" },
+      { name: "Gallery", href: "/gallery" },
+      { name: "Contact", href: "/contact" }
+    ]
+  },
   footer: {
     copyright: `© ${new Date().getFullYear()} AAASC. All rights reserved.`,
     links: [],
@@ -62,48 +73,16 @@ const defaultSiteSettings: SiteSettings = {
   }
 };
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  // For static export, return default settings
-  if (process.env.NEXT_PHASE === 'phase-export' || process.env.NODE_ENV === 'production') {
-    console.warn('[Static Export] Using default site settings');
-    return defaultSiteSettings;
-  }
+import { getSiteSettings as fetchSiteSettings } from '@/lib/api-utils';
 
+async function getSiteSettings(): Promise<SiteSettings> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
-    const res = await fetch(`${apiUrl}/api/site`, {
-      cache: 'no-store',
-      next: { revalidate: 3600 }, // Revalidate every hour
-      // Add timeout for fetch
-      signal: AbortSignal.timeout(5000)
-    });
-    
-    if (!res.ok) {
-      console.error('Failed to fetch site settings, using defaults');
-      return defaultSiteSettings;
-    }
-    
-    const data = await res.json();
-    
-    // Ensure the data has required fields
-    return {
-      ...defaultSiteSettings,
-      ...data,
-      // Ensure logo is properly formatted
-      logo: data.logo || defaultSiteSettings.logo,
-      // Ensure contact info exists
-      contact: {
-        ...defaultSiteSettings.contact,
-        ...(data.contact || {})
-      },
-      // Ensure footer exists
-      footer: {
-        ...defaultSiteSettings.footer,
-        ...(data.footer || {})
-      }
-    };
+    // Try to fetch real site settings
+    const settings = await fetchSiteSettings();
+    return settings;
   } catch (error) {
-    console.error('Error fetching site settings:', error);
+    console.error('Error fetching site settings in layout:', error);
+    // Fallback to default settings
     return defaultSiteSettings;
   }
 }
@@ -253,16 +232,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Get site settings with fallback
-  let siteSettings: SiteSettings = defaultSiteSettings;
-  
-  if (process.env.NODE_ENV !== 'production') {
-    try {
-      siteSettings = await getSiteSettings();
-    } catch (error) {
-      console.error('Error in RootLayout:', error);
-    }
-  }
+  // Use static settings for static export
+  const siteSettings = await getSiteSettings();
 
   // Determine if this is an admin route
   const isAdminRoute = false; // This will be determined client-side by HeaderWrapper

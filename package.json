@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:static": "node build-static.js",
+    "preview": "node preview-server.js",
     "cpanel-build": "set NODE_OPTIONS=--max_old_space_size=4096 && next build --no-lint",
     "start": "node server.js",
     "lint": "next lint"

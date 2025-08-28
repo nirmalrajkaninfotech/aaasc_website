@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { getImageUrl } from '@/config';
 
 interface GalleryItem {
   id: string;
@@ -35,7 +36,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({ items }) => {
             <div key={item.id} className="flex flex-col items-center w-full max-w-5xl mx-auto bg-white rounded shadow-lg overflow-hidden">
               <div className="relative w-full" style={{ aspectRatio: '16/9', minHeight: 500 }}>
                 <Image
-                  src={item.image}
+                  src={getImageUrl(item.image)}
                   alt={item.title || ''}
                   fill
                   className="object-contain"

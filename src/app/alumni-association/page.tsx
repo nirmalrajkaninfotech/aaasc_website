@@ -4,7 +4,7 @@ import { SiteSettings } from '@/types';
 // Fetch site settings
 async function getSiteSettings(): Promise<SiteSettings> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`,
+    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002'}/api/site`,
     { cache: 'no-store' }
   );
   if (!res.ok) throw new Error('Failed to fetch site settings');
@@ -14,7 +14,7 @@ async function getSiteSettings(): Promise<SiteSettings> {
 // Fetch alumni data
 async function getAlumni() {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/alumni`,
+    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002'}/api/alumni`,
     { cache: 'no-store' }
   );
   if (!res.ok) return null;

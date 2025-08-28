@@ -18,8 +18,8 @@ export default function GalleryPage() {
   const fetchData = async () => {
     try {
       const [siteRes, collagesRes] = await Promise.all([
-        fetch('/api/site'),
-        fetch('/api/collages')
+        fetch('http://localhost:3001/api/site'),
+        fetch('http://localhost:3001/api/collages')
       ]);
 
       if (siteRes.ok) {

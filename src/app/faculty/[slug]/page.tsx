@@ -17,20 +17,11 @@ type FacultyMember = FacultyItem & {
   researchInterests?: string[];
 };
 
+import { getSiteSettings } from '@/lib/api-utils';
+
 async function getFaculty(): Promise<{ items: FacultyMember[] }> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
-      cache: 'no-store',
-      next: { revalidate: 3600 } // Revalidate every hour
-    });
-    
-    if (!res.ok) {
-      console.error('Failed to fetch site settings:', res.status, res.statusText);
-      // Return empty items array instead of null to prevent type issues
-      return { items: [] };
-    }
-    
-    const data = await res.json();
+    const data = await getSiteSettings();
     
     // Ensure we return a properly typed response with default values
     const items = Array.isArray(data.faculty?.items) 
@@ -61,8 +52,7 @@ interface PageProps {
   params: { slug: string };
 }
 
-// Add revalidation to the page
-export const revalidate = 3600; // Revalidate this page every hour
+// Remove revalidation for static export
 
 // This function generates static params at build time
 export async function generateStaticParams() {

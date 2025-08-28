@@ -16,6 +16,8 @@ export default function Header({ siteSettings }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
 
+  if (!siteSettings) return null;
+
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -30,8 +32,6 @@ export default function Header({ siteSettings }: HeaderProps) {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, []);
-
-  if (!siteSettings) return null;
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

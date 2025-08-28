@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import rateLimit from 'express-rate-limit';
@@ -38,13 +39,24 @@ const PORT = process.env.PORT || 3001;
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: 'Too many requests from this IP, please try again after 15 minutes'
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  skip: (req) => {
+    // Skip rate limiting for static files and health check
+    return req.path.startsWith('/public/') || req.path === '/health';
+  }
 });
 
 // Security
-//app.use(helmet({
-//  contentSecurityPolicy: false
-//}));
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
+
+// Cookie parser
+app.use(cookieParser());
+
+// Trust first proxy (important for secure cookies in production)
+app.set('trust proxy', 1);
 
 // Allowed origins
 const allowedOrigins = [
@@ -73,7 +85,7 @@ const corsOptions = {
     return callback(new Error(`❌ CORS not allowed for origin: ${origin}`));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Range'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Range', 'X-Requested-With'],
   exposedHeaders: ['Content-Length', 'Content-Range'],
   credentials: true,
   preflightContinue: false,
@@ -101,7 +113,7 @@ app.use('/api/', limiter);
 // Public routes
 app.use('/api/auth', authRoutes);
 app.use('/api/site', siteRoutes);
-app.use('/api/academics/public', academicsRoutes);
+app.use('/api/academics', academicsRoutes);  // This will handle both /api/academics and /api/academics/public
 app.use('/api/alumni', alumniRoutes);
 app.use('/api/placements', placementsRoutes);
 app.use('/api/iqac', iqacRoutes);
@@ -124,13 +136,12 @@ app.get('/api/collages/public', async (req, res) => {
 });
 
 // Protected routes
-app.use('/api/carousel', authenticate, carouselRoutes);
-app.use('/api/upload', authenticate, uploadRoutes);
-app.use('/api/academics', authenticate, academicsRoutes);
-app.use('/api/gallery', authenticate, galleryRoutes);
-app.use('/api/admin/admission-forms', authenticate, authorize(['admin', 'admission']), admissionFormsRoutes);
-app.use('/api/admin/collages', authenticate, authorize(['admin']), collagesRoutes);
-app.use('/api/admin/header3', authenticate, authorize(['admin', 'editor']), header3Routes);
+app.use('/api/carousel', carouselRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/admin/admission-forms', admissionFormsRoutes);
+app.use('/api/admin/collages', collagesRoutes);
+app.use('/api/admin/header3', header3Routes);
 
 /* ======================
    Static File Serving

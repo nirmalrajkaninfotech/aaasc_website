@@ -8,26 +8,7 @@ import GallerySection from '@/components/GallerySection';
 import { Collage, SiteSettings } from '@/types';
 import Carousel from '@/components/Carousel';
 import Image from 'next/image';
-
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/site`, {
-    cache: 'no-store'
-  });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
-}
-
-async function getCollages(): Promise<Collage[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    return [];
-  }
-  
-  return res.json();
-}
+import { getSiteSettings, getCollages } from '@/lib/api-utils';
 
 export default async function Home() {
   const [siteSettings, collages] = await Promise.all([
@@ -35,10 +16,10 @@ export default async function Home() {
     getCollages()
   ]);
 
-  // Get enabled sections from homepage layout
-  const enabledSections = siteSettings.homepage.sections
-    .filter(section => section.enabled)
-    .sort((a, b) => a.order - b.order);
+  // Get enabled sections from homepage layout (with fallback)
+  const enabledSections = siteSettings.homepage?.sections
+    ?.filter(section => section.enabled)
+    ?.sort((a, b) => a.order - b.order) || [];
 
   // Function to render each section based on its ID
   const renderSection = (sectionId: string) => {

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { AchievementsSection as AchievementsSectionType } from '@/types';
+import { getImageUrl } from '@/config';
 
 interface AchievementsSectionProps {
   achievements: AchievementsSectionType;
@@ -45,7 +46,7 @@ export default function AchievementsSection({ achievements }: AchievementsSectio
                     <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden mb-4 cursor-zoom-in">
                       <Zoom>
                         <Image 
-                          src={item.image} 
+                          src={getImageUrl(item.image)} 
                           alt={item.title} 
                           fill 
                           className="object-cover"
@@ -61,7 +62,7 @@ export default function AchievementsSection({ achievements }: AchievementsSectio
                           <div className="relative h-28 cursor-zoom-in">
                             <Zoom>
                               <Image 
-                                src={img.url} 
+                                src={getImageUrl(img.url)} 
                                 alt={img.caption || item.title} 
                                 fill 
                                 className="object-cover"

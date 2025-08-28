@@ -1,12 +1,8 @@
 import IQACSection from '@/components/IQACSection';
 
-async function getIQACData() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/iqac`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  return res.json();
-}
+import { getIQAC } from '@/lib/api-utils';
 
 export default async function IQACPage() {
-  const iqacData = await getIQACData();
+  const iqacData = await getIQAC();
   return <IQACSection iqacData={iqacData} />;
 }

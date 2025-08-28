@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { FacilitiesSection as FacilitiesSectionType } from '@/types';
+import { getImageUrl } from '@/config';
 
 interface FacilitiesSectionProps {
   facilities: FacilitiesSectionType;
@@ -84,7 +85,7 @@ export default function FacilitiesSection({ facilities }: FacilitiesSectionProps
             >
               {(facility.gallery && facility.gallery.length > 0) ? (
                 <div className="relative h-48">
-                  <Image src={facility.gallery[0]} alt={facility.name} fill className="object-cover" />
+                  <Image src={getImageUrl(facility.gallery[0])} alt={facility.name} fill className="object-cover" />
                   <div className="absolute top-3 right-3 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">{facility.category}</div>
                   {facility.gallery.length > 1 && (
                     <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
@@ -94,7 +95,7 @@ export default function FacilitiesSection({ facilities }: FacilitiesSectionProps
                 </div>
               ) : facility.image ? (
                 <div className="relative h-48">
-                  <Image src={facility.image} alt={facility.name} fill className="object-cover" />
+                  <Image src={getImageUrl(facility.image)} alt={facility.name} fill className="object-cover" />
                   <div className="absolute top-3 right-3 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">{facility.category}</div>
                 </div>
               ) : null}
@@ -151,7 +152,7 @@ export default function FacilitiesSection({ facilities }: FacilitiesSectionProps
                 </div>
                 {activeFacility.image && (
                   <div className="relative w-full h-64 bg-gray-100">
-                    <Image src={activeFacility.image} alt={activeFacility.name} fill className="object-cover" />
+                    <Image src={getImageUrl(activeFacility.image)} alt={activeFacility.name} fill className="object-cover" />
                     <span className="absolute top-3 right-3 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">{activeFacility.category}</span>
                   </div>
                 )}
