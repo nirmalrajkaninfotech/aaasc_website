@@ -502,7 +502,7 @@ const apiurl = "http://localhost:3001";
     // Save order
     const handleSaveOrder = async () => {
         for (const item of carouselOrder) {
-            await fetch('/api/carousel', {
+            await fetch(apiurl+'/api/carousel', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(item),
@@ -523,8 +523,8 @@ const apiurl = "http://localhost:3001";
     const fetchData = async () => {
         try {
             const [siteRes, collagesRes] = await Promise.all([
-                fetch('http://localhost:3001/api/site'),
-                fetch('http://localhost:3001/api/collages')
+                fetch(apiurl+'/api/site'),
+                fetch(apiurl+'/api/collages')
             ]);
 
             if (siteRes.ok) {
@@ -548,7 +548,7 @@ const apiurl = "http://localhost:3001";
 
         setSaving(true);
         try {
-            const res = await fetch('http://localhost:3000/api/site', {
+            const res = await fetch(apiurl+'/api/site', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(siteSettings)
@@ -586,7 +586,7 @@ const apiurl = "http://localhost:3001";
         const tagsArray = newCollage.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
 
         try {
-            const res = await fetch('http://localhost:3001/api/collages', {
+            const res = await fetch(apiurl+'/api/collages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -623,7 +623,7 @@ const apiurl = "http://localhost:3001";
         if (!editingCollage) return;
 
         try {
-            const res = await fetch('http://localhost:3001/api/collages', {
+            const res = await fetch(apiurl+'/api/collages', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editingCollage)
@@ -645,7 +645,7 @@ const apiurl = "http://localhost:3001";
         if (!confirm('Are you sure you want to delete this collage?')) return;
 
         try {
-            const res = await fetch(`http://localhost:3001/api/collages?id=${id}`, {
+            const res = await fetch(apiurl+`/api/collages?id=${id}`, {
                 method: 'DELETE'
             });
 
@@ -671,7 +671,7 @@ const apiurl = "http://localhost:3001";
         const updated = [...placements, newItem];
         setPlacements(updated);
         setNewPlacement({ id: '', title: '', content: '', images: [], alignment: 'left', published: true });
-        await fetch('http://localhost:3001/api/placements', {
+        await fetch(apiurl+'/api/placements', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: 'Student Placements', subtitle: '', items: updated }),
@@ -683,7 +683,7 @@ const apiurl = "http://localhost:3001";
         const updated = placements.map(item => item.id === editingPlacement.id ? editingPlacement : item);
         setPlacements(updated);
         setEditingPlacement(null);
-        await fetch('/api/placements', {
+        await fetch(apiurl+'/api/placements', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: 'Student Placements', subtitle: '', items: updated }),
@@ -694,7 +694,7 @@ const apiurl = "http://localhost:3001";
         if (!window.confirm('Delete this placement?')) return;
         const updated = placements.filter(item => item.id !== id);
         setPlacements(updated);
-        await fetch('/api/placements', {
+        await fetch(apiurl+'/api/placements', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: 'Student Placements', subtitle: '', items: updated }),
@@ -728,7 +728,7 @@ const apiurl = "http://localhost:3001";
 
         setSiteSettings(updatedSettings);
         setNewAchievement({ title: '', content: '', image: '', alignment: 'left', published: true });
-        fetch('http://localhost:3000/api/site', {
+        fetch(apiurl+'/api/site', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedSettings),
@@ -750,7 +750,7 @@ const apiurl = "http://localhost:3001";
 
         setSiteSettings(updatedSettings);
         setEditingAchievement(null);
-        fetch('http://localhost:3000/api/site', {
+        fetch(apiurl+'/api/site', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedSettings),
@@ -769,7 +769,7 @@ const apiurl = "http://localhost:3001";
         };
 
         setSiteSettings(updatedSettings);
-        fetch('http://localhost:3000/api/site', {
+        fetch(apiurl+'/api/site', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedSettings),
@@ -827,7 +827,7 @@ const apiurl = "http://localhost:3001";
 
     const fetchGallery = async () => {
         try {
-            const res = await fetch('/api/gallery');
+            const res = await fetch(apiurl+'/api/gallery');
             if (res.ok) {
                 const data = await res.json();
                 setGalleryItems(data.sort((a: any, b: any) => (a.order || 0) - (b.order || 0)));
@@ -841,7 +841,7 @@ const apiurl = "http://localhost:3001";
     const handleGalleryImageUpload = async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await fetch('/api/upload', { method: 'POST', body: formData });
+        const response = await fetch(apiurl+'/api/upload', { method: 'POST', body: formData });
         if (response.ok) {
             const data = await response.json();
             setNewGallery(prev => ({ ...prev, image: data.url }));
@@ -851,7 +851,7 @@ const apiurl = "http://localhost:3001";
     // Add new gallery image
     const handleAddGallery = async () => {
         if (!newGallery.image) return;
-        const res = await fetch('/api/gallery', {
+        const res = await fetch(apiurl+'/api/gallery', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -869,7 +869,7 @@ const apiurl = "http://localhost:3001";
     const handleEditGallery = (item: any) => setEditingGallery(item);
     const handleUpdateGallery = async () => {
         if (!editingGallery) return;
-        const res = await fetch('/api/gallery', {
+        const res = await fetch(apiurl+'/api/gallery', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(editingGallery),
@@ -881,7 +881,7 @@ const apiurl = "http://localhost:3001";
     };
     const handleDeleteGallery = async (id: string) => {
         if (!window.confirm('Delete this gallery image?')) return;
-        const res = await fetch(`/api/gallery?id=${id}`, {
+        const res = await fetch(apiurl+`/api/gallery?id=${id}`, {
             method: 'DELETE'
         });
         if (res.ok) fetchGallery();
@@ -906,7 +906,7 @@ const apiurl = "http://localhost:3001";
     const handleGalleryDragOver = (e: React.DragEvent) => e.preventDefault();
     const handleSaveGalleryOrder = async () => {
         for (const item of galleryOrder) {
-            await fetch('/api/gallery', {
+            await fetch(apiurl+'/api/gallery', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(item),
@@ -928,7 +928,7 @@ const apiurl = "http://localhost:3001";
     const fetchHomepageImage = async () => {
         setHomepageImageLoading(true);
         try {
-            const res = await fetch('http://localhost:3000/api/site');
+            const res = await fetch(apiurl+'/api/site');
             if (res.ok) {
                 const data = await res.json();
                 setHomepageImage(data.homepage_image || { image: '', title: '', description: '' });
@@ -941,7 +941,7 @@ const apiurl = "http://localhost:3001";
     const handleHomepageImageUpload = async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await fetch('/api/upload', { method: 'POST', body: formData });
+        const response = await fetch(apiurl+'/api/upload', { method: 'POST', body: formData });
         if (response.ok) {
             const data = await response.json();
             setHomepageImage(prev => ({ ...prev, image: data.url }));
@@ -952,13 +952,13 @@ const apiurl = "http://localhost:3001";
         setHomepageImageLoading(true);
         try {
             // Fetch current site settings
-            const res = await fetch('http://localhost:3000/api/site');
+            const res = await fetch(apiurl+'/api/site');
             if (!res.ok) return;
             const siteData = await res.json();
             // Update homepage_image
             siteData.homepage_image = homepageImage;
             // Save
-            await fetch('http://localhost:3000/api/site', {
+            await fetch(apiurl+'/api/site', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(siteData)
@@ -974,7 +974,7 @@ const apiurl = "http://localhost:3001";
         setGalleryItems(updated);
         // Save to backend
         for (const g of updated) {
-            await fetch('/api/gallery', {
+            await fetch(apiurl+'/api/gallery', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(g),
@@ -987,7 +987,7 @@ const apiurl = "http://localhost:3001";
     useEffect(() => {
         if (activeTab === 'alumni') {
             setAlumniLoading(true);
-            fetch('/api/alumni')
+            fetch(apiurl+'/api/alumni')
                 .then(res => res.json())
                 .then(data => setAlumni(data))
                 .catch(() => setAlumniError('Failed to load alumni data'))
@@ -999,7 +999,7 @@ const apiurl = "http://localhost:3001";
     useEffect(() => {
       if (activeTab === 'iqac') {
         setIqacLoading(true);
-        fetch('/api/iqac')
+        fetch(apiurl+'/api/iqac')
           .then(res => res.json())
           .then(data => setIqac(data))
           .finally(() => setIqacLoading(false));
@@ -1023,7 +1023,7 @@ const apiurl = "http://localhost:3001";
         setAlumniSaving(true);
         setAlumniError(null);
         try {
-            const res = await fetch('/api/alumni', {
+            const res = await fetch(apiurl+'/api/alumni', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(alumni)
@@ -1041,7 +1041,7 @@ const apiurl = "http://localhost:3001";
     useEffect(() => {
       if (activeTab === 'placements') {
         setLoadingPlacements(true);
-        fetch('/api/placements')
+        fetch(apiurl+'/api/placements')
           .then(res => res.json())
           .then(data => {
             setPlacements(data.items || []);
@@ -1076,7 +1076,7 @@ const apiurl = "http://localhost:3001";
 
     const handleLogout = async () => {
       try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        await fetch(apiurl+'/api/auth/logout', { method: 'POST' });
       } finally {
         window.location.href = '/login';
       }
@@ -1093,7 +1093,7 @@ const apiurl = "http://localhost:3001";
             formData.append('title', newAdmissionForm.title);
             formData.append('description', newAdmissionForm.description);
 
-            const response = await fetch('/api/admission-forms', {
+            const response = await fetch(apiurl+'/api/admission-forms', {
                 method: 'POST',
                 body: formData
             });
@@ -1125,7 +1125,7 @@ const apiurl = "http://localhost:3001";
 
     const handleToggleAdmissionForm = async (formId: string) => {
         try {
-            const response = await fetch(`/api/admission-forms/${formId}/toggle`, {
+            const response = await fetch(apiurl+`/api/admission-forms/${formId}/toggle`, {
                 method: 'PUT'
             });
             if (response.ok) {
@@ -1142,7 +1142,7 @@ const apiurl = "http://localhost:3001";
         if (!confirm('Are you sure you want to delete this admission form?')) return;
 
         try {
-            const response = await fetch(`/api/admission-forms/${formId}`, {
+            const response = await fetch(apiurl+`/api/admission-forms/${formId}`, {
                 method: 'DELETE'
             });
             if (response.ok) {
@@ -1167,7 +1167,7 @@ const apiurl = "http://localhost:3001";
     const fetchAdmissionForms = async () => {
         try {
             setAdmissionFormsLoading(true);
-            const response = await fetch('/api/admission-forms');
+            const response = await fetch(apiurl+'/api/admission-forms');
             if (response.ok) {
                 const data = await response.json();
                 setAdmissionForms(data);
@@ -3196,7 +3196,7 @@ const apiurl = "http://localhost:3001";
                                             subtitle: placementSectionSubtitle,
                                             items: placements,
                                         };
-                                        await fetch('/api/placements', {
+                                        await fetch(apiurl+'/api/placements', {
                                             method: 'PUT',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify(body),
