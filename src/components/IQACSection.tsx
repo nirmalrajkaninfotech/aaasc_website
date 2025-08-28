@@ -123,45 +123,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Hero Section */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative h-96 bg-gradient-to-r from-blue-600 to-indigo-700 overflow-hidden"
-      >
-        <div className="absolute inset-0">
-          {iqac?.heroImage && (
-            <Image
-              src={iqac.heroImage}
-              alt="IQAC Hero"
-              fill
-              className="object-cover opacity-20"
-              priority
-            />
-          )}
-        </div>
-        
-        <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
-          <div className="text-white">
-            <motion.h1 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-4xl md:text-5xl font-bold mb-4"
-            >
-              Internal Quality Assurance Cell
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg md:text-xl opacity-90"
-            >
-              Ensuring Excellence in Higher Education
-            </motion.p>
-          </div>
-        </div>
-      </motion.div>
+    
 
       {/* Navigation Container */}
       <div className="bg-white shadow-sm sticky top-0 z-20">

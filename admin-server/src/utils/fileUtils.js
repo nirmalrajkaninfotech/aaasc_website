@@ -18,7 +18,8 @@ export function readJsonFile(filename) {
     return JSON.parse(data);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      return {}; // Return empty object if file doesn't exist
+      console.log(`File not found: ${filePath}. Returning empty array.`);
+      return []; // Return empty array if file doesn't exist
     }
     console.error('Error reading file:', error);
     throw error;

@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { Collage, SiteSettings } from '@/types';
 import { getSiteSettings, getCollages } from '@/lib/api-utils';
 
+// Required for static export - return minimal params
 export async function generateStaticParams() {
-  // For static export, return minimal static params
   return [{ id: '1' }];
 }
 

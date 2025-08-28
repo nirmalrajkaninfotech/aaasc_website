@@ -4,8 +4,8 @@ import { SiteSettings } from '@/types';
 // Fetch site settings
 async function getSiteSettings(): Promise<SiteSettings> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002'}/api/site`,
-    { cache: 'no-store' }
+    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://serveraasc.veetusaapadu.in'}/api/site`,
+    { cache: 'force-cache' }
   );
   if (!res.ok) throw new Error('Failed to fetch site settings');
   return res.json();
@@ -14,8 +14,8 @@ async function getSiteSettings(): Promise<SiteSettings> {
 // Fetch alumni data
 async function getAlumni() {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002'}/api/alumni`,
-    { cache: 'no-store' }
+    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://serveraasc.veetusaapadu.in'}/api/alumni`,
+    { cache: 'force-cache' }
   );
   if (!res.ok) return null;
   return res.json();

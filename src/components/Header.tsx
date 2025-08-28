@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 // Removed framer-motion animations
 import { SiteSettings } from '@/types';
 import ComponentHeader from './ComponentHeader';
+import { usePathname } from 'next/navigation';
 
 interface HeaderProps {
   siteSettings: SiteSettings;
@@ -122,14 +123,29 @@ export default function Header({ siteSettings }: HeaderProps) {
 
 // Desktop Navigation Link Component
 function NavLink({ href, label }: { href: string; label: string }) {
+  const pathname = usePathname();
+  // More flexible pathname matching to handle trailing slashes and partial matches
+  const isActive = pathname === href || 
+                   pathname === href + '/' || 
+                   (href !== '/' && pathname.startsWith(href + '/')) ||
+                   (href === '/' && pathname === '/');
+  
+
+  
   return (
     <div>
       <Link
         href={href}
-        className="relative px-3 py-1.5 text-white hover:text-white font-medium text-sm transition-all duration-300 rounded-xl hover:bg-blue-600/30 group"
+        className={`relative px-3 py-1.5 font-medium text-sm transition-all duration-300 rounded-xl group ${
+          isActive 
+            ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25' 
+            : 'text-white hover:text-white hover:bg-blue-600/30'
+        }`}
       >
         {label}
-        <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-3/4 group-hover:-translate-x-1/2" />
+        {!isActive && (
+          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-3/4 group-hover:-translate-x-1/2" />
+        )}
       </Link>
     </div>
   );
@@ -216,20 +232,34 @@ function MobileMenu({
                   
                   {openSubMenu === index && (
                     <div className="pl-4 space-y-1 overflow-hidden">
-                      {link.subLinks.map((subLink: any, subIndex: number) => (
-                        <div key={subIndex}>
-                          <Link
-                            href={subLink.href}
-                            onClick={onClose}
-                            className="block p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group text-sm"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                              {subLink.label}
-                            </div>
-                          </Link>
-                        </div>
-                      ))}
+                      {link.subLinks.map((subLink: any, subIndex: number) => {
+                        const isSubLinkActive = pathname === subLink.href || 
+                                             pathname === subLink.href + '/' || 
+                                             (subLink.href !== '/' && pathname.startsWith(subLink.href + '/')) ||
+                                             (subLink.href === '/' && pathname === '/');
+                        return (
+                          <div key={subIndex}>
+                            <Link
+                              href={subLink.href}
+                              onClick={onClose}
+                              className={`block p-3 rounded-xl transition-all duration-200 group text-sm ${
+                                isSubLinkActive
+                                  ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25'
+                                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50/50'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className={`w-1.5 h-1.5 rounded-full transition-opacity duration-200 ${
+                                  isSubLinkActive
+                                    ? 'bg-white opacity-100'
+                                    : 'bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100'
+                                }`} />
+                                {subLink.label}
+                              </div>
+                            </Link>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -238,7 +268,14 @@ function MobileMenu({
                   <Link
                     href={link.href}
                     onClick={onClose}
-                    className="block p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 font-medium text-sm"
+                    className={`block p-3 rounded-xl transition-all duration-200 font-medium text-sm ${
+                      pathname === link.href || 
+                      pathname === link.href + '/' || 
+                      (link.href !== '/' && pathname.startsWith(link.href + '/')) ||
+                      (link.href === '/' && pathname === '/')
+                        ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25'
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
+                    }`}
                   >
                     {link.label}
                   </Link>

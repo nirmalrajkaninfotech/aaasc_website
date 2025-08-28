@@ -42,10 +42,10 @@ A fully customizable collage website built with Next.js 13+, TypeScript, and Tai
    ```
 
 3. **Open your browser:**
-   Navigate to [http://localhost:3001](http://localhost:3001)
+   Navigate to [http://serveraasc.veetusaapadu.in](http://serveraasc.veetusaapadu.in)
 
 4. **Access the admin panel:**
-   Go to [http://localhost:3001/admin](http://localhost:3001/admin) to manage content
+   Go to [http://serveraasc.veetusaapadu.in/admin](http://serveraasc.veetusaapadu.in/admin) to manage content
 
 ## Data Structure
 

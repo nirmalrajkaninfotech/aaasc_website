@@ -12,7 +12,7 @@ function readSiteSettings(): SiteSettings {
   } catch (error) {
     // Return default settings if file doesn't exist
     return {
-      siteTitle: "University Memories",
+      siteTitle: "Arulmigu Arthanareeswarar Arts and Science College",
       logo: "/logo.png",
       navLinks: [
         { label: "Home", href: "/" },

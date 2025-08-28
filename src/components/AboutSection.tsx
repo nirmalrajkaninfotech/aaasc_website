@@ -42,15 +42,10 @@ export default function AboutSection({ about }: AboutSectionProps) {
     <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <style>{committeeStyles}</style>
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="text-center mb-16">
-          <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-4">{about.title}</motion.h1>
-          {about.masterCaption && (
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">{about.masterCaption}</motion.p>
-          )}
-        </div>
+      
 
-        <div className="mb-12">
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/20 inline-flex flex-wrap gap-2 mx-auto">
+        <div className="mb-12 flex justify-center">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/20 inline-flex flex-wrap gap-2 justify-center">
             {about.galleryEnabled !== false && (<TabButton active={activeTab === 'gallery'} onClick={() => setActiveTab('gallery')} icon="🖼️">Gallery</TabButton>)}
             {about.committee && (<TabButton active={activeTab === 'committee'} onClick={() => setActiveTab('committee')} icon="👥">Committee</TabButton>)}
             {about.templeAdministration && (<TabButton active={activeTab === 'temple'} onClick={() => setActiveTab('temple')} icon="🏛️">Temple Administration</TabButton>)}

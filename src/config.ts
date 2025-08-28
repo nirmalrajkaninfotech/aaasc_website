@@ -1,5 +1,5 @@
 // Base API URL for the application
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'http://localhost:3001');
+export const API_BASE_URL = "http://serveraasc.veetusaapadu.in";
 
 // Helper function to get full image URL
 export const getImageUrl = (path: string): string => {

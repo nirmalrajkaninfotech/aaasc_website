@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL ='https://serveraasc.veetusaapadu.in';
 import { AcademicSection } from '@/types';
 
 type AdmissionForm = {
@@ -11,7 +11,7 @@ type AdmissionForm = {
 export async function fetchAPI<T>(endpoint: string, fallback?: T): Promise<T> {
     try {
         const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-            cache: 'force-cache' // Cache for static export, no revalidate for static builds
+            // Cache for static export, no revalidate for static builds
         });
 
         if (!res.ok) {
@@ -33,7 +33,54 @@ export async function fetchAPI<T>(endpoint: string, fallback?: T): Promise<T> {
 }
 
 // Specific API functions with fallbacks
-export const getSiteSettings = () => fetchAPI('/api/site');
+export const getSiteSettings = () => fetchAPI('/api/site', {
+  siteTitle: 'AAASC',
+  title: 'AAASC - Academic Excellence',
+  description: 'A leading academic institution',
+  logo: '/logo.png',
+  navLinks: [],
+  hero: {
+    title: 'Welcome to AAASC',
+    subtitle: 'Academic Excellence'
+  },
+  about: {
+    title: 'About Us',
+    content: 'Leading academic institution'
+  },
+  facilities: {
+    title: 'Our Facilities',
+    subtitle: 'State-of-the-art infrastructure',
+    items: []
+  },
+  faculty: {
+    title: 'Our Faculty',
+    subtitle: 'Expert educators',
+    items: []
+  },
+  placements: {
+    title: 'Placements',
+    subtitle: 'Career opportunities',
+    items: []
+  },
+  achievements: {
+    title: 'Achievements',
+    subtitle: 'Our success stories',
+    items: []
+  },
+  carousel: {
+    title: 'Highlights',
+    subtitle: 'Featured content',
+    items: []
+  },
+  contact: {
+    address: 'Contact address',
+    phone: '+1234567890',
+    email: 'info@aaasc.edu'
+  },
+  footer: {
+    copyright: '© 2024 AAASC. All rights reserved.'
+  }
+});
 export const getCollages = () => fetchAPI('/api/collages', []);
 export const getFaculty = () => fetchAPI('/api/faculty', { items: [] });
 export const getPlacements = () => fetchAPI('/api/placements', { items: [] });
@@ -64,7 +111,7 @@ export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
 
 export const getAcademics = async (): Promise<AcademicSection> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/academics/public`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://serveraasc.veetusaapadu.in'}/api/academics/public`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

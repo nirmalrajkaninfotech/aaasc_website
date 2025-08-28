@@ -1,44 +1,77 @@
 // routes/placements.js
 
 import express from 'express';
-import { readJsonFile, writeJsonFile } from '../utils/fileUtils.js';
+import fs from 'fs';
+import path from 'path';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 
 const router = express.Router();
 
-const PLACEMENTS_FILE = 'placements';
-const PLACEMENT_APPLICATIONS_FILE = 'placement-applications';
+const placementsPath = path.join(process.cwd(), 'data', 'placements.json');
 
 // Utility: Generate unique ID
 const generateId = () => Date.now().toString() + Math.random().toString(36).substr(2, 9);
 
-// GET /api/placements - Get all placement opportunities with filters
+// Read placements data
+function readPlacements() {
+  try {
+    const data = fs.readFileSync(placementsPath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return {
+        title: 'Student Placements',
+        subtitle: 'Our graduates excel in top companies worldwide.',
+        items: []
+      };
+    }
+    console.error('Error reading placements file:', error);
+    throw error;
+  }
+}
+
+// Write placements data
+function writePlacements(placements) {
+  try {
+    fs.writeFileSync(placementsPath, JSON.stringify(placements, null, 2));
+  } catch (error) {
+    console.error('Error writing placements file:', error);
+    throw error;
+  }
+}
+
+// GET /api/placements - Get all placement opportunities
 router.get(
   '/',
   asyncHandler(async (req, res) => {
     const { status, company, type } = req.query;
-    let placements = readJsonFile(PLACEMENTS_FILE) || [];
+    const placements = readPlacements();
+    
+    // If filtering is needed, apply it to items
+    let filteredItems = placements.items;
 
-    // Filter logic
     if (status) {
-      placements = placements.filter((p) => p.status === status);
+      filteredItems = filteredItems.filter((p) => p.status === status);
     }
 
     if (company) {
-      placements = placements.filter((p) =>
+      filteredItems = filteredItems.filter((p) =>
         p.companyName?.toLowerCase().includes(company.toLowerCase())
       );
     }
 
     if (type) {
-      placements = placements.filter((p) => p.type === type);
+      filteredItems = filteredItems.filter((p) => p.type === type);
     }
 
     // Sort by posted date: newest first
-    placements.sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate));
+    filteredItems.sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate));
 
-    res.json(placements);
+    res.json({
+      ...placements,
+      items: filteredItems
+    });
   })
 );
 
@@ -47,8 +80,8 @@ router.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const placements = readJsonFile(PLACEMENTS_FILE) || [];
-    const placement = placements.find((p) => p.id === id);
+    const placements = readPlacements();
+    const placement = placements.items.find((p) => p.id === id);
 
     if (!placement) {
       return res.status(404).json({ error: 'Placement opportunity not found' });
@@ -84,7 +117,7 @@ router.post(
       });
     }
 
-    const placements = readJsonFile(PLACEMENTS_FILE) || [];
+    const placements = readPlacements();
 
     const newPlacement = {
       id: generateId(),
@@ -103,8 +136,8 @@ router.post(
       updatedAt: new Date().toISOString(),
     };
 
-    placements.push(newPlacement);
-    writeJsonFile(PLACEMENTS_FILE, placements);
+    placements.items.push(newPlacement);
+    writePlacements(placements);
 
     res.status(201).json(newPlacement);
   })
@@ -119,21 +152,21 @@ router.put(
     const { id } = req.params;
     const updates = req.body;
 
-    const placements = readJsonFile(PLACEMENTS_FILE) || [];
-    const index = placements.findIndex((p) => p.id === id);
+    const placements = readPlacements();
+    const index = placements.items.findIndex((p) => p.id === id);
 
     if (index === -1) {
       return res.status(404).json({ error: 'Placement opportunity not found' });
     }
 
     const updatedPlacement = {
-      ...placements[index],
+      ...placements.items[index],
       ...updates,
       updatedAt: new Date().toISOString(),
     };
 
-    placements[index] = updatedPlacement;
-    writeJsonFile(PLACEMENTS_FILE, placements);
+    placements.items[index] = updatedPlacement;
+    writePlacements(placements);
 
     res.json(updatedPlacement);
   })
@@ -146,106 +179,19 @@ router.delete(
   authorize(['admin']),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const placements = readJsonFile(PLACEMENTS_FILE) || [];
-    const initialLength = placements.length;
+    const placements = readPlacements();
+    const initialLength = placements.items.length;
 
-    const filteredPlacements = placements.filter((p) => p.id !== id);
+    const filteredItems = placements.items.filter((p) => p.id !== id);
 
-    if (filteredPlacements.length === initialLength) {
+    if (filteredItems.length === initialLength) {
       return res.status(404).json({ error: 'Placement opportunity not found' });
     }
 
-    // Remove related applications
-    const applications = readJsonFile(PLACEMENT_APPLICATIONS_FILE) || [];
-    const filteredApplications = applications.filter((app) => app.placementId !== id);
-
-    writeJsonFile(PLACEMENTS_FILE, filteredPlacements);
-    writeJsonFile(PLACEMENT_APPLICATIONS_FILE, filteredApplications); // Save even if unchanged
+    placements.items = filteredItems;
+    writePlacements(placements);
 
     res.json({ success: true, message: 'Placement deleted successfully' });
-  })
-);
-
-// GET /api/placements/:id/applications - Get all applications for a placement
-router.get(
-  '/:id/applications',
-  authenticate,
-  authorize(['admin', 'placement']),
-  asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const applications = readJsonFile(PLACEMENT_APPLICATIONS_FILE) || [];
-    const placementApplications = applications.filter((app) => app.placementId === id);
-
-    res.json(placementApplications);
-  })
-);
-
-// POST /api/placements/:id/apply - Apply to a placement
-router.post(
-  '/:id/apply',
-  asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const {
-      studentName,
-      studentEmail,
-      studentPhone,
-      studentId,
-      department,
-      resumeUrl,
-      coverLetter,
-    } = req.body;
-
-    // Validation
-    if (!studentName || !studentEmail || !studentId || !resumeUrl) {
-      return res.status(400).json({
-        error: 'Student name, email, ID, and resume URL are required',
-      });
-    }
-
-    // Check if placement exists
-    const placements = readJsonFile(PLACEMENTS_FILE) || [];
-    const placement = placements.find((p) => p.id === id);
-
-    if (!placement) {
-      return res.status(404).json({ error: 'Placement opportunity not found' });
-    }
-
-    if (placement.status !== 'open') {
-      return res.status(400).json({ error: 'This placement is not accepting applications' });
-    }
-
-    // Prevent duplicate applications
-    const applications = readJsonFile(PLACEMENT_APPLICATIONS_FILE) || [];
-    const alreadyApplied = applications.some(
-      (app) => app.placementId === id && app.studentEmail === studentEmail
-    );
-
-    if (alreadyApplied) {
-      return res.status(400).json({ error: 'You have already applied to this placement' });
-    }
-
-    const newApplication = {
-      id: generateId(),
-      placementId: id,
-      studentName,
-      studentEmail,
-      studentPhone: studentPhone || null,
-      studentId,
-      department: department || 'Not specified',
-      resumeUrl,
-      coverLetter: coverLetter || '',
-      status: 'pending',
-      appliedAt: new Date().toISOString(),
-    };
-
-    applications.push(newApplication);
-    writeJsonFile(PLACEMENT_APPLICATIONS_FILE, applications);
-
-    res.status(201).json({
-      success: true,
-      message: 'Application submitted successfully!',
-      application: newApplication,
-    });
   })
 );
 

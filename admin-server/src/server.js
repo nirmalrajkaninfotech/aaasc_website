@@ -49,7 +49,10 @@ const limiter = rateLimit({
 // Security
 app.use(helmet({
   contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  referrerPolicy: {
+    policy: 'strict-origin-when-cross-origin'
+  }
 }));
 
 // Cookie parser
@@ -60,9 +63,11 @@ app.set('trust proxy', 1);
 
 // Allowed origins
 const allowedOrigins = [
+  'http://localhost:3003',
+  'http://localhost:3002',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'http://localhost:3001',
+  'http://serveraasc.veetusaapadu.in',
   'http://127.0.0.1:3001',
   'https://aaasc.edu.in',
   'https://www.aaasc.edu.in',
@@ -71,30 +76,49 @@ const allowedOrigins = [
 
 // CORS Configuration
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow all origins in development
-    if (process.env.NODE_ENV !== 'production') {
-      return callback(null, true);
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:3003',
+      'http://localhost:3002',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://serveraasc.veetusaapadu.in',
+      'http://127.0.0.1:3001',
+      'https://aaasc.edu.in',
+      'https://www.aaasc.edu.in',
+      'https://admin.aaasc.edu.in'
+    ];
+
+    // Allow requests with no origin
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    
-    // In production, only allow specific origins
-    if (allowedOrigins.includes(origin) || /(\.|^)aaasc\.edu\.in$/.test(origin)) {
-      return callback(null, origin);
-    }
-    
-    return callback(new Error(`❌ CORS not allowed for origin: ${origin}`));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Range', 'X-Requested-With'],
-  exposedHeaders: ['Content-Length', 'Content-Range'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Range', 'X-Requested-With', 'Referer'],
   credentials: true,
   preflightContinue: false,
   optionsSuccessStatus: 204
 };
 
+// Explicit OPTIONS handler before other middleware
+app.options('*', cors(corsOptions), (req, res) => {
+  const origin = req.headers.origin || req.headers.referer;
+  if (origin) {
+    const parsedOrigin = new URL(origin).origin;
+    res.setHeader('Access-Control-Allow-Origin', parsedOrigin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Range, X-Requested-With, Referer');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Max-Age', '86400');
+  }
+  res.status(204).end();
+});
+
 // Apply CORS to all routes
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 
 // Parsers
 app.use(express.json({ limit: '10mb' }));
@@ -154,18 +178,10 @@ if (!existsSync(uploadsDir)) {
 
 // Serve static files with CORS
 app.use('/uploads', (req, res, next) => {
-  // Set CORS headers for all requests
+  // Set CORS headers for all requests - allow all origins
   const origin = req.headers.origin;
   if (origin) {
-    // In development, allow all origins
-    if (process.env.NODE_ENV !== 'production') {
-      res.header('Access-Control-Allow-Origin', origin);
-    }
-    // In production, only allow from allowedOrigins
-    else if (allowedOrigins.includes(origin)) {
-      res.header('Access-Control-Allow-Origin', origin);
-    }
-    
+    res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Range');

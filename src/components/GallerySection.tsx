@@ -16,21 +16,17 @@ interface GallerySectionProps {
 }
 
 const GallerySection: React.FC<GallerySectionProps> = ({ items }) => {
-  const publishedItems = (items || []).filter(item => item.published !== false);
+  const publishedItems = (items || [])
+    .filter(item => item.published !== false && item.image && item.image.trim() !== '');
+
   if (publishedItems.length === 0) {
-    return (
-      <section className="py-12">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Gallery</h2>
-          <p className="text-gray-500">No images available.</p>
-        </div>
-      </section>
-    );
+    return null;
   }
+
   return (
     <section className="py-12">
       <div className="container mx-auto">
-        <h2 className="text-3xl font-bold mb-8 text-center"></h2>
+        <h2 className="text-3xl font-bold mb-8 text-center">Gallery</h2>
         <div className="flex flex-wrap justify-center items-center gap-8">
           {publishedItems.map(item => (
             <div key={item.id} className="flex flex-col items-center w-full max-w-5xl mx-auto bg-white rounded shadow-lg overflow-hidden">

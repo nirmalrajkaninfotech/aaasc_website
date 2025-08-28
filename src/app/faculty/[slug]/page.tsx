@@ -56,31 +56,9 @@ interface PageProps {
 
 // This function generates static params at build time
 export async function generateStaticParams() {
-  // For static export, we need to return at least one valid path
-  // If the API is not available during build, return a default path
-  try {
-    const facultyData = await getFaculty();
-    
-    if (!facultyData || !Array.isArray(facultyData.items) || facultyData.items.length === 0) {
-      console.error('No faculty data available, using fallback');
-      // Return a default path to prevent build failure
-      return [{ slug: 'default-faculty' }];
-    }
-    
-    // Return array of params for all faculty members
-    const params = facultyData.items
-      .filter((faculty: FacultyMember) => faculty?.slug && faculty.published !== false)
-      .map((faculty: FacultyMember) => ({
-        slug: faculty.slug
-      }));
-      
-    console.log(`Generated static params for ${params.length} faculty members`);
-    return params;
-  } catch (error) {
-    console.error('Error in generateStaticParams:', error);
-    // Return a default path to prevent build failure
-    return [{ slug: 'default-faculty' }];
-  }
+  // For static export, return minimal static params
+  // The actual data will be fetched at runtime
+  return [{ slug: 'default-faculty' }];
 }
 
 export default async function FacultyDetailPage({ params }: PageProps) {

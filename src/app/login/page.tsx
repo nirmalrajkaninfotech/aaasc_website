@@ -2,7 +2,7 @@
 import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-const apiurl = "http://localhost:3001";
+const apiurl = "https://serveraasc.veetusaapadu.in";
 
 export default function LoginPage() {
     useDisableRightClick();
@@ -17,18 +17,39 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    
+    console.log('Attempting login with:', { email, password: '***' });
+    console.log('Current origin:', window.location.origin);
+    console.log('Current URL:', window.location.href);
+    
     try {
       const res = await fetch(apiurl+'/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'include', 
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': window.location.origin,
+          'Referer': window.location.href,
+        },
         body: JSON.stringify({ email, password }),
       });
+      
+      console.log('Response status:', res.status);
+      console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+      
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'Login failed');
+        throw new Error(data.error || `Login failed with status: ${res.status}`);
       }
+      
+      const responseData = await res.json();
+      console.log('Login successful:', responseData);
       router.replace('/admin');
     } catch (err: any) {
+      console.error('Login error details:', err);
       setError(err.message || 'Login failed');
     } finally {
       setLoading(false);

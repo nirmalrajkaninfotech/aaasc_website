@@ -1,23 +1,16 @@
 import Image from 'next/image';
-import { SiteSettings, Facility } from '@/types';
+import { SiteSettings, Facility, FacilitiesSection } from '@/types';
 import Link from 'next/link';
 import { getSiteSettings } from '@/lib/api-utils';
 import { getImageUrl } from '@/config';
 
-interface SiteSettingsWithFacilities extends SiteSettings {
-  facilities: {
-    items: Facility[];
-  };
+// Required for static export - return minimal params
+export async function generateStaticParams() {
+  return [{ id: '1' }];
 }
 
-// This function generates static params at build time
-export async function generateStaticParams() {
-  const siteSettings = await getSiteSettings() as SiteSettingsWithFacilities;
-  
-  // Return all facility IDs for static generation
-  return siteSettings.facilities?.items?.map((facility) => ({
-    id: facility.id?.toString() || '',
-  })) || [];
+interface SiteSettingsWithFacilities extends SiteSettings {
+  facilities: FacilitiesSection;
 }
 
 interface FacilityPageProps {
@@ -79,7 +72,7 @@ export default async function FacilityPage({ params }: FacilityPageProps) {
                 </Link>
               </li>
               <li>/</li>
-              <li className="text-gray-800 font-medium">{facility.title}</li>
+              <li className="text-gray-800 font-medium">{facility.name}</li>
             </ol>
           </nav>
 
@@ -89,7 +82,7 @@ export default async function FacilityPage({ params }: FacilityPageProps) {
               <div className="aspect-video relative">
                 <Image
                   src={getImageUrl(facility.image)}
-                  alt={facility.title}
+                  alt={facility.name}
                   fill
                   className="object-cover"
                 />
@@ -99,7 +92,7 @@ export default async function FacilityPage({ params }: FacilityPageProps) {
             {/* Content */}
             <div className="p-8">
               <h1 className="text-4xl font-bold text-gray-800 mb-6">
-                {facility.title}
+                {facility.name}
               </h1>
 
               {facility.description && (
@@ -168,7 +161,7 @@ export default async function FacilityPage({ params }: FacilityPageProps) {
                       <div key={index} className="aspect-video relative rounded-lg overflow-hidden">
                         <Image
                           src={getImageUrl(image)}
-                          alt={`${facility.title} - Image ${index + 1}`}
+                          alt={`${facility.name} - Image ${index + 1}`}
                           fill
                           className="object-cover hover:scale-105 transition-transform duration-300"
                         />
