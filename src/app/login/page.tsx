@@ -2,6 +2,7 @@
 import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+const apiurl = "http://localhost:3001";
 
 export default function LoginPage() {
     useDisableRightClick();
@@ -17,7 +18,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(apiurl+'/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
