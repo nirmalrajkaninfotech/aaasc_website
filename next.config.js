@@ -2,6 +2,7 @@
 const nextConfig = {
   output: 'export',
   distDir: 'out',
+  trailingSlash: true, // Important for static hosting
   images: {
     unoptimized: true,
   },
@@ -10,6 +11,11 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  // Ensure proper static generation
+  experimental: {
+    // Enable static generation for dynamic routes
+    staticGenerationAsyncStorage: true,
   },
 };
 

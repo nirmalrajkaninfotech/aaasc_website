@@ -5,11 +5,46 @@ import { getCollages } from '@/lib/api-utils';
 import { getImageUrl } from '@/config';
 
 export async function generateStaticParams() {
-  const collages = await getCollages();
-  
-  return collages.map((collage: Collage) => ({
-    id: collage.id?.toString() || '',
-  }));
+  try {
+    // Try to fetch all collages to generate static params
+    const collages = await getCollages();
+    
+    // Generate static params for all available collages
+    if (Array.isArray(collages) && collages.length > 0) {
+      return collages.map((collage: Collage) => ({
+        id: collage.id?.toString() || '1'
+      }));
+    }
+    
+    // Fallback to common IDs if API fails or returns empty
+    return [
+      { id: '1' },
+      { id: '2' },
+      { id: '3' },
+      { id: '4' },
+      { id: '5' },
+      { id: '6' },
+      { id: '7' },
+      { id: '8' },
+      { id: '9' },
+      { id: '10' }
+    ];
+  } catch (error) {
+    console.error('Error generating static params for gallery:', error);
+    // Fallback to common IDs if API fails during build
+    return [
+      { id: '1' },
+      { id: '2' },
+      { id: '3' },
+      { id: '4' },
+      { id: '5' },
+      { id: '6' },
+      { id: '7' },
+      { id: '8' },
+      { id: '9' },
+      { id: '10' }
+    ];
+  }
 }
 
 interface GalleryPageProps {
@@ -19,9 +54,17 @@ interface GalleryPageProps {
 }
 
 export default async function GalleryPage({ params }: GalleryPageProps) {
-  const collages = await getCollages();
-  const collageId = params.id;
-  const collage = collages.find((c: Collage) => c.id?.toString() === collageId);
+  let collages = [];
+  let collage = null;
+  
+  try {
+    collages = await getCollages();
+    const collageId = params.id;
+    collage = collages.find((c: Collage) => c.id?.toString() === collageId);
+  } catch (error) {
+    console.error('Error fetching collages:', error);
+    // For static export, we'll show a fallback UI
+  }
 
   if (!collage) {
     return (
@@ -30,10 +73,13 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
           <div className="container mx-auto px-4 py-12">
             <div className="text-center">
               <h1 className="text-4xl font-bold text-gray-800 mb-4">
-                Gallery Not Found
+                Gallery {params.id}
               </h1>
               <p className="text-xl text-gray-600 mb-8">
-                The gallery you're looking for doesn't exist.
+                {collages.length > 0 
+                  ? "The gallery you're looking for doesn't exist."
+                  : "Gallery data is currently unavailable. Please try again later."
+                }
               </p>
               <Link
                 href="/gallery"
