@@ -1,4 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+
+const currentHost = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || currentHost;
+
+
 import { AcademicSection } from '@/types';
 
 type AdmissionForm = {
@@ -64,7 +68,7 @@ export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
 
 export const getAcademics = async (): Promise<AcademicSection> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/academics/public`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || API_BASE_URL}/api/academics/public`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
