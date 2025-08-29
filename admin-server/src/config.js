@@ -7,7 +7,7 @@ const baseConfig = {
   
   // CORS configuration
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://72.60.96.178',
+    origin: process.env.FRONTEND_URL || 'http://72.60.96.178:3000',
     credentials: true
   },
   
