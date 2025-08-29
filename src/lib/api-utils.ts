@@ -1,6 +1,6 @@
 
 const currentHost = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001';
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || currentHost;
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || currentHost;
 
 
 import { AcademicSection } from '@/types';
