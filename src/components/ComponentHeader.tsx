@@ -1,8 +1,9 @@
 'use client';
-
 import { Phone, Mail, Megaphone, FileText, Download } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from '@/lib/api-utils';
+const apiurl = API_BASE_URL;
 
 
 interface AdmissionForm {
@@ -113,7 +114,7 @@ const ComponentHeader: React.FC = () => {
       {/* Full-width image with optimized height */}
       <div className="relative h-28 md:h-28 w-full overflow-hidden">
         <Image
-          src="https://serveraasc.veetusaapadu.in/uploads/image.png"
+          src={`${apiurl}/uploads/image.png`}
           alt="College Campus"
           width={1000}
           height={400}

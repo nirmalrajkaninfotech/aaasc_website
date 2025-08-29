@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import CollageCard from '@/components/CollageCard';
 import CategoryFilter from '@/components/CategoryFilter';
 import { Collage, SiteSettings } from '@/types';
+import { API_BASE_URL } from '@/lib/api-utils';
+const apiurl = API_BASE_URL;
+
 
 export default function GalleryPage() {
   const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
@@ -18,8 +21,8 @@ export default function GalleryPage() {
   const fetchData = async () => {
     try {
       const [siteRes, collagesRes] = await Promise.all([
-        fetch('https://serveraasc.veetusaapadu.in/api/site'),
-        fetch('https://serveraasc.veetusaapadu.in/api/collages')
+        fetch(apiurl+'api/site'),
+        fetch(apiurl+'/api/collages')
       ]);
 
       if (siteRes.ok) {
