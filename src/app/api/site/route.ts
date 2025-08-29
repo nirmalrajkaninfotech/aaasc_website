@@ -3,6 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { SiteSettings } from '@/types';
 
+// Ensure this route is considered static for `output: 'export'`
+export const dynamic = 'force-static';
+export const revalidate = 0;
+
 const sitePath = path.join(process.cwd(), 'data', 'site.json');
 
 function readSiteSettings(): SiteSettings {
