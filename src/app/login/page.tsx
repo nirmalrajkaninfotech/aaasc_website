@@ -2,7 +2,8 @@
 import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-const apiurl = "https://serveraasc.veetusaapadu.in";
+import { API_BASE_URL } from '@/lib/api-utils';
+const apiurl = API_BASE_URL;
 
 export default function LoginPage() {
     useDisableRightClick();

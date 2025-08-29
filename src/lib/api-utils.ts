@@ -3,7 +3,8 @@
 export const API_BASE_URL = typeof window !== 'undefined'
   ? window.location.origin
   : (process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`);
-import { AcademicSection } from '@/types';
+
+  import { AcademicSection } from '@/types';
 
 type AdmissionForm = {
   id: string;
