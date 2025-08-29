@@ -1,5 +1,6 @@
+
 // Base API URL for the application
-export const API_BASE_URL = "http://serveraasc.veetusaapadu.in";
+export const API_BASE_URL = "http://72.60.96.178";
 
 // Helper function to get full image URL
 export const getImageUrl = (path: string): string => {

@@ -7,7 +7,7 @@ const baseConfig = {
   
   // CORS configuration
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://serveraasc.veetusaapadu.in',
+    origin: process.env.FRONTEND_URL || 'http://72.60.96.178',
     credentials: true
   },
   

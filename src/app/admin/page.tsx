@@ -112,7 +112,7 @@ export default function AdminPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-const apiurl = "http://serveraasc.veetusaapadu.in";
+const apiurl = "http://72.60.96.178";
   const saveSiteSettings = async (updatedSettings: SiteSettings) => {
     try {
       setSaving(true);
