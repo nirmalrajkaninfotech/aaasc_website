@@ -1,4 +1,8 @@
-const API_BASE_URL ='https://serveraasc.veetusaapadu.in';
+
+
+export const API_BASE_URL = typeof window !== 'undefined'
+  ? window.location.origin
+  : (process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`);
 import { AcademicSection } from '@/types';
 
 type AdmissionForm = {
@@ -89,7 +93,7 @@ export const getAlumni = () => fetchAPI('/api/alumni', []);
 export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
   try {
     console.log('Fetching admission forms...');
-    const response = await fetch('/api/admission-forms');
+    const response = await fetch(`${API_BASE_URL}/api/admission-forms`);
     console.log('Response status:', response.status);
     
     if (!response.ok) {
@@ -111,7 +115,7 @@ export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
 
 export const getAcademics = async (): Promise<AcademicSection> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://serveraasc.veetusaapadu.in'}/api/academics/public`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || API_BASE_URL}/api/academics/public`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

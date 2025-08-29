@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Basic configuration for static export
-  output: 'export',
+  //output: 'export',
   distDir: 'out',
   trailingSlash: true,
   reactStrictMode: true,
