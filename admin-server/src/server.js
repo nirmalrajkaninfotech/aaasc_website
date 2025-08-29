@@ -65,7 +65,7 @@ app.set('trust proxy', 1);
 const allowedOrigins = [
   'http://localhost:3003',
   'http://localhost:3002',
-  'http://localhost:3000',
+  '72.60.96.178:3000',
   'http://127.0.0.1:3000',
   'http://72.60.96.178:3000',
   'http://127.0.0.1:3001',
@@ -80,7 +80,7 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3003',
       'http://localhost:3002',
-      'http://localhost:3000',
+      '72.60.96.178:3000',
       'http://127.0.0.1:3000',
       'http://72.60.96.178:3000',
       'http://127.0.0.1:3001',
