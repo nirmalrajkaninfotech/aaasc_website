@@ -4,7 +4,7 @@ import { SiteSettings } from '@/types';
 // Fetch site settings
 async function getSiteSettings(): Promise<SiteSettings> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://demoaaasc.kumarantex.com'}/api/site`,
+    `${process.env.NEXT_PUBLIC_BASE_URL || 'https://demoaaasc.kumarantex.com'}/api/site`,
     { cache: 'force-cache' }
   );
   if (!res.ok) throw new Error('Failed to fetch site settings');
@@ -14,7 +14,7 @@ async function getSiteSettings(): Promise<SiteSettings> {
 // Fetch alumni data
 async function getAlumni() {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://demoaaasc.kumarantex.com'}/api/alumni`,
+    `${process.env.NEXT_PUBLIC_BASE_URL || 'https://demoaaasc.kumarantex.com'}/api/alumni`,
     { cache: 'force-cache' }
   );
   if (!res.ok) return null;
