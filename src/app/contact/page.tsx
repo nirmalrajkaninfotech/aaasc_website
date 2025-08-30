@@ -1,15 +1,16 @@
 import React from 'react';
 import { getSiteSettings } from '@/lib/api-utils';
+import { ContactSettings } from '@/types';
 import ContactForm from '@/components/ContactForm';
 
 export default async function ContactPage() {
   const siteSettings = await getSiteSettings();
 
   // Build map iframe src
-  const apiKey = siteSettings.contact?.googleMapsApiKey;
-  const embedQuery = siteSettings.contact?.googleMapsEmbedQuery;
+  const apiKey = siteSettings.contact?.googleMapsApiKey || '';
+  const embedQuery = siteSettings.contact?.googleMapsEmbedQuery || '';
   const hasEmbedApi = Boolean(apiKey && embedQuery);
-  const mapsUrl = siteSettings.contact?.googleMapsUrl;
+  const mapsUrl = siteSettings.contact?.googleMapsUrl || '';
   let iframeSrc = '';
 
   if (hasEmbedApi) {
@@ -36,23 +37,23 @@ export default async function ContactPage() {
     <div className="min-h-screen flex flex-col bg-white">
       <main className="flex-1">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-12">
+        <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-8 sm:py-12">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl font-bold mb-3">Contact Us</h1>
-            <p className="text-lg text-blue-100 max-w-2xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-3">Contact Us</h1>
+            <p className="text-base sm:text-lg text-blue-100 max-w-2xl mx-auto">
               We'd love to hear from you. Get in touch with our team for any inquiries or support.
             </p>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4 py-8 sm:py-12">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
               {/* Contact Info */}
-              <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 p-6 md:p-8">
-                <div className="flex items-center mb-6">
-                  <div className="w-1 h-8 bg-blue-600 rounded-full mr-3"></div>
-                  <h2 className="text-2xl font-bold text-gray-800">Get in Touch</h2>
+              <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 p-4 sm:p-6 md:p-8">
+                <div className="flex items-center mb-4 sm:mb-6">
+                  <div className="w-1 h-6 sm:h-8 bg-blue-600 rounded-full mr-2 sm:mr-3"></div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Get in Touch</h2>
                 </div>
                 <div className="space-y-6">
                   <div className="flex items-start space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
@@ -118,13 +119,13 @@ export default async function ContactPage() {
               <ContactForm />
             </div>
 
-            <div className="mt-12">
-              <div className="flex items-center mb-6">
-                <div className="w-1 h-8 bg-blue-600 rounded-full mr-3"></div>
-                <h2 className="text-2xl font-bold text-gray-800">Find Us</h2>
+            <div className="mt-8 sm:mt-12">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <div className="w-1 h-6 sm:h-8 bg-blue-600 rounded-full mr-2 sm:mr-3"></div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Find Us</h2>
               </div>
               <div className="relative w-full">
-                <div className="w-full h-80 rounded-xl overflow-hidden shadow-md border border-gray-100">
+                <div className="w-full h-64 sm:h-80 rounded-xl overflow-hidden shadow-md border border-gray-100">
                   <iframe
                     title="Google Map"
                     src={iframeSrc}
@@ -149,4 +150,3 @@ export default async function ContactPage() {
     </div>
   );
 }
-

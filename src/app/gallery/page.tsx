@@ -60,13 +60,13 @@ export default function GalleryPage() {
 
   return (
     <main className="flex-1 bg-gray-50">
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2 sm:mb-4">
             College Gallery
           </h1>
-          <p className="text-xl text-gray-600">
-            Explore our collection of memorable moments and experiences
+          <p className="text-lg sm:text-xl text-gray-600">
+            Explore our collection of memorable moments
           </p>
         </div>
 
@@ -93,7 +93,7 @@ export default function GalleryPage() {
               <div className="fixed inset-0 -z-10 bg-gradient-to-br from-gray-100/80 to-gray-200/80 dark:from-gray-800/50 dark:to-gray-900/50 backdrop-blur-3xl transition-opacity duration-500"></div>
             )}
             
-            <div className={`grid ${filteredCollages.length === 1 ? 'justify-center items-center h-full' : ''} grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6`}>
+            <div className={`grid ${filteredCollages.length === 1 ? 'justify-center items-center h-full' : ''} grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6`}>
               {filteredCollages.map((collage) => (
                 <div 
                   key={collage.id} 

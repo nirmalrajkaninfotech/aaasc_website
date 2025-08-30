@@ -16,6 +16,7 @@ export default function Header({ siteSettings }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const pathname = usePathname();
 
   if (!siteSettings) return null;
 
@@ -32,7 +33,19 @@ export default function Header({ siteSettings }: HeaderProps) {
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
-  }, []);
+  }, [pathname]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      const { overflow } = document.body.style;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = overflow || '';
+      };
+    }
+    return;
+  }, [isMobileMenuOpen]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -93,15 +106,15 @@ export default function Header({ siteSettings }: HeaderProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileMenu}
-              className="lg:hidden p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+              className="lg:hidden p-2 rounded-xl bg-white hover:bg-gray-50 transition-colors duration-200 shadow-sm"
               aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? (
-                <div>
+                <div className="text-blue-600">
                   <CloseIcon />
                 </div>
               ) : (
-                <div>
+                <div className="text-blue-600">
                   <MenuIcon />
                 </div>
               )}
@@ -114,6 +127,7 @@ export default function Header({ siteSettings }: HeaderProps) {
           <MobileMenu 
             siteSettings={siteSettings} 
             onClose={toggleMobileMenu} 
+            pathname={pathname}
           />
         )}
       </header>
@@ -203,105 +217,139 @@ function DropdownMenu({
 }
 
 // Mobile Menu Component
+interface MobileMenuProps {
+  siteSettings: SiteSettings;
+  onClose: () => void;
+  pathname: string;
+}
+
 function MobileMenu({ 
   siteSettings, 
-  onClose 
-}: { 
-  siteSettings: SiteSettings; 
-  onClose: () => void; 
-}) {
+  onClose,
+  pathname
+}: MobileMenuProps) {
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
 
-  return (
-    <div className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-gray-200/50 overflow-hidden full-width-header">
-      <div className="w-full px-4 py-6">
-        <nav className="space-y-2">
-          {siteSettings.navLinks?.map((link, index) => (
-            <div key={index}>
-              {link.subLinks ? (
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setOpenSubMenu(openSubMenu === index ? null : index)}
-                    className="flex items-center justify-between w-full p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group text-sm"
-                  >
-                    <span className="font-medium">{link.label}</span>
-                    <span className="inline-block transform transition-transform" style={{ transform: openSubMenu === index ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                      <ChevronIcon />
-                    </span>
-                  </button>
-                  
-                  {openSubMenu === index && (
-                    <div className="pl-4 space-y-1 overflow-hidden">
-                      {link.subLinks.map((subLink: any, subIndex: number) => {
-                        const isSubLinkActive = pathname === subLink.href || 
-                                             pathname === subLink.href + '/' || 
-                                             (subLink.href !== '/' && pathname.startsWith(subLink.href + '/')) ||
-                                             (subLink.href === '/' && pathname === '/');
-                        return (
-                          <div key={subIndex}>
-                            <Link
-                              href={subLink.href}
-                              onClick={onClose}
-                              className={`block p-3 rounded-xl transition-all duration-200 group text-sm ${
-                                isSubLinkActive
-                                  ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25'
-                                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50/50'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <span className={`w-1.5 h-1.5 rounded-full transition-opacity duration-200 ${
-                                  isSubLinkActive
-                                    ? 'bg-white opacity-100'
-                                    : 'bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100'
-                                }`} />
-                                {subLink.label}
-                              </div>
-                            </Link>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  <Link
-                    href={link.href}
-                    onClick={onClose}
-                    className={`block p-3 rounded-xl transition-all duration-200 font-medium text-sm ${
-                      pathname === link.href || 
-                      pathname === link.href + '/' || 
-                      (link.href !== '/' && pathname.startsWith(link.href + '/')) ||
-                      (link.href === '/' && pathname === '/')
-                        ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25'
-                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                </div>
-              )}
-            </div>
-          ))}
+  useEffect(() => {
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = overflow || '';
+    };
+  }, []);
 
-          {/* Mobile Admin Button */}
-          <div className="pt-4 border-t border-gray-200">
-            <Link
-              href="/admin"
-              onClick={onClose}
-              className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <AdminIcon />
-              <span>Admin Panel</span>
-            </Link>
-          </div>
-        </nav>
+  return (
+    <div className="fixed inset-0 z-[100] lg:hidden">
+      {/* Backdrop */}
+      <button
+        aria-label="Close menu"
+        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
+      {/* Drawer panel */}
+      <div className="absolute inset-y-0 right-0 w-[100%] max-w-sm bg-white shadow-2xl border-l border-gray-200 flex flex-col overflow-hidden">
+        {/* Drawer header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <span className="font-semibold text-gray-800">Menu</span>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+            aria-label="Close mobile menu"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <nav className="space-y-2">
+            {siteSettings.navLinks?.map((link, index) => (
+              <div key={index}>
+                {link.subLinks ? (
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => setOpenSubMenu(openSubMenu === index ? null : index)}
+                      className="flex items-center justify-between w-full p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group text-base"
+                    >
+                      <span className="font-medium">{link.label}</span>
+                      <span className="inline-block transform transition-transform" style={{ transform: openSubMenu === index ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                        <ChevronIcon />
+                      </span>
+                    </button>
+                    
+                    {openSubMenu === index && (
+                      <div className="pl-4 space-y-1 overflow-hidden">
+                        {link.subLinks.map((subLink: any, subIndex: number) => {
+                          const isSubLinkActive = pathname === subLink.href || 
+                                               pathname === subLink.href + '/' || 
+                                               (subLink.href !== '/' && pathname.startsWith(subLink.href + '/')) ||
+                                               (subLink.href === '/' && pathname === '/');
+                          return (
+                            <div key={subIndex}>
+                              <Link
+                                href={subLink.href}
+                                onClick={onClose}
+                                className={`block p-3 rounded-xl transition-all duration-200 font-medium text-base ${
+                                  isSubLinkActive
+                                    ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25'
+                                    : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className={`w-1.5 h-1.5 rounded-full transition-opacity duration-200 ${
+                                    isSubLinkActive
+                                      ? 'bg-white opacity-100'
+                                      : 'bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100'
+                                  }`} />
+                                  {subLink.label}
+                                </div>
+                              </Link>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <Link
+                      href={link.href}
+                      onClick={onClose}
+                      className={`block p-3 rounded-xl transition-all duration-200 font-medium text-base ${
+                        pathname === link.href || 
+                        pathname === link.href + '/' || 
+                        (link.href !== '/' && pathname.startsWith(link.href + '/')) ||
+                        (link.href === '/' && pathname === '/')
+                          ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25'
+                          : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Mobile Admin Button 
+            <div className="pt-4 border-t border-gray-200">
+              <Link
+                href="/admin"
+                onClick={onClose}
+                className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <AdminIcon />
+                <span>Admin Panel</span>
+              </Link>
+            </div> */}
+          </nav>
+        </div>
       </div>
     </div>
   );
 }
 
-// Icon Components
+// ... (rest of the code remains the same)
 function MenuIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

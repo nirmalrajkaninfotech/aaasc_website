@@ -23,6 +23,11 @@ const nextConfig: NextConfig = {
   // Security headers
   poweredByHeader: false,
   
+  // Disable Next.js dev activity indicator (logo) in development
+  devIndicators: {
+    buildActivity: false,
+  },
+  
   // Environment variables for build time
   env: {
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,

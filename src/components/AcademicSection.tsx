@@ -71,17 +71,17 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
   }
 
   return (
-    <section className="py-16 bg-white" aria-labelledby="academic-section-title">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+    <section className="py-12 md:py-16 bg-white" aria-labelledby="academic-section-title">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8 md:mb-12">
           <h2 
             id="academic-section-title"
-            className="text-4xl font-bold text-gray-800 mb-4"
+            className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4"
           >
             {academic.title}
           </h2>
           {academic.subtitle && (
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
               {academic.subtitle}
             </p>
           )}
@@ -89,12 +89,12 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
 
         {/* Tab Navigation */}
         {sectionNames.length > 1 && (
-          <div className="flex flex-wrap justify-center mb-8 border-b border-gray-200">
+          <div className="flex flex-wrap justify-center mb-6 md:mb-8 border-b border-gray-200">
             {sectionNames.map((sectionName) => (
               <button
                 key={sectionName}
                 onClick={() => setActiveTab(sectionName)}
-                className={`px-6 py-3 font-medium text-sm md:text-base transition-colors duration-200 ${
+                className={`px-4 md:px-6 py-2 md:py-3 font-medium text-xs sm:text-sm md:text-base transition-colors duration-200 ${
                   activeTab === sectionName
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-600 hover:text-gray-900'
@@ -109,7 +109,7 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
         )}
 
         {/* Tab Content */}
-        <div className="mb-12">
+        <div className="mb-8 md:mb-12">
           {sectionNames.map((sectionName) => {
             const programs = programsBySection[sectionName];
             const isActive = activeTab === sectionName || sectionNames.length === 1;
@@ -124,12 +124,12 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                 <div className={`grid ${
                   programs.length === 1 
                     ? 'grid-cols-1 max-w-2xl' 
-                    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                } gap-8 w-full max-w-7xl mx-auto px-4`}>
+                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                } gap-4 sm:gap-6 w-full max-w-7xl mx-auto px-2 sm:px-4`}>
                   {programs.map((program) => (
                     <div 
                       key={program.id} 
-                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 flex flex-col h-full w-full"
+                      className="bg-white rounded-lg sm:rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 flex flex-col h-full w-full"
                     >
                       {program.image && (
                         <div className="relative h-48 w-full bg-gray-200">
@@ -143,8 +143,8 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                         </div>
                       )}
                       
-                      <div className="p-6 flex flex-col flex-grow">
-                        <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                      <div className="p-6 sm:p-8 flex flex-col flex-grow">
+                        <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-gray-800">
                           {program.title}
                         </h3>
                         
@@ -173,10 +173,10 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
         </div>
 
         {academic.additionalInfo && (
-          <div className="mt-16 p-6 bg-gray-50 rounded-xl border border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Additional Information</h3>
+          <div className="mt-8 md:mt-16 p-4 sm:p-6 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-200">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-4">Additional Information</h3>
             <div 
-              className="prose max-w-none text-gray-700" 
+              className="prose max-w-none text-gray-700 text-sm sm:text-base" 
               dangerouslySetInnerHTML={{ __html: academic.additionalInfo }} 
             />
           </div>

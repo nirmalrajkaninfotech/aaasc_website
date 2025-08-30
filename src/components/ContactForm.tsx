@@ -49,14 +49,14 @@ export default function ContactForm() {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 md:p-8 lg:col-span-2">
-            <div className="flex items-center mb-6">
-                <div className="w-1 h-8 bg-blue-600 rounded-full mr-3"></div>
-                <h2 className="text-2xl font-bold text-gray-800">Send us a Message</h2>
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6 md:p-8 lg:col-span-2">
+            <div className="flex items-center mb-4 sm:mb-6">
+                <div className="w-1 h-6 sm:h-8 bg-blue-600 rounded-full mr-2 sm:mr-3"></div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Send us a Message</h2>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                <div className="space-y-1 sm:space-y-2">
+                    <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-gray-700">
                         Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -66,13 +66,13 @@ export default function ContactForm() {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         placeholder="Your full name"
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <div className="space-y-1 sm:space-y-2">
+                    <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-700">
                         Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -82,13 +82,13 @@ export default function ContactForm() {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         placeholder="your.email@example.com"
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                <div className="space-y-1 sm:space-y-2">
+                    <label htmlFor="subject" className="block text-xs sm:text-sm font-medium text-gray-700">
                         Subject <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -98,13 +98,13 @@ export default function ContactForm() {
                         value={formData.subject}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         placeholder="What is this about?"
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                <div className="space-y-1 sm:space-y-2">
+                    <label htmlFor="message" className="block text-xs sm:text-sm font-medium text-gray-700">
                         Message <span className="text-red-500">*</span>
                     </label>
                     <textarea
@@ -114,7 +114,7 @@ export default function ContactForm() {
                         onChange={handleChange}
                         required
                         rows={4}
-                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
                         placeholder="Your message here..."
                     />
                 </div>
@@ -122,7 +122,7 @@ export default function ContactForm() {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
                 >
                     {isSubmitting ? (
                         <span className="flex items-center justify-center">

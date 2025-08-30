@@ -63,17 +63,17 @@ const ComponentHeader: React.FC = () => {
     <header className="w-full overflow-hidden">
       {/* Top bar */}
       <div className="bg-blue-600 text-white text-sm flex flex-col sm:flex-row justify-between items-center px-4 py-1 gap-2 w-full">
-        <div className="flex items-center gap-6">
-          <span className="flex items-center gap-2">
-            <Phone size={16} /> 04288 – 260333
+        <div className="flex flex-wrap items-center gap-2 sm:gap-6">
+          <span className="flex items-center gap-1 sm:gap-2">
+            <Phone size={14} className="hidden xs:block" /> 04288 – 260333
           </span>
-          <span className="flex items-center gap-2">
-            <Mail size={16} /> aaascollege2021@gmail.com
+          <span className="flex items-center gap-1 sm:gap-2">
+            <Mail size={14} className="hidden xs:block" /> aaascollege2021@gmail.com
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <Megaphone size={16} />
-          <span>Notice:</span>
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+          <Megaphone size={14} className="hidden xs:block" />
+          <span className="hidden sm:inline">Notice:</span>
           {loading ? (
             <span className="text-blue-200">Loading...</span>
           ) : admissionForms.length > 0 ? (
@@ -112,7 +112,7 @@ const ComponentHeader: React.FC = () => {
       </div>
 
       {/* Full-width image with optimized height */}
-      <div className="relative h-28 md:h-28 w-full overflow-hidden">
+      <div className="relative h-20 xs:h-24 sm:h-28 w-full overflow-hidden">
         <Image
           src={`https://demoaaasc.kumarantex.com/uploads/image.png`}
           alt="College Campus"

@@ -58,3 +58,29 @@
 	transform: translateX(-33.33%);
 	overflow: hidden;
 }
+
+/* Hide Next.js dev overlay/logo in development */
+nextjs-portal {
+  display: none !important;
+}
+/* Common containers used by the dev overlay */
+#nextjs-build-watcher,
+#nextjs-container,
+#nextjs-dev-overlay,
+next-route-announcer,
+[data-nextjs-devtools-overlay] {
+  display: none !important;
+}
+
+/* Extra: cover additional possible devtools/overlay hosts */
+[data-nextjs-devserver-indicator],
+[data-nextjs-devtools],
+[data-nextjs-devtools-root],
+[data-nextjs-overlay-root],
+[data-next-dev-overlay],
+#__next-dev-overlay,
+#nextjs-devtools,
+#nextjs-devtools-ui,
+#nextjs-portal {
+  display: none !important;
+}

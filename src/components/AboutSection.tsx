@@ -9,6 +9,10 @@ import 'react-medium-image-zoom/dist/styles.css';
 import { getImageUrl } from '@/config';
 
 const committeeStyles = `
+  @media (max-width: 640px) {
+    .committee-content .grid { grid-template-columns: 1fr !important; }
+    .committee-content .grid > div { max-width: 100% !important; }
+  }
   .committee-content .grid { gap: 1rem !important; }
   .committee-content .grid > div { max-width: 280px !important; width: 100% !important; }
   .committee-content .grid img { width: 80px !important; height: 80px !important; object-fit: cover !important; }
@@ -39,16 +43,16 @@ export default function AboutSection({ about }: AboutSectionProps) {
   const fadeInUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -20 } };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <section className="py-12 md:py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <style>{committeeStyles}</style>
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
       
 
-        <div className="mb-12 flex justify-center">
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/20 inline-flex flex-wrap gap-2 justify-center">
+        <div className="mb-8 md:mb-12 flex justify-center">
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl md:rounded-2xl p-2 shadow-lg border border-white/20 inline-flex flex-wrap gap-2 justify-center">
             {about.galleryEnabled !== false && (<TabButton active={activeTab === 'gallery'} onClick={() => setActiveTab('gallery')} icon="🖼️">Gallery</TabButton>)}
             {about.committee && (<TabButton active={activeTab === 'committee'} onClick={() => setActiveTab('committee')} icon="👥">Committee</TabButton>)}
-            {about.templeAdministration && (<TabButton active={activeTab === 'temple'} onClick={() => setActiveTab('temple')} icon="🏛️">Temple Administration</TabButton>)}
+            {about.templeAdministration && (<TabButton active={activeTab === 'temple'} onClick={() => setActiveTab('temple')} icon="🏛️">Temple Admin</TabButton>)}
             {about.secretaryMessage && (<TabButton active={activeTab === 'secretary'} onClick={() => setActiveTab('secretary')} icon="📝">Secretary</TabButton>)}
             {about.principalMessage && (<TabButton active={activeTab === 'principal'} onClick={() => setActiveTab('principal')} icon="🎓">Principal</TabButton>)}
             {about.extraSections && about.extraSections.map((sec, idx) => (<TabButton key={`extra-${idx}`} active={activeTab === `extra:${idx}`} onClick={() => setActiveTab(`extra:${idx}`)} icon="✨">{sec.title || `Section ${idx + 1}`}</TabButton>))}
@@ -91,10 +95,10 @@ export default function AboutSection({ about }: AboutSectionProps) {
 
 function TabButton({ active, onClick, children, icon }: { active: boolean; onClick: () => void; children: React.ReactNode; icon: string }) {
   return (
-    <button onClick={onClick} className={`relative px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${active ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 scale-105' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:shadow-md'}`}>
-      <span className="text-sm">{icon}</span>
+    <button onClick={onClick} className={`relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 text-xs sm:text-sm ${active ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 scale-105' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:shadow-md'}`}>
+      <span className="text-xs sm:text-sm">{icon}</span>
       <span className="whitespace-nowrap">{children}</span>
-      {active && <motion.div layoutId="activeTab" className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl -z-10" />}
+      {active && <motion.div layoutId="activeTab" className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg -z-10" />}
     </button>
   );
 }
@@ -102,15 +106,15 @@ function TabButton({ active, onClick, children, icon }: { active: boolean; onCli
 function GallerySection({ images }: { images?: Array<{ url: string; caption?: string; subtitle?: string }> }) {
   if (!images || images.length === 0) return (<div className="text-center py-20"><div className="text-6xl mb-4">🖼️</div><h3 className="text-2xl font-semibold text-gray-400 mb-2">No Images Yet</h3><p className="text-gray-500">Gallery images will appear here once added.</p></div>);
   return (
-    <motion.div animate="animate" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <motion.div animate="animate" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
       {images.map((img, idx) => (
-        <motion.div key={`${img.url}-${idx}`} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ y: -5 }} className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-          <div className="relative w-full h-48 rounded-lg overflow-hidden cursor-zoom-in">
+        <motion.div key={`${img.url}-${idx}`} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ y: -5 }} className="group relative bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+          <div className="relative w-full h-32 sm:h-48 rounded-lg overflow-hidden cursor-zoom-in">
             <Zoom>
-              <Image src={getImageUrl(img.url)} alt={img.caption || `Gallery image ${idx + 1}`} fill className="object-fit" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+              <Image src={getImageUrl(img.url)} alt={img.caption || `Gallery image ${idx + 1}`} fill className="object-fit" sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw" />
             </Zoom>
           </div>
-          {(img.caption || img.subtitle) && (<div className="p-4">{img.caption && <h4 className="font-semibold text-gray-800 mb-1">{img.caption}</h4>}{img.subtitle && <p className="text-sm text-gray-500">{img.subtitle}</p>}</div>)}
+          {(img.caption || img.subtitle) && (<div className="p-2 sm:p-4">{img.caption && <h4 className="font-semibold text-gray-800 mb-1 text-xs sm:text-sm">{img.caption}</h4>}{img.subtitle && <p className="text-xs sm:text-sm text-gray-500">{img.subtitle}</p>}</div>)}
         </motion.div>
       ))}
     </motion.div>
@@ -300,13 +304,11 @@ function ContentSection({ section, isSecretary = false }: { section: { title: st
 
       {section.image && !isCenteredSection && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="relative">
-          <div className="relative rounded-3xl shadow-xl overflow-hidden flex items-center w-[500px] h-[400px]">
-            <div className="relative w-[500px] h-[500px]">
-              <Image src={getImageUrl(section.image)} alt={section.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-fit p-4 transition-transform duration-700 hover:scale-105" />
+          <div className="relative rounded-3xl shadow-xl overflow-hidden flex items-center w-55 ">
+            <div className="relative w-[300px] h-[300px]">
+              <Image src={getImageUrl(section.image)} alt={section.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-fit p-2 transition-transform duration-700 hover:scale-105" />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
           </div>
-          <div className="absolute -z-10 -bottom-4 -left-4 w-full h-full bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-3xl" />
         </motion.div>
       )}
     </div>

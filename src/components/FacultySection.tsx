@@ -52,112 +52,75 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
       : [];
 
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-1">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-3">
-         
-          </h2>
-          <p className="text-xl text-gray-600">
-            {faculty.subtitle ??
-              'Explore departments and staff information'}
+    <section className="py-8 sm:py-16 bg-gray-50">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="text-center mb-8 sm:mb-12">
+       
+          <p className="text-base sm:text-xl text-gray-600">
+            {faculty.subtitle ?? 'Explore departments and staff information'}
           </p>
         </div>
 
-        {/* Department tabs/chips */}
-        <div
-          className="relative z-10 flex flex-wrap justify-center gap-4 mb-10 pointer-events-auto"
-          role="tablist"
-        >
+        {/* Department tabs */}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-10 overflow-x-auto py-2 px-1">
           {items.map((item) => (
             <button
-              type="button"
               key={item.id}
               onClick={() => setActiveId(item.id)}
-              className={`px-6 py-2 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 ${
-                activeId === item.id
-                  ? 'bg-blue-700 text-white shadow-lg'
-                  : 'bg-white text-blue-700 border border-blue-600 hover:bg-blue-50 shadow-sm hover:shadow-md'
-              }`}
-              aria-selected={activeId === item.id}
-              role="tab"
+              className={`px-4 py-1.5 sm:px-6 sm:py-2 rounded-full text-sm sm:text-base transition-all ${activeId === item.id 
+                ? 'bg-blue-700 text-white shadow-md' 
+                : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50'}`}
             >
               {item.title}
             </button>
           ))}
         </div>
 
-        {/* Detail view for selected department/staff */}
-        <div
-          className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row items-stretch"
-          role="tabpanel"
-          aria-labelledby={`tab-${activeItem?.id ?? ''}`}
-        >
-          {/* Left: Basic info/description */}
-          <div className="md:w-1/3 flex flex-col justify-center p-6 border-b md:border-b-0 md:border-r border-gray-100 bg-blue-50/20">
+        {/* Detail view */}
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-md sm:shadow-lg overflow-hidden flex flex-col lg:flex-row">
+          {/* Left info */}
+          <div className="lg:w-1/3 p-4 sm:p-6 border-b lg:border-b-0 lg:border-r border-gray-100 bg-blue-50/10 flex flex-col items-center justify-center text-center gap-2 min-h-64">
             {activeItem?.subtitle && (
-              <div className="text-lg font-semibold text-blue-700 mb-2">
+              <div className="text-sm sm:text-base font-semibold text-blue-700 mb-1 sm:mb-2">
                 {activeItem.subtitle}
               </div>
             )}
-            <h3 className="text-xl font-bold text-gray-800 mb-3">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">
               {activeItem?.title}
             </h3>
-            <div
-              className="text-sm text-gray-700 leading-relaxed prose max-w-none"
+            <div 
+              className="text-xs sm:text-sm text-gray-700 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: activeItem?.content ?? '' }}
             />
-            {activeItem?.additionalInfo && (
-              <div
-                className="mt-4 text-xs text-gray-600 bg-gray-100 p-2 rounded"
-                dangerouslySetInnerHTML={{
-                  __html: activeItem.additionalInfo,
-                }}
-              />
-            )}
           </div>
 
-          {/* Right: Gallery of staff photos/images */}
-          <div className="md:w-2/3 flex flex-wrap gap-6 p-6 items-center justify-center">
+          {/* Right gallery */}
+          <div className="lg:w-2/3 p-4 sm:p-6">
             {gallery.length > 0 ? (
-              <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
                 {gallery.map((img, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-col items-center group"
-                  >
-                    {/* Updated image container with increased height */}
-                    <div className="relative w-32 h-50 mb-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-100">
-                      {img.url ? (
-                        <Image
-                          src={getImageUrl(img.url)}
-                          alt={activeItem?.title ?? 'Image'}
-                          fill
-                          className="object-cover hover:scale-105 transition-transform duration-200"
-                          sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, 160px"
-                        />
-                      ) : (
-                        <div className="text-gray-400 text-xs flex items-center justify-center h-full">
-                          No image
-                        </div>
-                      )}
+                  <div key={idx} className="flex flex-col items-center">
+                    {/* Square thumbnails with top focus to keep heads visible */}
+                    <div className="relative w-40 h-72 sm:w-48 sm:h-80 md:w-56 md:h-96 rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
+                      <Image
+                        src={getImageUrl(img.url)}
+                        alt={img.caption || activeItem?.title || 'Faculty image'}
+                        fill
+                        className="object-cover object-center"
+                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 40vw, 300px"
+                      />
                     </div>
                     {img.caption && (
-                      <div className="text-sm font-medium text-gray-800 text-center mt-1">
+                      <div className="text-xs sm:text-sm font-medium text-gray-800 mt-1 text-center">
                         {img.caption}
-                      </div>
-                    )}
-                    {img.subtitle && (
-                      <div className="text-xs text-gray-600 text-center">
-                        {img.subtitle}
                       </div>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-gray-400 text-center w-full py-8">
-                No images available for this department.
+              <div className="text-gray-400 text-center py-8">
+                No images available
               </div>
             )}
           </div>
