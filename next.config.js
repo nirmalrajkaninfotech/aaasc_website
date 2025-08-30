@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
- // output: 'export',
+  poweredByHeader: false,
+  // output: 'export',
   distDir: 'out',
   trailingSlash: true, // Important for static hosting
   images: {
