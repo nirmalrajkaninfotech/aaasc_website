@@ -7,7 +7,12 @@ const hostname = 'localhost';
 const port = process.env.PORT || 3000;
 
 // Create the Next.js app
-const app = next({ dev, hostname, port });
+const app = next({ 
+  dev, 
+  hostname, 
+  port,
+  distDir: 'out' 
+});
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {

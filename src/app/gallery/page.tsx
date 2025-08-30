@@ -21,7 +21,7 @@ export default function GalleryPage() {
   const fetchData = async () => {
     try {
       const [siteRes, collagesRes] = await Promise.all([
-        fetch(apiurl+'api/site'),
+        fetch(apiurl+'/api/site'),
         fetch(apiurl+'/api/collages')
       ]);
 
