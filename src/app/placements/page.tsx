@@ -1,7 +1,7 @@
 import PlacementSection from '@/components/PlacementSection';
 
 async function getPlacements() {
-  const res = await fetch('http://72.60.96.178:3000/api/placements', { cache: 'force-cache' });
+  const res = await fetch('http://demoaaasc.kumarantex.com/api/placements', { cache: 'force-cache' });
   if (!res.ok) return null;
   return res.json();
 }

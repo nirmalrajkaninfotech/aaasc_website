@@ -65,9 +65,9 @@ app.set('trust proxy', 1);
 const allowedOrigins = [
   'http://localhost:3003',
   'http://localhost:3002',
-  '72.60.96.178:3000',
+  'demoaaasc.kumarantex.com',
   'http://127.0.0.1:3000',
-  'http://72.60.96.178:3000',
+  'http://demoaaasc.kumarantex.com',
   'http://127.0.0.1:3001',
   'https://aaasc.edu.in',
   'https://www.aaasc.edu.in',
@@ -80,9 +80,9 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3003',
       'http://localhost:3002',
-      '72.60.96.178:3000',
+      'demoaaasc.kumarantex.com',
       'http://127.0.0.1:3000',
-      'http://72.60.96.178:3000',
+      'http://demoaaasc.kumarantex.com',
       'http://127.0.0.1:3001',
       'https://aaasc.edu.in',
       'https://www.aaasc.edu.in',

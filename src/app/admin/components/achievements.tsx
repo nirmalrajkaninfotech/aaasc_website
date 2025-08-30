@@ -42,7 +42,7 @@ export default function Achievements() {
 
   const fetchSiteSettings = async () => {
     try {
-      const response = await fetch('72.60.96.178:3000/api/site');
+      const response = await fetch('demoaaasc.kumarantex.com/api/site');
       if (response.ok) {
         const data = await response.json();
         setSiteSettings(data);
@@ -80,7 +80,7 @@ export default function Achievements() {
     setNewAchievement({ title: '', content: '', image: '', alignment: 'left', published: true });
     
     // Save to backend
-    fetch('72.60.96.178:3000/api/site', {
+    fetch('demoaaasc.kumarantex.com/api/site', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedSettings),
@@ -104,7 +104,7 @@ export default function Achievements() {
     setEditingAchievement(null);
     
     // Save to backend
-    fetch('72.60.96.178:3000/api/site', {
+    fetch('demoaaasc.kumarantex.com/api/site', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedSettings),
@@ -125,7 +125,7 @@ export default function Achievements() {
     setSiteSettings(updatedSettings);
     
     // Save to backend
-    fetch('72.60.96.178:3000/api/site', {
+    fetch('demoaaasc.kumarantex.com/api/site', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedSettings),
@@ -137,7 +137,7 @@ export default function Achievements() {
 
     setSaving(true);
     try {
-      const res = await fetch('72.60.96.178:3000/api/site', {
+      const res = await fetch('demoaaasc.kumarantex.com/api/site', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(siteSettings)

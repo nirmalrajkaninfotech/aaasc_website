@@ -33,7 +33,7 @@ export const NavigationManagement: React.FC<NavigationManagementProps> = ({
   const saveSiteSettings = async (updatedSettings: any) => {
     try {
       setSaving(true);
-      const response = await fetch('72.60.96.178:3000/api/site', {
+      const response = await fetch('demoaaasc.kumarantex.com/api/site', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSettings),
