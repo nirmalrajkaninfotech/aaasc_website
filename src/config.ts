@@ -1,6 +1,6 @@
 
 // Base API URL for the application
-export const API_BASE_URL = "http://localhost:3000";
+export const API_BASE_URL = "https://demoaaasc.kumarantex.com";
 
 // Helper function to get full image URL
 export const getImageUrl = (path: string): string => {

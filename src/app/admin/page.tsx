@@ -112,7 +112,7 @@ export default function AdminPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-const apiurl = "http://localhost:3000";
+const apiurl = "https://demoaaasc.kumarantex.com";
   const saveSiteSettings = async (updatedSettings: SiteSettings) => {
     try {
       setSaving(true);
