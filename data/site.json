@@ -805,12 +805,39 @@
     "subtitle": "Featured Images",
     "items": [
       {
-        "id": "1755495635908",
-        "image": "/uploads/1755495635857_AAASC.png",
-        "order": 1,
-        "title": "Slide 1",
-        "description": "",
-        "published": true
+        "image": "/uploads/1756719855126_WhatsApp_Image_2025-09-01_at_1.55.30_PM__1_.jpeg",
+        "id": "1756719855163",
+        "order": 1
+      },
+      {
+        "image": "/uploads/1756719894766_WhatsApp_Image_2025-09-01_at_2.47.25_PM.jpeg",
+        "id": "1756719894809",
+        "order": 2
+      },
+      {
+        "image": "/uploads/1756719904823_WhatsApp_Image_2025-09-01_at_2.49.38_PM.jpeg",
+        "id": "1756719904853",
+        "order": 3
+      },
+      {
+        "image": "/uploads/1756719916425_WhatsApp_Image_2025-09-01_at_2.52.27_PM.jpeg",
+        "id": "1756719916459",
+        "order": 4
+      },
+      {
+        "image": "/uploads/1756719932501_WhatsApp_Image_2025-09-01_at_2.58.11_PM.jpeg",
+        "id": "1756719932547",
+        "order": 5
+      },
+      {
+        "image": "/uploads/1756719946108_WhatsApp_Image_2025-09-01_at_3.01.32_PM.jpeg",
+        "id": "1756719946151",
+        "order": 6
+      },
+      {
+        "image": "/uploads/1756719968474_WhatsApp_Image_2025-09-01_at_3.02.22_PM.jpeg",
+        "id": "1756719968500",
+        "order": 7
       }
     ]
   },

@@ -2,6 +2,7 @@ import React from 'react';
 import { getSiteSettings } from '@/lib/api-utils';
 import { ContactSettings } from '@/types';
 import ContactForm from '@/components/ContactForm';
+import UpscrollButton from '@/components/UpscrollButton';
 
 export default async function ContactPage() {
   const siteSettings = await getSiteSettings();
@@ -147,6 +148,7 @@ export default async function ContactPage() {
           </div>
         </div>
       </main>
+      <UpscrollButton />
     </div>
   );
 }

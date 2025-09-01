@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { getImageUrl } from '@/config';
+import UpscrollButton from './UpscrollButton';
 
 interface GalleryItem {
   id: string;
@@ -47,6 +48,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({ items }) => {
           ))}
         </div>
       </div>
+      <UpscrollButton />
     </section>
   );
 };

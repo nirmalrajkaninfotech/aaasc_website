@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Collage, SiteSettings } from '@/types';
 import { getSiteSettings, getCollages } from '@/lib/api-utils';
+import UpscrollButton from '@/components/UpscrollButton';
 
 export default async function CategoriesPage() {
   const [siteSettings, collages] = await Promise.all([
@@ -92,7 +93,7 @@ export default async function CategoriesPage() {
           )}
         </div>
       </main>
-
+      <UpscrollButton />
 
     </div>
   );

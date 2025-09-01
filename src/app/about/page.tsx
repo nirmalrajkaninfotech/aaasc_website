@@ -1,4 +1,5 @@
 import AboutSection from '@/components/AboutSection';
+import UpscrollButton from '@/components/UpscrollButton';
 import { getSiteSettings } from '@/lib/api-utils';
 
 export default async function AboutPage() {
@@ -23,6 +24,7 @@ export default async function AboutPage() {
           <AboutSection about={siteSettings.about} />
         </div>
       </main>
+      <UpscrollButton />
     </div>
   );
 }

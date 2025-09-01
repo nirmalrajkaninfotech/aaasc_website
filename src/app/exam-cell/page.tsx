@@ -1,9 +1,10 @@
+import UpscrollButton from '@/components/UpscrollButton';
 import { API_BASE_URL } from '@/config';
 import { ExamCellSection } from '@/types';
 import { ChevronRight, Calendar, FileText, Users, Clock, Award } from 'lucide-react';
 
 async function getExamCell(): Promise<ExamCellSection> {
- const res = await fetch('https://demoaaasc.kumarantex.com/api/site', {
+ const res = await fetch('http://localhost:3000/api/site', {
   cache: 'default' // or simply omit the cache option
 });
   if (!res.ok) throw new Error('Failed to fetch site settings');
@@ -179,6 +180,7 @@ export default async function ExamCellPage() {
           </div>
         </section>
       )}
+      <UpscrollButton />
     </div>
   );
 }

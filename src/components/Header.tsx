@@ -61,8 +61,8 @@ export default function Header({ siteSettings }: HeaderProps) {
       <header
         className={`sticky top-0 z-50 transition-all duration-300 w-full ${
           isScrolled 
-            ? 'bg-blue-700/95 backdrop-blur-xl shadow-lg border-b border-blue-600/20' 
-            : 'bg-blue-700 shadow-md'
+            ? 'bg-[#2D5073] backdrop-blur-xl shadow-lg border-b border-[#2D5073]/20' 
+            : 'bg-[#2D5073] shadow-md font-serif'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 w-full">
@@ -150,9 +150,9 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <div>
       <Link
         href={href}
-        className={`relative px-3 py-1.5 font-medium text-sm transition-all duration-300 rounded-xl group ${
+        className={`relative px-3 py-1.5 font-serif text-sm transition-all duration-300 rounded-xl group ${
           isActive 
-            ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25' 
+            ? 'text-white bg-[#F99D1C] shadow-lg shadow-[#F99D1C]/25' 
             : 'text-white hover:text-white hover:bg-blue-600/30'
         }`}
       >
@@ -183,7 +183,7 @@ function DropdownMenu({
     <div className="relative">
       <button
         onClick={() => onToggle(index)}
-        className="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:text-blue-600 font-medium text-sm transition-all duration-300 rounded-xl hover:bg-blue-50 group"
+        className="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:text-blue-600 font-serif text-sm transition-all duration-300 rounded-xl hover:bg-blue-50 group"
       >
         {link.label}
         <span className="inline-block transform transition-transform" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
@@ -199,7 +199,7 @@ function DropdownMenu({
               <div key={subIndex}>
                 <Link
                   href={subLink.href}
-                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200 group text-sm"
+                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200 group text-sm font-serif"
                   onClick={() => onToggle(-1)}
                 >
                   <div className="flex items-center gap-3">
@@ -269,7 +269,7 @@ function MobileMenu({
                   <div className="space-y-2">
                     <button
                       onClick={() => setOpenSubMenu(openSubMenu === index ? null : index)}
-                      className="flex items-center justify-between w-full p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group text-base"
+                      className="flex items-center justify-between w-full p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group font-serif text-base"
                     >
                       <span className="font-medium">{link.label}</span>
                       <span className="inline-block transform transition-transform" style={{ transform: openSubMenu === index ? 'rotate(180deg)' : 'rotate(0deg)' }}>
@@ -289,9 +289,9 @@ function MobileMenu({
                               <Link
                                 href={subLink.href}
                                 onClick={onClose}
-                                className={`block p-3 rounded-xl transition-all duration-200 font-medium text-base ${
+                                className={`block p-3 rounded-xl transition-all duration-200 font-serif text-base ${
                                   isSubLinkActive
-                                    ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25'
+                                    ? 'text-white bg-[#F99D1C] shadow-lg shadow-[#F99D1C]/25'
                                     : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
                                 }`}
                               >
@@ -315,12 +315,12 @@ function MobileMenu({
                     <Link
                       href={link.href}
                       onClick={onClose}
-                      className={`block p-3 rounded-xl transition-all duration-200 font-medium text-base ${
+                      className={`block p-3 rounded-xl transition-all duration-200 font-serif text-base ${
                         pathname === link.href || 
                         pathname === link.href + '/' || 
                         (link.href !== '/' && pathname.startsWith(link.href + '/')) ||
                         (link.href === '/' && pathname === '/')
-                          ? 'text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25'
+                          ? 'text-white bg-[#F99D1C] shadow-lg shadow-[#F99D1C]/25'
                           : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
                       }`}
                     >

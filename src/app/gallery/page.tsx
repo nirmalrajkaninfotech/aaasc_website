@@ -5,6 +5,7 @@ import CollageCard from '@/components/CollageCard';
 import CategoryFilter from '@/components/CategoryFilter';
 import { Collage, SiteSettings } from '@/types';
 import { API_BASE_URL } from '@/lib/api-utils';
+import UpscrollButton from '@/components/UpscrollButton';
 const apiurl = API_BASE_URL;
 
 
@@ -111,6 +112,7 @@ export default function GalleryPage() {
           </div>
         )}
       </div>
+      <UpscrollButton />
     </main>
   );
 }

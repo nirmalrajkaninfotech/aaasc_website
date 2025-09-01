@@ -162,6 +162,8 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
                     onError={() => handleImageError(slide.image)}
                     priority={index === 0}
                     sizes="100vw"
+            
+                    quality={100}
                   />
                 )}
               </div>

@@ -9,6 +9,7 @@ export default function AcademicsLayout({ children }: { children: ReactNode }) {
       <main className="flex-grow">
         {children}
       </main>
+      
       <Footer />
     </div>
   );

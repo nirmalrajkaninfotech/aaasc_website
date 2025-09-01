@@ -60,9 +60,9 @@ const ComponentHeader: React.FC = () => {
   };
 
   return (
-    <header className="w-full overflow-hidden">
+    <header className="w-full overflow-hidden bg-[#2D5073]">
       {/* Top bar */}
-      <div className="bg-blue-600 text-white text-sm flex flex-col sm:flex-row justify-between items-center px-4 py-1 gap-2 w-full">
+      <div className="bg-[#2D5073] text-white text-sm flex flex-col sm:flex-row justify-between items-center px-4 py-1 gap-2 w-full">
         <div className="flex flex-wrap items-center gap-2 sm:gap-6">
           <span className="flex items-center gap-1 sm:gap-2">
             <Phone size={14} className="hidden xs:block" /> 04288 – 260333
@@ -114,9 +114,9 @@ const ComponentHeader: React.FC = () => {
       {/* Full-width image with optimized height */}
       <div className="relative h-20 xs:h-24 sm:h-28 w-full overflow-hidden">
         <Image
-          src={`https://demoaaasc.kumarantex.com/uploads/image.png`}
+          src={`http://localhost:3000/uploads/uploadsx.png`}
           alt="College Campus"
-          width={1000}
+          width={1900}
           height={400}
           className="w-full h-full object-cover object-center"
           priority

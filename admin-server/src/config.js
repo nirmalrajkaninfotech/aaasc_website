@@ -7,7 +7,7 @@ const baseConfig = {
   
   // CORS configuration
   cors: {
-    origin: process.env.FRONTEND_URL || 'https://demoaaasc.kumarantex.com',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true
   },
   

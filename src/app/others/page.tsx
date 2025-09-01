@@ -1,6 +1,7 @@
 import { OthersSection } from '@/types';
 
 import { getSiteSettings } from '@/lib/api-utils';
+import UpscrollButton from '@/components/UpscrollButton';
 
 async function getOthers(): Promise<OthersSection> {
   try {
@@ -119,6 +120,7 @@ export default async function OthersPage() {
           </div>
         </div>
       </div>
+      <UpscrollButton />
     </div>
   );
 }

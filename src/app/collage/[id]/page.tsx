@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Collage, SiteSettings } from '@/types';
 import { getSiteSettings, getCollages } from '@/lib/api-utils';
+import UpscrollButton from '@/components/UpscrollButton';
 
 // Required for static export - return minimal params
 export async function generateStaticParams() {
@@ -138,6 +139,7 @@ export default async function CollagePage({ params }: CollagePageProps) {
           </div>
         </div>
       </main>
+      <UpscrollButton />
     </div>
   );
 }
