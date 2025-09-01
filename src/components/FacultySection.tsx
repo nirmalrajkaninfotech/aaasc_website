@@ -80,17 +80,17 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
         {/* Detail view */}
         <div className="bg-white rounded-lg sm:rounded-xl shadow-md sm:shadow-lg overflow-hidden flex flex-col lg:flex-row">
           {/* Left info */}
-          <div className="lg:w-1/3 p-6 border-b lg:border-b-0 lg:border-r border-gray-100 bg-blue-50/10 flex flex-col items-center text-center gap-3 min-h-64">
+          <div className="lg:w-1/3 p-6 border-b lg:border-b-0 lg:border-r border-gray-100 bg-blue-50/10 flex flex-col items-center justify-center text-center gap-3 min-h-64">
             {activeItem?.subtitle && (
               <div className="text-sm sm:text-base font-semibold text-blue-700 mb-1 sm:mb-2">
                 {activeItem.subtitle}
               </div>
             )}
-            <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 text-center mx-auto">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
               {activeItem?.title}
             </h3>
             <div
-              className="text-sm sm:text-base text-gray-700 leading-relaxed max-w-lg"
+              className="text-sm sm:text-base text-gray-700 leading-relaxed max-w-lg w-full px-4"
               style={{ wordBreak: 'break-word' }}
               dangerouslySetInnerHTML={{ __html: activeItem?.content ?? '' }}
             />
@@ -99,7 +99,7 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
           {/* Right gallery */}
           <div className="lg:w-2/3 p-6">
             {gallery.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 items-start gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 items-start gap-4">
                 {gallery.map((img, idx) => (
                   <div key={idx} className="flex flex-col items-center text-center">
                     {/* Square thumbnails with top focus to keep heads visible */}
@@ -113,10 +113,10 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
                       />
                     </div>
                     <div className="mt-3 w-32 flex flex-col items-center text-center space-y-1">
-                      <div className="h-[2.75rem] flex items-end text-xs sm:text-sm font-semibold text-gray-900 leading-snug break-words overflow-hidden text-center">
+                      <div className="flex items-end text-xs sm:text-sm font-semibold text-gray-900 leading-snug text-center w-full truncate">
                         {img.caption}
                       </div>
-                      <div className="h-[2rem] text-[11px] sm:text-xs text-gray-700 leading-snug break-words overflow-hidden">
+                      <div className="text-[11px] sm:text-xs text-gray-700 leading-snug w-full text-center">
                         {img.subtitle}
                       </div>
                     </div>
