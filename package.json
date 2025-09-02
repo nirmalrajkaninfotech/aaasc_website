@@ -9,6 +9,8 @@
     "preview": "node preview-server.js",
     "cpanel-build": "set NODE_OPTIONS=--max_old_space_size=4096 && next build --no-lint",
     "start": "node server.js",
+    "start:prod": "HOST=0.0.0.0 PORT=3000 NODE_ENV=production node server.js",
+    "start:next": "HOST=0.0.0.0 PORT=3000 NODE_ENV=production next start -p $PORT -H $HOST",
     "lint": "next lint"
   },
   "dependencies": {
