@@ -1,10 +1,8 @@
-
+import { AcademicSection, Collage, SiteSettings } from '@/types/index';
 
 export const API_BASE_URL = typeof window !== 'undefined'
   ? window.location.origin
-  : (process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`);
-
-  import { AcademicSection } from '@/types';
+  : (process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`);
 
 type AdmissionForm = {
   id: string;
@@ -14,6 +12,16 @@ type AdmissionForm = {
 };
 
 export async function fetchAPI<T>(endpoint: string, fallback?: T): Promise<T> {
+    // Detect build-time and avoid hitting internal APIs when possible
+    const isBuildTime = typeof window === 'undefined' && (
+      process.env.BUILD_TIME === '1' ||
+      (process.env.NEXT_PHASE && process.env.NEXT_PHASE.includes('phase-production-build'))
+    );
+
+    if (isBuildTime && typeof fallback !== 'undefined') {
+      return fallback;
+    }
+
     try {
         const res = await fetch(`${API_BASE_URL}${endpoint}`, {
             // Cache for static export, no revalidate for static builds
@@ -38,7 +46,7 @@ export async function fetchAPI<T>(endpoint: string, fallback?: T): Promise<T> {
 }
 
 // Specific API functions with fallbacks
-export const getSiteSettings = () => fetchAPI('/api/site', {
+export const getSiteSettings = (): Promise<SiteSettings> => fetchAPI('/api/site', {
   siteTitle: 'AAASC',
   title: 'AAASC - Academic Excellence',
   description: 'A leading academic institution',
@@ -86,7 +94,7 @@ export const getSiteSettings = () => fetchAPI('/api/site', {
     copyright: '© 2024 AAASC. All rights reserved.'
   }
 });
-export const getCollages = () => fetchAPI('/api/collages', []);
+export const getCollages = (): Promise<Collage[]> => fetchAPI<Collage[]>('/api/collages', [] as Collage[]);
 export const getFaculty = () => fetchAPI('/api/faculty', { items: [] });
 export const getPlacements = () => fetchAPI('/api/placements', { items: [] });
 export const getIQAC = () => fetchAPI('/api/iqac', null);
