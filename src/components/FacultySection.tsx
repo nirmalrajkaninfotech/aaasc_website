@@ -24,19 +24,19 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
   // Initial tab selection: always first available item, even when items change
   const [activeId, setActiveId] = useState<string>('');
   useEffect(() => {
-    if (items.length > 0 && !items.find((i) => i.id === activeId)) {
+    if (items.length > 0 && !items.some((i) => i.id === activeId)) {
       setActiveId(items[0].id);
     }
   }, [items, activeId]);
 
   const activeItem = useMemo(
-    () => items.find((i) => i.id === activeId) ?? items[0],
+    () => items.find((i) => i.id === activeId) ?? items,
     [items, activeId]
   );
 
   if (items.length === 0)
     return (
-      <section className="py-16 bg-gray-50">
+      <section className="py-16">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-500">No faculty information available.</p>
         </div>
@@ -52,79 +52,109 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
       : [];
 
   return (
-    <section className="py-8 sm:py-16 bg-gray-50">
-      <div className="container mx-auto px-2 sm:px-4">
-        <div className="text-center mb-8 sm:mb-12">
-          <p className="text-base sm:text-xl text-gray-600">
+    <section className="py-16">
+      <div className="container mx-auto px-1">
+        <div className="text-center mb-12">
+        
+          <p className="text-xl text-gray-600">
             {faculty.subtitle ?? 'Explore departments and staff information'}
           </p>
         </div>
 
-        {/* Department tabs */}
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-10 overflow-x-auto py-2 px-1">
+        {/* Department tabs/chips */}
+        <div
+          className="relative z-10 flex flex-wrap justify-center gap-4 mb-10 pointer-events-auto"
+          role="tablist"
+        >
           {items.map((item) => (
             <button
+              type="button"
               key={item.id}
               onClick={() => setActiveId(item.id)}
-              className={`px-4 py-1.5 sm:px-6 sm:py-2 rounded-full text-sm sm:text-base transition-all ${
+              className={`px-6 py-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 ${
                 activeId === item.id
-                  ? 'bg-blue-700 text-white shadow-md'
-                  : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50'
+                  ? 'bg-blue-700 text-white'
+                  : 'bg-transparent text-blue-700 hover:bg-blue-50'
               }`}
+              aria-selected={activeId === item.id}
+              role="tab"
             >
               {item.title}
             </button>
           ))}
         </div>
 
-        {/* Detail view */}
-        <div className="bg-white rounded-lg sm:rounded-xl shadow-md sm:shadow-lg overflow-hidden flex flex-col lg:flex-row">
-          {/* Left info */}
-          <div className="lg:w-1/3 p-6 border-b lg:border-b-0 lg:border-r border-gray-100 bg-blue-50/10 flex flex-col items-center justify-center text-center gap-3 min-h-64">
+        {/* Detail view for selected department/staff */}
+        <div
+          className="flex flex-col md:flex-row items-stretch"
+          role="tabpanel"
+          aria-labelledby={`tab-${activeItem?.id ?? ''}`}
+        >
+          {/* Left: Basic info/description */}
+          <div className="md:w-1/3 flex flex-col justify-center p-6">
             {activeItem?.subtitle && (
-              <div className="text-sm sm:text-base font-semibold text-blue-700 mb-1 sm:mb-2">
+              <div className="text-lg font-semibold text-blue-700 mb-2">
                 {activeItem.subtitle}
               </div>
             )}
-            <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-3">
               {activeItem?.title}
             </h3>
             <div
-              className="text-sm sm:text-base text-gray-700 leading-relaxed max-w-lg w-full px-4"
-              style={{ wordBreak: 'break-word' }}
+              className="text-sm text-gray-700 leading-relaxed prose max-w-none"
               dangerouslySetInnerHTML={{ __html: activeItem?.content ?? '' }}
             />
+            {activeItem?.additionalInfo && (
+              <div
+                className="mt-4 text-xs text-gray-600 p-2"
+                dangerouslySetInnerHTML={{
+                  __html: activeItem.additionalInfo,
+                }}
+              />
+            )}
           </div>
 
-          {/* Right gallery */}
-          <div className="lg:w-2/3 p-6">
+          {/* Right: Gallery of staff photos/images */}
+          <div className="md:w-2/3 flex flex-wrap gap-6 p-6 items-center justify-center">
             {gallery.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 items-start gap-4">
+              <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-6">
                 {gallery.map((img, idx) => (
-                  <div key={idx} className="flex flex-col items-center text-center">
-                    {/* Square thumbnails with top focus to keep heads visible */}
-                    <div className="relative w-32 h-44 rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
-                      <Image
-                        src={getImageUrl(img.url)}
-                        alt={img.caption || activeItem?.title || 'Faculty image'}
-                        fill
-                        className="object-cover object-top"
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 40vw, 300px"
-                      />
+                  <div
+                    key={idx}
+                    className="flex flex-col items-center"
+                  >
+                    <div className="relative w-32 h-50 mb-2 bg-gray-100">
+                      {img.url ? (
+                        <Image
+                          src={getImageUrl(img.url)}
+                          alt={activeItem?.title ?? 'Image'}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, 160px"
+                        />
+                      ) : (
+                        <div className="text-gray-400 text-xs flex items-center justify-center h-full">
+                          No image
+                        </div>
+                      )}
                     </div>
-                    <div className="mt-3 w-32 flex flex-col items-center text-center space-y-1">
-                      <div className="flex items-end text-xs sm:text-sm font-semibold text-gray-900 leading-snug text-center w-full truncate">
+                    {img.caption && (
+                      <div className="text-sm font-medium text-gray-800 text-center mt-1">
                         {img.caption}
                       </div>
-                      <div className="text-[11px] sm:text-xs text-gray-700 leading-snug w-full text-center">
+                    )}
+                    {img.subtitle && (
+                      <div className="text-xs text-gray-600 text-center">
                         {img.subtitle}
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-gray-400 text-center py-8">No images available</div>
+              <div className="text-gray-400 text-center w-full py-8">
+                No images available for this department.
+              </div>
             )}
           </div>
         </div>

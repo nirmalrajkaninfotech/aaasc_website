@@ -57,7 +57,9 @@ export default function Header({ siteSettings }: HeaderProps) {
 
   return (
     <div className="relative">
-      <ComponentHeader />
+      <div className="mb-4">
+        <ComponentHeader />
+      </div>
       <header
         className={`sticky top-0 z-50 transition-all duration-300 w-full ${
           isScrolled 

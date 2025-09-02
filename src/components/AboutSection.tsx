@@ -43,7 +43,7 @@ export default function AboutSection({ about }: AboutSectionProps) {
   const fadeInUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -20 } };
 
   return (
-    <section className="py-12 md:py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <section className="py-12 md:py-5 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <style>{committeeStyles}</style>
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
       
@@ -104,7 +104,7 @@ function TabButton({ active, onClick, children, icon }: { active: boolean; onCli
 }
 
 function GallerySection({ images }: { images?: Array<{ url: string; caption?: string; subtitle?: string }> }) {
-  if (!images || images.length === 0) return (<div className="text-center py-20"><div className="text-6xl mb-4">🖼️</div><h3 className="text-2xl font-semibold text-gray-400 mb-2">No Images Yet</h3><p className="text-gray-500">Gallery images will appear here once added.</p></div>);
+  if (!images || images.length === 0) return (<div className="text-center py-2"><div className="text-6xl mb-4">🖼️</div><h3 className="text-2xl font-semibold text-gray-400 mb-2">No Images Yet</h3><p className="text-gray-500">Gallery images will appear here once added.</p></div>);
   return (
     <motion.div animate="animate" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
       {images.map((img, idx) => (

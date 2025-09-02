@@ -79,17 +79,10 @@ const ComponentHeader: React.FC = () => {
           ) : admissionForms.length > 0 ? (
             <div className="flex items-center gap-2">
               {admissionForms.map((form) => (
-                <button 
-                  key={form.id}
-                  onClick={() => handlePdfDownload(form)}
-                  className="underline font-semibold hover:text-blue-200 transition-colors flex items-center gap-1"
-                  title={form.description || form.title}
-                >
-                  <Download size={14} />
-                  {form.title}
-                </button>
+      <>
+      </>
               ))}
-              <span className="text-gray-300 mx-2">|</span>
+             
               <a 
                 href="/admission-forms"
                 className="text-blue-200 hover:text-white transition-colors text-sm"
@@ -111,14 +104,14 @@ const ComponentHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Full-width image with optimized height */}
-      <div className="relative h-20 xs:h-24 sm:h-28 w-full overflow-hidden">
+      {/* Full-width image - ensure not cropped */}
+      <div className="relative w-full">
         <Image
           src={`https://demoaaasc.kumarantex.com/uploads/uploadsx.png`}
           alt="College Campus"
           width={1900}
-          height={400}
-          className="w-full h-full object-cover object-center"
+          height={450}
+          className="w-full h-auto object-contain"
           priority
           quality={100}
         />
