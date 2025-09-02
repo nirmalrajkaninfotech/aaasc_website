@@ -2,7 +2,7 @@
 const nextConfig = {
   poweredByHeader: false,
   // output: 'export',
-  distDir: 'out',
+  //distDir: 'out',
   trailingSlash: true, // Important for static hosting
   images: {
     unoptimized: true,
