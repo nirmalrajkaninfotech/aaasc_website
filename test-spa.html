@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPA Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; padding: 8px 16px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; }
+        .nav a:hover { background: #0056b3; }
+        .content { padding: 20px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>SPA Hash Routing Test</h1>
+    
+    <div class="nav">
+        <a href="#/">Home</a>
+        <a href="#/about">About</a>
+        <a href="#/contact">Contact</a>
+        <a href="#/gallery">Gallery</a>
+        <a href="#/academics">Academics</a>
+    </div>
+    
+    <div class="content" id="content">
+        <h2>Home Page</h2>
+        <p>Welcome to the SPA test. Click the navigation links above to test hash-based routing.</p>
+    </div>
+
+    <script>
+        function updateContent() {
+            const hash = window.location.hash.slice(1) || '/';
+            const content = document.getElementById('content');
+            
+            const pages = {
+                '/': { title: 'Home Page', content: 'Welcome to the SPA test. Click the navigation links above to test hash-based routing.' },
+                '/about': { title: 'About Page', content: 'This is the about page. Hash-based routing is working!' },
+                '/contact': { title: 'Contact Page', content: 'This is the contact page. You can navigate without page reloads.' },
+                '/gallery': { title: 'Gallery Page', content: 'This is the gallery page. Notice how the URL changes but the page doesn\'t reload.' },
+                '/academics': { title: 'Academics Page', content: 'This is the academics page. Perfect for static hosting!' }
+            };
+            
+            const page = pages[hash] || pages['/'];
+            content.innerHTML = `<h2>${page.title}</h2><p>${page.content}</p>`;
+        }
+        
+        // Update content on hash change
+        window.addEventListener('hashchange', updateContent);
+        
+        // Update content on initial load
+        updateContent();
+    </script>
+</body>
+</html>

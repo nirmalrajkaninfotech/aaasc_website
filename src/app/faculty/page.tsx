@@ -4,7 +4,7 @@ import FacultySection from '@/components/FacultySection';
 import UpscrollButton from '@/components/UpscrollButton';
 
 async function getFaculty(): Promise<FacultySectionType> {
- const res = await fetch('https://demoaaasc.kumarantex.com/api/site', {
+ const res = await fetch('https://serveraasc.veetusaapadu.in/api/site', {
   cache: 'default' // or simply omit the cache option
 });
   if (!res.ok) throw new Error('Failed to fetch site settings');

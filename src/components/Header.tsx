@@ -1,12 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
-// Removed framer-motion animations
 import { SiteSettings } from '@/types';
 import ComponentHeader from './ComponentHeader';
-import { usePathname } from 'next/navigation';
+import { HashLink } from './HashRouter';
 
 interface HeaderProps {
   siteSettings: SiteSettings;
@@ -16,7 +13,7 @@ export default function Header({ siteSettings }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
-  const pathname = usePathname();
+  const [currentPath, setCurrentPath] = useState('/');
 
   if (!siteSettings) return null;
 
@@ -30,10 +27,21 @@ export default function Header({ siteSettings }: HeaderProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Track current hash path
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+    const updatePath = () => {
+      const hash = window.location.hash.slice(1) || '/';
+      setCurrentPath(hash);
+      setIsMobileMenuOpen(false);
+    };
+
+    updatePath();
+    window.addEventListener('hashchange', updatePath);
+    
+    return () => {
+      window.removeEventListener('hashchange', updatePath);
+    };
+  }, []);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -71,9 +79,9 @@ export default function Header({ siteSettings }: HeaderProps) {
           <div className="flex items-center justify-between h-12 lg:h-14">
             {/* Logo + Title - Removed */}
             <div className="flex-shrink-0">
-              <Link href="/" className="flex items-center">
+              <HashLink to="/" className="flex items-center">
                 {/* Logo image can be added here in the future */}
-              </Link>
+              </HashLink>
             </div>
 
             {/* Desktop Navigation */}
@@ -129,7 +137,7 @@ export default function Header({ siteSettings }: HeaderProps) {
           <MobileMenu 
             siteSettings={siteSettings} 
             onClose={toggleMobileMenu} 
-            pathname={pathname}
+            currentPath={currentPath}
           />
         )}
       </header>
@@ -139,19 +147,32 @@ export default function Header({ siteSettings }: HeaderProps) {
 
 // Desktop Navigation Link Component
 function NavLink({ href, label }: { href: string; label: string }) {
-  const pathname = usePathname();
-  // More flexible pathname matching to handle trailing slashes and partial matches
-  const isActive = pathname === href || 
-                   pathname === href + '/' || 
-                   (href !== '/' && pathname.startsWith(href + '/')) ||
-                   (href === '/' && pathname === '/');
-  
+  const [currentPath, setCurrentPath] = useState('/');
 
+  useEffect(() => {
+    const updatePath = () => {
+      const hash = window.location.hash.slice(1) || '/';
+      setCurrentPath(hash);
+    };
+
+    updatePath();
+    window.addEventListener('hashchange', updatePath);
+    
+    return () => {
+      window.removeEventListener('hashchange', updatePath);
+    };
+  }, []);
+
+  // More flexible pathname matching to handle trailing slashes and partial matches
+  const isActive = currentPath === href || 
+                   currentPath === href + '/' || 
+                   (href !== '/' && currentPath.startsWith(href + '/')) ||
+                   (href === '/' && currentPath === '/');
   
   return (
     <div>
-      <Link
-        href={href}
+      <HashLink
+        to={href}
         className={`relative px-3 py-1.5 font-serif text-sm transition-all duration-300 rounded-xl group ${
           isActive 
             ? 'text-white bg-[#F99D1C] shadow-lg shadow-[#F99D1C]/25' 
@@ -162,7 +183,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
         {!isActive && (
           <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-3/4 group-hover:-translate-x-1/2" />
         )}
-      </Link>
+      </HashLink>
     </div>
   );
 }
@@ -199,8 +220,8 @@ function DropdownMenu({
           <div className="py-2">
             {link.subLinks.map((subLink: any, subIndex: number) => (
               <div key={subIndex}>
-                <Link
-                  href={subLink.href}
+                <HashLink
+                  to={subLink.href}
                   className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200 group text-sm font-serif"
                   onClick={() => onToggle(-1)}
                 >
@@ -208,7 +229,7 @@ function DropdownMenu({
                     <span className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                     {subLink.label}
                   </div>
-                </Link>
+                </HashLink>
               </div>
             ))}
           </div>
@@ -222,13 +243,13 @@ function DropdownMenu({
 interface MobileMenuProps {
   siteSettings: SiteSettings;
   onClose: () => void;
-  pathname: string;
+  currentPath: string;
 }
 
 function MobileMenu({ 
   siteSettings, 
   onClose,
-  pathname
+  currentPath
 }: MobileMenuProps) {
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
 
@@ -282,14 +303,14 @@ function MobileMenu({
                     {openSubMenu === index && (
                       <div className="pl-4 space-y-1 overflow-hidden">
                         {link.subLinks.map((subLink: any, subIndex: number) => {
-                          const isSubLinkActive = pathname === subLink.href || 
-                                               pathname === subLink.href + '/' || 
-                                               (subLink.href !== '/' && pathname.startsWith(subLink.href + '/')) ||
-                                               (subLink.href === '/' && pathname === '/');
+                          const isSubLinkActive = currentPath === subLink.href || 
+                                               currentPath === subLink.href + '/' || 
+                                               (subLink.href !== '/' && currentPath.startsWith(subLink.href + '/')) ||
+                                               (subLink.href === '/' && currentPath === '/');
                           return (
                             <div key={subIndex}>
-                              <Link
-                                href={subLink.href}
+                              <HashLink
+                                to={subLink.href}
                                 onClick={onClose}
                                 className={`block p-3 rounded-xl transition-all duration-200 font-serif text-base ${
                                   isSubLinkActive
@@ -305,7 +326,7 @@ function MobileMenu({
                                   }`} />
                                   {subLink.label}
                                 </div>
-                              </Link>
+                              </HashLink>
                             </div>
                           );
                         })}
@@ -314,20 +335,20 @@ function MobileMenu({
                   </div>
                 ) : (
                   <div>
-                    <Link
-                      href={link.href}
+                    <HashLink
+                      to={link.href}
                       onClick={onClose}
                       className={`block p-3 rounded-xl transition-all duration-200 font-serif text-base ${
-                        pathname === link.href || 
-                        pathname === link.href + '/' || 
-                        (link.href !== '/' && pathname.startsWith(link.href + '/')) ||
-                        (link.href === '/' && pathname === '/')
-                          ? 'text-white bg-[#F99D1C] shadow-lg shadow-[#F99D1C]/25'
+                        currentPath === link.href || 
+                        currentPath === link.href + '/' || 
+                        (link.href !== '/' && currentPath.startsWith(link.href + '/')) ||
+                        (link.href === '/' && currentPath === '/')
+                          ? 'text-white bg-[#F99D1C] shadow-lg shadow-lg shadow-[#F99D1C]/25'
                           : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
                       }`}
                     >
                       {link.label}
-                    </Link>
+                    </HashLink>
                   </div>
                 )}
               </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { HashLink } from '@/components/HashRouter';
 import Image from 'next/image';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
@@ -21,7 +21,7 @@ export default function CollageCard({ collage }: CollageCardProps) {
   };
 
   return (
-    <Link href={`/gallery/${collage.id}`} className="block h-full group relative">
+    <HashLink to={`/gallery/${collage.id}`} className="block h-full group relative">
       <div className="h-full flex flex-col bg-white/95 dark:bg-gray-800/95 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-500/30 transition-all duration-500 group-hover:-translate-y-1">
         {/* Image Container */}
         <div className="aspect-video relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 overflow-hidden">
@@ -99,6 +99,6 @@ export default function CollageCard({ collage }: CollageCardProps) {
           </div>
         </div>
       </div>
-    </Link>
+    </HashLink>
   );
 }

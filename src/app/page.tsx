@@ -1,76 +1,61 @@
-import HeroSection from '@/components/HeroSection';
-import AboutSection from '@/components/AboutSection';
-import PlacementsSection from '@/components/PlacementsSection';
-import AchievementsSection from '@/components/AchievementsSection';
-import FacilitiesSection from '@/components/FacilitiesSection';
-import FeaturedCollages from '@/components/FeaturedCollages';
-import GallerySection from '@/components/GallerySection';
-import { Collage, SiteSettings } from '@/types';
-import Carousel from '@/components/Carousel';
-import Image from 'next/image';
-import { getSiteSettings, getCollages } from '@/lib/api-utils';
+'use client';
 
-export default async function Home() {
-  const [siteSettings, collages] = await Promise.all([
-    getSiteSettings(),
-    getCollages()
-  ]);
+import HashRouter from '@/components/HashRouter';
 
-  // Get enabled sections from homepage layout (with fallback)
-  const enabledSections = siteSettings.homepage?.sections
-    ?.filter(section => section.enabled)
-    ?.sort((a, b) => a.order - b.order) || [];
+// Import all your page components
+import HomePage from '@/components/pages/HomePage';
+import AboutPage from '@/components/pages/AboutPage';
+import AcademicsPage from '@/components/pages/AcademicsPage';
+import FacultiesPage from '@/components/pages/FacultiesPage';
+import GalleryPage from '@/components/pages/GalleryPage';
+import ContactPage from '@/components/pages/ContactPage';
+import PlacementsPage from '@/components/pages/PlacementsPage';
+import AchievementsPage from '@/components/pages/AchievementsPage';
+import AdmissionFormsPage from '@/components/pages/AdmissionFormsPage';
+import AlumniPage from '@/components/pages/AlumniPage';
+import CategoriesPage from '@/components/pages/CategoriesPage';
+import ExamCellPage from '@/components/pages/ExamCellPage';
+import IQACPage from '@/components/pages/IQACPage';
+import LoginPage from '@/components/pages/LoginPage';
+import OthersPage from '@/components/pages/OthersPage';
+import AdminPage from '@/components/pages/AdminPage';
+import CollageDetailPage from '@/components/pages/CollageDetailPage';
 
-  // Function to render each section based on its ID
-  const renderSection = (sectionId: string) => {
-    switch (sectionId) {
-      case 'hero':
-        return <HeroSection key="hero" hero={siteSettings.hero} />;
-      case 'about':
-        return <AboutSection key="about" about={siteSettings.about} />;
-      case 'placements':
-        return <PlacementsSection key="placements" placements={siteSettings.placements} />;
-      case 'achievements':
-        return <AchievementsSection key="achievements" achievements={siteSettings.achievements} />;
-      case 'facilities':
-        return <FacilitiesSection key="facilities" facilities={siteSettings.facilities} />;
-      case 'featured-collages':
-        return <FeaturedCollages key="featured-collages" collages={collages} />;
-      case 'gallery':
-        return <GallerySection key="gallery" items={siteSettings.gallery?.items || []} />;
-      case 'carousel':
-        return <Carousel key="carousel" isTamil={false} items={siteSettings.carousel?.items || []} />;
-      default:
-        return null;
-    }
-  };
+export default function App() {
+  const routes = [
+    { path: '/', component: <HomePage /> },
+    { path: '/about', component: <AboutPage /> },
+    { path: '/academics', component: <AcademicsPage /> },
+    { path: '/facilities', component: <FacultiesPage /> },
+    { path: '/faculty', component: <FacultiesPage /> },
+    { path: '/gallery', component: <GalleryPage /> },
+    // Dynamic gallery detail page (hash-based): #/gallery/123
+    { path: '/gallery/:id', component: ({ id }: { id: string }) => <CollageDetailPage id={id} /> },
+    { path: '/contact', component: <ContactPage /> },
+    { path: '/placements', component: <PlacementsPage /> },
+    { path: '/achievements', component: <AchievementsPage /> },
+    { path: '/admission-forms', component: <AdmissionFormsPage /> },
+    { path: '/alumni-association', component: <AlumniPage /> },
+    { path: '/categories', component: <CategoriesPage /> },
+    { path: '/exam-cell', component: <ExamCellPage /> },
+    { path: '/iqac', component: <IQACPage /> },
+    { path: '/login', component: <LoginPage /> },
+    { path: '/others', component: <OthersPage /> },
+    { path: '/admin', component: <AdminPage /> },
+  ];
 
-  return (
-    <div className="min-h-screen">
-      {/* Homepage Image Section */}
-      {siteSettings.homepage_image?.image && (
-        <section className="w-full flex flex-col items-center justify-center bg-gray-100 py-8">
-          <div className="relative w-full max-w-4xl h-80 rounded overflow-hidden shadow-lg">
-            <Image
-              src={siteSettings.homepage_image.image}
-              alt={siteSettings.homepage_image.title || 'Homepage Image'}
-              fill
-              className="object-contain"
-              unoptimized={process.env.NODE_ENV !== 'production'}
-            />
-          </div>
-          {(siteSettings.homepage_image.title || siteSettings.homepage_image.description) && (
-            <div className="mt-4 text-center">
-              {siteSettings.homepage_image.title && <h2 className="text-2xl font-bold mb-2">{siteSettings.homepage_image.title}</h2>}
-              {siteSettings.homepage_image.description && <p className="text-gray-600">{siteSettings.homepage_image.description}</p>}
-            </div>
-          )}
-        </section>
-      )}
-
-      <main>
-        {enabledSections.map(section => renderSection(section.id))}
-      </main>
+  const fallback = (
+    <div className="container mx-auto px-4 py-8 text-center">
+      <h1 className="text-4xl font-bold mb-4">Page Not Found</h1>
+      <p className="text-gray-600 mb-8">The page you're looking for doesn't exist.</p>
+      <button 
+        onClick={() => window.location.hash = '/'}
+        className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        Go Home
+      </button>
     </div>
   );
+
+  return <HashRouter routes={routes} fallback={fallback} />;
 }

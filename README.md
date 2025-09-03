@@ -42,10 +42,10 @@ A fully customizable collage website built with Next.js 13+, TypeScript, and Tai
    ```
 
 3. **Open your browser:**
-   Navigate to [https://demoaaasc.kumarantex.com](https://demoaaasc.kumarantex.com)
+   Navigate to [https://serveraasc.veetusaapadu.in](https://serveraasc.veetusaapadu.in)
 
 4. **Access the admin panel:**
-   Go to [https://demoaaasc.kumarantex.com/admin](https://demoaaasc.kumarantex.com/admin) to manage content
+   Go to [https://serveraasc.veetusaapadu.in/admin](https://serveraasc.veetusaapadu.in/admin) to manage content
 
 ## Data Structure
 

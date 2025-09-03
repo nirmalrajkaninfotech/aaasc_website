@@ -63,7 +63,7 @@ export default function Facilities() {
 
   const fetchFacilities = async () => {
     try {
-      const response = await fetch('demoaaasc.kumarantex.com/api/site');
+      const response = await fetch('serveraasc.veetusaapadu.in/api/site');
       if (response.ok) {
         const data = await response.json();
         if (data.facilities) {
@@ -88,7 +88,7 @@ export default function Facilities() {
   const handleSaveFacilities = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch('demoaaasc.kumarantex.com/api/site', {
+      const response = await fetch('serveraasc.veetusaapadu.in/api/site', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ facilities }),

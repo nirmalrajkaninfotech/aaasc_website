@@ -1,8 +1,7 @@
 import { AcademicSection, Collage, SiteSettings } from '@/types/index';
 
-export const API_BASE_URL = typeof window !== 'undefined'
-  ? window.location.origin
-  : (process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`);
+// For pure client-side SPA, always use the external API URL
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://serveraasc.veetusaapadu.in';
 
 type AdmissionForm = {
   id: string;
@@ -12,19 +11,14 @@ type AdmissionForm = {
 };
 
 export async function fetchAPI<T>(endpoint: string, fallback?: T): Promise<T> {
-    // Detect build-time and avoid hitting internal APIs when possible
-    const isBuildTime = typeof window === 'undefined' && (
-      process.env.BUILD_TIME === '1' ||
-      (process.env.NEXT_PHASE && process.env.NEXT_PHASE.includes('phase-production-build'))
-    );
-
-    if (isBuildTime && typeof fallback !== 'undefined') {
-      return fallback;
-    }
-
     try {
         const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-            // Cache for static export, no revalidate for static builds
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // Enable CORS for cross-origin requests
+            mode: 'cors',
         });
 
         if (!res.ok) {

@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+'use client';
+
 import "./globals.css";
 import HeaderWrapper from '@/components/HeaderWrapper';
 import Footer from '@/components/Footer';
 import type { SiteSettings, Logo } from '@/types';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import DisableRightClick from '@/components/DisableRightClick';
-// Import ErrorBoundary directly since we've created it
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Helper to safely get the logo URL
@@ -75,169 +75,72 @@ const defaultSiteSettings: SiteSettings = {
 
 import { getSiteSettings as fetchSiteSettings } from '@/lib/api-utils';
 
-async function getSiteSettings(): Promise<SiteSettings> {
-  try {
-    // Try to fetch real site settings
-    const settings = await fetchSiteSettings();
-    return settings;
-  } catch (error) {
-    console.error('Error fetching site settings in layout:', error);
-    // Fallback to default settings
-    return defaultSiteSettings;
-  }
-}
-
-// Generate metadata dynamically based on site settings
-export async function generateMetadata(): Promise<Metadata> {
-  // Use default settings for metadata to avoid fetch during build
-  const settings = defaultSiteSettings;
-  const title = settings.siteTitle || "AAASC - Annai Arts and Science College";
-  const description = settings.description || "Excellence in Education";
-  const logoUrl = getLogoUrl(settings.logo);
-  
-  // In production, we'll use the defaults to avoid build-time fetches
-  // In development, you might want to fetch the actual settings
-  if (process.env.NODE_ENV === 'development') {
-    try {
-      const dynamicSettings = await getSiteSettings();
-      if (dynamicSettings) {
-        const dynamicTitle = dynamicSettings.siteTitle || title;
-        const dynamicDescription = dynamicSettings.description || description;
-        const dynamicLogoUrl = getLogoUrl(dynamicSettings.logo);
-        
-        return {
-          title: {
-            default: dynamicTitle,
-            template: `%s | ${dynamicTitle.split(' - ')[0]}`
-          },
-          description: dynamicDescription,
-          keywords: ["college", "education", "arts", "science", "AAASC"],
-          authors: [{ name: "AAASC" }],
-          themeColor: [
-            { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-            { media: "(prefers-color-scheme: dark)", color: "#1a202c" },
-          ],
-          viewport: {
-            width: "device-width",
-            initialScale: 1,
-            maximumScale: 5,
-          },
-          robots: {
-            index: true,
-            follow: true,
-            googleBot: {
-              index: true,
-              follow: true,
-              'max-video-preview': -1,
-              'max-image-preview': 'large',
-              'max-snippet': -1,
-            },
-          },
-          openGraph: {
-            title: dynamicTitle,
-            description: dynamicDescription,
-            url: process.env.NEXT_PUBLIC_SITE_URL || "https://aaasc.edu.in",
-            siteName: dynamicTitle.split(' - ')[0],
-            images: [
-              {
-                url: dynamicLogoUrl,
-                width: 1200,
-                height: 630,
-                alt: getLogoAlt(dynamicSettings.logo),
-              },
-            ],
-            locale: "en_US",
-            type: "website",
-          },
-          twitter: {
-            card: "summary_large_image",
-            title: dynamicTitle,
-            description: dynamicDescription,
-            images: [dynamicLogoUrl],
-            creator: "@aaasc",
-          },
-          icons: {
-            icon: '/favicon.ico',
-            shortcut: '/favicon-16x16.png',
-            apple: '/apple-touch-icon.png',
-          },
-        };
-      }
-    } catch (error) {
-      console.error('Error fetching site settings for metadata:', error);
-    }
-  }
-  
-  return {
-    title: {
-      default: title,
-      template: `%s | ${title.split(' - ')[0]}`
-    },
-    description: description,
-    keywords: ["college", "education", "arts", "science", "AAASC"],
-    authors: [{ name: "AAASC" }],
-    themeColor: [
-      { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-      { media: "(prefers-color-scheme: dark)", color: "#1a202c" },
-    ],
-    viewport: {
-      width: "device-width",
-      initialScale: 1,
-      maximumScale: 5,
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-    openGraph: {
-      title: title,
-      description: description,
-      url: process.env.NEXT_PUBLIC_SITE_URL || "https://aaasc.edu.in",
-      siteName: title.split(' - ')[0],
-      images: [
-        {
-          url: logoUrl,
-          width: 1200,
-          height: 630,
-          alt: getLogoAlt(settings.logo),
-        },
-      ],
-      locale: "en_US",
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: title,
-      description: description,
-      images: [logoUrl],
-      creator: "@aaasc",
-    },
-    icons: {
-      icon: '/favicon.ico',
-      shortcut: '/favicon-16x16.png',
-      apple: '/apple-touch-icon.png',
-    },
-  };
-}
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Use static settings for static export
-  const siteSettings = await getSiteSettings();
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSiteSettings);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Determine if this is an admin route
-  const isAdminRoute = false; // This will be determined client-side by HeaderWrapper
-  
+  useEffect(() => {
+    // Set document metadata
+    const updateMetadata = (settings: SiteSettings) => {
+      const title = settings.siteTitle || "AAASC - Annai Arts and Science College";
+      const description = settings.description || "Excellence in Education";
+
+      document.title = title;
+
+      // Update meta description
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.setAttribute('name', 'description');
+        document.head.appendChild(metaDescription);
+      }
+      metaDescription.setAttribute('content', description);
+
+      // Update favicon
+      let favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+      if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        document.head.appendChild(favicon);
+      }
+      favicon.href = '/favicon.ico';
+    };
+
+    // Fetch site settings on client side
+    const loadSiteSettings = async () => {
+      try {
+        const settings = await fetchSiteSettings();
+        setSiteSettings(settings);
+        updateMetadata(settings);
+      } catch (error) {
+        console.error('Error fetching site settings:', error);
+        setSiteSettings(defaultSiteSettings);
+        updateMetadata(defaultSiteSettings);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSiteSettings();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <html lang="en">
+        <body className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-gray-50 flex flex-col">
@@ -247,7 +150,7 @@ export default async function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-            {!isAdminRoute && <Footer siteSettings={siteSettings} />}
+            <Footer siteSettings={siteSettings} />
           </DisableRightClick>
         </ErrorBoundary>
       </body>
