@@ -48,7 +48,16 @@ export default function LoginPage() {
       
       const responseData = await res.json();
       console.log('Login successful:', responseData);
-      router.replace('/admin');
+      const handleLogin = async () => {
+        try {
+          // After successful authentication:
+          localStorage.setItem('adminToken', responseData.token); // Replace with actual token
+          window.location.href = '/admin';
+        } catch (error) {
+          // Handle login error
+        }
+      };
+      handleLogin();
     } catch (err: any) {
       console.error('Login error details:', err);
       setError(err.message || 'Login failed');
@@ -100,5 +109,3 @@ export default function LoginPage() {
     </main>
   );
 }
-
-

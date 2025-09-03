@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect, useState, ReactNode } from 'react';
+import { useEffect, useState, ReactNode, ComponentType, ReactElement } from 'react';
 
 interface Route {
   path: string;
-  component: ReactNode | ((params: Record<string, string>) => ReactNode);
+  // Accept either a ready element (ReactNode) or a component that will be rendered
+  // We treat any function as a React component and render it with JSX to respect Rules of Hooks
+  component?: ReactNode | ComponentType<{ params?: Record<string, string> }>;
+  redirectTo: string; // No longer optional
+  requiresAuth?: boolean; // Add auth requirement flag
 }
 
 interface HashRouterProps {
@@ -37,20 +41,65 @@ export default function HashRouter({ routes, fallback }: HashRouterProps) {
     };
   }, []);
 
+  // Handle redirects FIRST - before any rendering
+  useEffect(() => {
+    // Check for exact match redirect
+    const exactRedirect = routes.find(
+      r => r.path === currentPath && r.redirectTo
+    );
+    
+    if (exactRedirect) {
+      window.location.href = exactRedirect.redirectTo;
+      return;
+    }
+
+    // Check for parameterized match redirect
+    for (const route of routes) {
+      if (!route.redirectTo) continue;
+      
+      const params = matchPath(route.path, currentPath);
+      if (params) {
+        window.location.href = route.redirectTo;
+        return;
+      }
+    }
+  }, [currentPath, routes]);
+
+  // If we're redirecting, don't render anything
+  if (routes.some(route => {
+    if (!route.redirectTo) return false;
+    return route.path === currentPath || matchPath(route.path, currentPath);
+  })) {
+    return null;
+  }
+
+  // Helper to render a route component properly without invoking it directly
+  const renderRoute = (route: Route, params: Record<string, string> = {}) => {
+    if (!route.component) {
+      return null;
+    }
+    if (typeof route.component === 'function') {
+      const Comp = route.component as ComponentType<{ params?: Record<string, string> }>;
+      return <Comp params={params} />;
+    }
+    return <>{route.component}</>;
+  };
+
   // Try to find an exact match first
-  const exactRoute = routes.find(route => route.path === currentPath);
+  const exactRoute = routes.find(
+    route => route.path === currentPath && !route.redirectTo
+  );
   if (exactRoute) {
-    return <>{typeof exactRoute.component === 'function' ? (exactRoute.component as (p: Record<string, string>) => ReactNode)({}) : exactRoute.component}</>;
+    return renderRoute(exactRoute);
   }
 
   // Try parameterized match like /gallery/:id
   for (const route of routes) {
+    if (route.redirectTo) continue;
+    
     const params = matchPath(route.path, currentPath);
     if (params) {
-      if (typeof route.component === 'function') {
-        return <>{(route.component as (p: Record<string, string>) => ReactNode)(params)}</>;
-      }
-      return <>{route.component}</>;
+      return renderRoute(route, params);
     }
   }
 
@@ -95,7 +144,7 @@ function matchPath(pattern: string, path: string): Record<string, string> | null
 
   const params: Record<string, string> = {};
 
-  for (let i = 0; i < patternSegments.length; i++) {
+  for (let i = 0; i <patternSegments.length; i++) {
     const p = patternSegments[i];
     const s = pathSegments[i];
 

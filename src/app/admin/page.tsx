@@ -3,6 +3,8 @@ import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -95,6 +97,7 @@ interface AdminPlacement {
 
 export default function AdminPage() {
     useDisableRightClick();
+    const router = useRouter();
 
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
@@ -1078,7 +1081,7 @@ const apiurl = "https://serveraasc.veetusaapadu.in";
       try {
         await fetch(apiurl+'/api/auth/logout', { method: 'POST' });
       } finally {
-        window.location.href = '/login';
+        router.push('/login');
       }
     };
 
@@ -1202,7 +1205,7 @@ const apiurl = "https://serveraasc.veetusaapadu.in";
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
                     <div className="flex items-center gap-3">
-                        <a href="/" className="text-sm text-blue-600 hover:underline">Back to site</a>
+                        <Link href="/" className="text-sm text-blue-600 hover:underline">Back to site</Link>
                         <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Logout</button>
                     </div>
                 </div>
@@ -1228,12 +1231,12 @@ const apiurl = "https://serveraasc.veetusaapadu.in";
                     >
                         About
                     </button>
-                    <a
+                    <Link
                         href="/admin/academics"
                         className="px-4 py-2 rounded text-gray-500 hover:bg-gray-200 hover:text-gray-700"
                     >
                         Academics
-                    </a>
+                    </Link>
                     <button
                         onClick={() => setActiveTab('placements')}
                         className={`px-4 py-2 rounded ${activeTab === 'placements' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
@@ -1270,12 +1273,12 @@ const apiurl = "https://serveraasc.veetusaapadu.in";
                     >
                         Carousel
                     </button>
-                    <a
+                    <Link
                         href="/admin/gallery"
                         className="px-4 py-2 rounded text-gray-500 hover:bg-gray-200 hover:text-gray-700"
                     >
                         Gallery
-                    </a>
+                    </Link>
                     <button
                         onClick={() => setActiveTab('navigation')}
                         className={`px-4 py-2 rounded ${activeTab === 'navigation' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}

@@ -1,6 +1,7 @@
 'use client';
 
 import HashRouter from '@/components/HashRouter';
+import AuthGuard from '@/components/AuthGuard';
 
 // Import all your page components
 import HomePage from '@/components/pages/HomePage';
@@ -20,8 +21,14 @@ import LoginPage from '@/components/pages/LoginPage';
 import OthersPage from '@/components/pages/OthersPage';
 import AdminPage from '@/components/pages/AdminPage';
 import CollageDetailPage from '@/components/pages/CollageDetailPage';
+import { useEffect } from 'react';
+
 
 export default function App() {
+  const GalleryDetailRoute = ({ params }: { params?: { id?: string } }) => (
+    <CollageDetailPage id={params?.id ?? ''} />
+  );
+
   const routes = [
     { path: '/', component: <HomePage /> },
     { path: '/about', component: <AboutPage /> },
@@ -30,7 +37,7 @@ export default function App() {
     { path: '/faculty', component: <FacultiesPage /> },
     { path: '/gallery', component: <GalleryPage /> },
     // Dynamic gallery detail page (hash-based): #/gallery/123
-    { path: '/gallery/:id', component: ({ id }: { id: string }) => <CollageDetailPage id={id} /> },
+    { path: '/gallery/:id', component: GalleryDetailRoute },
     { path: '/contact', component: <ContactPage /> },
     { path: '/placements', component: <PlacementsPage /> },
     { path: '/achievements', component: <AchievementsPage /> },
@@ -41,7 +48,15 @@ export default function App() {
     { path: '/iqac', component: <IQACPage /> },
     { path: '/login', component: <LoginPage /> },
     { path: '/others', component: <OthersPage /> },
-    { path: '/admin', component: <AdminPage /> },
+    // Use real server route for admin dashboard
+    { 
+      path: '/admin', 
+      component: (
+        <AuthGuard>
+          <AdminPage />
+        </AuthGuard>
+      )
+    },
   ];
 
   const fallback = (

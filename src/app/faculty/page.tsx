@@ -1,25 +1,15 @@
-import { API_BASE_URL } from '@/config';
-import { FacultySection as FacultySectionType } from '@/types';
-import FacultySection from '@/components/FacultySection';
-import UpscrollButton from '@/components/UpscrollButton';
+'use client';
 
-async function getFaculty(): Promise<FacultySectionType> {
- const res = await fetch('https://serveraasc.veetusaapadu.in/api/site', {
-  cache: 'default' // or simply omit the cache option
-});
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  const data = await res.json();
-  return data.faculty;
-}
+import { useEffect } from 'react';
 
-export default async function FacultyPage() {
-  const faculty = await getFaculty();
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <main className="flex-1">
-        <FacultySection faculty={faculty} />
-      </main>
-      <UpscrollButton />
-    </div>
-  );
+export default function FacultyPage() {
+  useEffect(() => {
+    window.location.hash = '/faculty';
+    // If served without SPA shell, also push to root so HashRouter takes over
+    if (window.location.pathname !== '/') {
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
+  return null;
 }

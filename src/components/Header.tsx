@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { SiteSettings } from '@/types';
 import ComponentHeader from './ComponentHeader';
 import { HashLink } from './HashRouter';
+import Link from 'next/link';
 
 interface HeaderProps {
   siteSettings: SiteSettings;
@@ -63,6 +64,12 @@ export default function Header({ siteSettings }: HeaderProps) {
     setActiveDropdown(activeDropdown === index ? null : index);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    // Force full page reload to clear all states
+    window.location.href = '/login';
+  };
+
   return (
     <div className="relative">
    
@@ -100,7 +107,7 @@ export default function Header({ siteSettings }: HeaderProps) {
                 )
               )}
 
-              {/* Admin Button 
+              {/* Admin Button */}
               <div className="ml-4">
                 <Link
                   href="/admin"
@@ -110,7 +117,15 @@ export default function Header({ siteSettings }: HeaderProps) {
                   <AdminIcon />
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Link>
-              </div>*/}
+              </div>
+
+              {/* Logout Button */}
+              <button 
+                onClick={handleLogout}
+                className="text-white hover:text-gray-200"
+              >
+                Logout
+              </button>
             </nav>
 
             {/* Mobile Menu Button */}
@@ -354,7 +369,7 @@ function MobileMenu({
               </div>
             ))}
 
-            {/* Mobile Admin Button 
+            {/* Mobile Admin Button */}
             <div className="pt-4 border-t border-gray-200">
               <Link
                 href="/admin"
@@ -364,7 +379,15 @@ function MobileMenu({
                 <AdminIcon />
                 <span>Admin Panel</span>
               </Link>
-            </div> */}
+            </div>
+
+            {/* Mobile Logout Button */}
+            <button 
+              onClick={handleLogout}
+              className="text-white hover:text-gray-200"
+            >
+              Logout
+            </button>
           </nav>
         </div>
       </div>

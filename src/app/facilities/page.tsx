@@ -1,16 +1,14 @@
-import FacilitiesSection from '@/components/FacilitiesSection';
-import { getSiteSettings } from '@/lib/api-utils';
-import UpscrollButton from '@/components/UpscrollButton';
+'use client';
 
-export default async function FacilitiesPage() {
-  const siteSettings = await getSiteSettings();
+import { useEffect } from 'react';
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <main className="flex-1">
-        <FacilitiesSection facilities={siteSettings.facilities || []} />
-      </main>
-      <UpscrollButton />
-    </div>
-  );
+export default function FacilitiesPage() {
+  useEffect(() => {
+    window.location.hash = '/facilities';
+    if (window.location.pathname !== '/') {
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
+  return null;
 }
