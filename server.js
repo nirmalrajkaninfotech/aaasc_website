@@ -1,5 +1,6 @@
 const { createServer } = require('http');
 const { parse } = require('url');
+const path = require('path');
 const next = require('next');
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -7,10 +8,13 @@ const hostname = process.env.HOST || '0.0.0.0';
 const port = parseInt(process.env.PORT, 10) || 3000;
 
 // Create the Next.js app
-const app = next({ 
-  dev, 
-  hostname, 
-  port
+// Explicitly set the project directory and config to avoid cwd issues on cPanel
+const app = next({
+  dev,
+  hostname,
+  port,
+  dir: path.resolve(__dirname),
+  conf: require('./next.config.js'),
 });
 const handle = app.getRequestHandler();
 
@@ -21,13 +25,24 @@ app.prepare().then(() => {
       const parsedUrl = parse(req.url, true);
       const { pathname, query } = parsedUrl;
 
-      // Handle requests for specific pages or API routes
-      if (pathname.startsWith('/_next') || pathname.startsWith('/__next')) {
+      // API-only mode: only handle Next.js API routes
+      if (pathname.startsWith('/api')) {
         await handle(req, res, parsedUrl);
-      } else {
-        // Handle all other requests with Next.js
-        await handle(req, res, parsedUrl);
+        return;
       }
+
+      // Health check endpoint for platform monitoring
+      if (pathname === '/healthz') {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('ok');
+        return;
+      }
+
+      // Everything else: 404 to indicate no pages are served
+      res.statusCode = 404;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Not Found');
     } catch (err) {
       console.error('Error occurred handling', req.url, err);
       res.statusCode = 500;
