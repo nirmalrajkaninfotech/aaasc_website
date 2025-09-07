@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { corsHeaders } from '@/lib/cors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const dataFilePath = path.join(process.cwd(), 'data/academics.json');
+
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
 
 export async function GET() {
   try {
@@ -15,7 +21,7 @@ export async function GET() {
         subtitle: 'Explore our diverse range of academic programs',
         programs: [],
         additionalInfo: ''
-      });
+      }, { headers: corsHeaders });
     }
     
     const data = fs.readFileSync(dataFilePath, 'utf-8');
@@ -45,12 +51,12 @@ export async function GET() {
         .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
     };
     
-    return NextResponse.json(publicData);
+    return NextResponse.json(publicData, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching public academics data:', error);
     return NextResponse.json(
       { error: 'Failed to fetch academics data' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { AcademicSection } from '@/types';
+import { corsHeaders } from '@/lib/cors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,6 +39,11 @@ const writeData = (data: AcademicSection) => {
   }
 };
 
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export async function GET() {
   try {
     const data = readData();
@@ -50,14 +56,14 @@ export async function GET() {
         additionalInfo: ''
       };
       writeData(defaultData);
-      return NextResponse.json(defaultData);
+      return NextResponse.json(defaultData, { headers: corsHeaders });
     }
-    return NextResponse.json(data);
+    return NextResponse.json(data, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching academics data:', error);
     return NextResponse.json(
       { error: 'Failed to fetch academics data' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
@@ -92,12 +98,12 @@ export async function POST(request: Request) {
       throw new Error('Failed to save data');
     }
     
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error saving academics data:', error);
     return NextResponse.json(
       { error: 'Failed to save academics data' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

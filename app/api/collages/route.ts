@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { Collage } from '@/types';
+import { corsHeaders } from '@/lib/cors';
 
 const collagesPath = path.join(process.cwd(), 'data', 'collages.json');
 
@@ -21,10 +22,15 @@ function writeCollages(collages: Collage[]): void {
 export async function GET() {
   try {
     const collages = readCollages();
-    return NextResponse.json(collages);
+    return NextResponse.json(collages, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to read collages' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to read collages' }, { status: 500, headers: corsHeaders });
   }
+}
+
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
 }
 
 export async function POST(request: NextRequest) {
@@ -33,7 +39,7 @@ export async function POST(request: NextRequest) {
     const { title, description, category, featured, tags, date, images } = body;
 
     if (!title || !category || !images || !Array.isArray(images)) {
-      return NextResponse.json({ error: 'Title, category, and images are required' }, { status: 400 });
+      return NextResponse.json({ error: 'Title, category, and images are required' }, { status: 400, headers: corsHeaders });
     }
 
     const collages = readCollages();
@@ -53,9 +59,9 @@ export async function POST(request: NextRequest) {
     collages.push(newCollage);
     writeCollages(collages);
 
-    return NextResponse.json(newCollage, { status: 201 });
+    return NextResponse.json(newCollage, { status: 201, headers: corsHeaders });
   } catch (error) {
     console.error('Error creating collage:', error);
-    return NextResponse.json({ error: 'Failed to create collage' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create collage' }, { status: 500, headers: corsHeaders });
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { corsHeaders } from '@/lib/cors';
 
 interface AdmissionForm {
   id: string;
@@ -29,6 +30,11 @@ function writeAdmissionForms(forms: AdmissionForm[]): void {
     fs.writeFileSync(admissionFormsPath, JSON.stringify(forms, null, 2));
 }
 
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export async function PUT(
     request: NextRequest,
     { params }: { params: { id: string } }
@@ -38,16 +44,22 @@ export async function PUT(
         const formIndex = forms.findIndex((form: AdmissionForm) => form.id === params.id);
         
         if (formIndex === -1) {
-            return NextResponse.json({ error: 'Admission form not found' }, { status: 404 });
+            return NextResponse.json(
+              { error: 'Admission form not found' }, 
+              { status: 404, headers: corsHeaders }
+            );
         }
 
         // Toggle the active status
         forms[formIndex].isActive = !forms[formIndex].isActive;
         writeAdmissionForms(forms);
 
-        return NextResponse.json(forms[formIndex]);
+        return NextResponse.json(forms[formIndex], { headers: corsHeaders });
     } catch (error) {
         console.error('Error toggling admission form:', error);
-        return NextResponse.json({ error: 'Failed to toggle admission form' }, { status: 500 });
+        return NextResponse.json(
+          { error: 'Failed to toggle admission form' }, 
+          { status: 500, headers: corsHeaders }
+        );
     }
 }

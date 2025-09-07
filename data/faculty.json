@@ -1,0 +1,43 @@
+{
+  "title": "Our Faculty",
+  "subtitle": "Meet our dedicated team of educators",
+  "departments": [
+    {
+      "name": "Computer Science",
+      "faculty": [
+        {
+          "id": "fac-1",
+          "name": "Dr. John Doe",
+          "designation": "Professor & Head",
+          "qualification": "Ph.D. in Computer Science",
+          "experience": "15+ years",
+          "email": "john.doe@example.com",
+          "image": "/uploads/faculty/john-doe.jpg"
+        },
+        {
+          "id": "fac-2",
+          "name": "Dr. Jane Smith",
+          "designation": "Associate Professor",
+          "qualification": "Ph.D. in Information Technology",
+          "experience": "12 years",
+          "email": "jane.smith@example.com",
+          "image": "/uploads/faculty/jane-smith.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Commerce",
+      "faculty": [
+        {
+          "id": "fac-3",
+          "name": "Dr. Robert Johnson",
+          "designation": "Professor & Head",
+          "qualification": "Ph.D. in Commerce",
+          "experience": "18+ years",
+          "email": "robert.j@example.com",
+          "image": "/uploads/faculty/robert-j.jpg"
+        }
+      ]
+    }
+  ]
+}

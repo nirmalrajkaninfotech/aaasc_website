@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { corsHeaders } from '@/lib/cors';
 
 interface AdmissionForm {
   id: string;
@@ -40,12 +41,20 @@ function writeAdmissionForms(forms: AdmissionForm[]): void {
     fs.writeFileSync(admissionFormsPath, JSON.stringify(forms, null, 2));
 }
 
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export async function GET() {
     try {
         const forms = readAdmissionForms();
-        return NextResponse.json(forms);
+        return NextResponse.json(forms, { headers: corsHeaders });
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch admission forms' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Failed to fetch admission forms' }, 
+            { status: 500, headers: corsHeaders }
+        );
     }
 }
 
@@ -57,12 +66,18 @@ export async function POST(request: NextRequest) {
         const file = formData.get('file') as File;
 
         if (!title || !file) {
-            return NextResponse.json({ error: 'Title and file are required' }, { status: 400 });
+            return NextResponse.json(
+                { error: 'Title and file are required' }, 
+                { status: 400, headers: corsHeaders }
+            );
         }
 
         // Validate file type
         if (file.type !== 'application/pdf') {
-            return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 400 });
+            return NextResponse.json(
+                { error: 'Only PDF files are allowed' }, 
+                { status: 400, headers: corsHeaders }
+            );
         }
 
         // Generate unique filename
@@ -94,9 +109,12 @@ export async function POST(request: NextRequest) {
         forms.push(newForm);
         writeAdmissionForms(forms);
 
-        return NextResponse.json(newForm);
+        return NextResponse.json(newForm, { headers: corsHeaders });
     } catch (error) {
         console.error('Error uploading admission form:', error);
-        return NextResponse.json({ error: 'Failed to upload admission form' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Failed to upload admission form' }, 
+            { status: 500, headers: corsHeaders }
+        );
     }
 }

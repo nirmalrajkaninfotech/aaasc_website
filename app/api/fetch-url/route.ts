@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { corsHeaders } from '@/lib/cors';
+
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,7 +14,7 @@ export async function GET(request: NextRequest) {
     if (!url) {
       return NextResponse.json(
         { success: 0, message: 'No URL provided' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -18,7 +24,7 @@ export async function GET(request: NextRequest) {
     } catch {
       return NextResponse.json(
         { success: 0, message: 'Invalid URL format' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -51,7 +57,7 @@ export async function GET(request: NextRequest) {
             url: imageMatch ? imageMatch[1] : ''
           }
         }
-      });
+      }, { headers: corsHeaders });
     } catch (error) {
       // Fallback response
       return NextResponse.json({
@@ -63,13 +69,13 @@ export async function GET(request: NextRequest) {
             url: ''
           }
         }
-      });
+      }, { headers: corsHeaders });
     }
   } catch (error) {
     console.error('Fetch URL error:', error);
     return NextResponse.json(
       { success: 0, message: 'Failed to fetch URL metadata' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

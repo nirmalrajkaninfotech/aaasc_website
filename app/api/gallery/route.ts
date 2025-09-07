@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { corsHeaders } from '@/lib/cors';
 
 const sitePath = path.join(process.cwd(), 'data', 'site.json');
 
@@ -31,12 +32,20 @@ function writeGalleryItems(items: any[]): void {
   writeSiteJson(siteData);
 }
 
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export async function GET() {
   try {
     const items = readGalleryItems();
-    return NextResponse.json(items);
+    return NextResponse.json(items, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to read gallery items' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to read gallery items' }, 
+      { status: 500, headers: corsHeaders }
+    );
   }
 }
 
@@ -54,9 +63,12 @@ export async function POST(request: NextRequest) {
     items = items.filter(item => item.id !== newItem.id);
     items.push(newItem);
     writeGalleryItems(items);
-    return NextResponse.json(newItem, { status: 201 });
+    return NextResponse.json(newItem, { status: 201, headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create gallery item' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create gallery item' }, 
+      { status: 500, headers: corsHeaders }
+    );
   }
 }
 
@@ -66,13 +78,19 @@ export async function PUT(request: NextRequest) {
     const items = readGalleryItems();
     const index = items.findIndex(item => item.id === updatedItem.id);
     if (index === -1) {
-      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Item not found' }, 
+        { status: 404, headers: corsHeaders }
+      );
     }
     items[index] = updatedItem;
     writeGalleryItems(items);
-    return NextResponse.json(updatedItem);
+    return NextResponse.json(updatedItem, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update gallery item' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to update gallery item' }, 
+      { status: 500, headers: corsHeaders }
+    );
   }
 }
 
@@ -81,16 +99,25 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) {
-      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'ID is required' }, 
+        { status: 400, headers: corsHeaders }
+      );
     }
     const items = readGalleryItems();
     const filteredItems = items.filter(item => item.id !== id);
     if (items.length === filteredItems.length) {
-      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Item not found' }, 
+        { status: 404, headers: corsHeaders }
+      );
     }
     writeGalleryItems(filteredItems);
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete gallery item' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete gallery item' }, 
+      { status: 500, headers: corsHeaders }
+    );
   }
 }

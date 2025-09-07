@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { corsHeaders } from '@/lib/cors';
 
 // Single admin credential (hashed)
 // email: aaascollege2021@gmail.com
@@ -22,18 +23,29 @@ function sha256Hex(input: string): string {
   return crypto.createHash('sha256').update(input).digest('hex');
 }
 
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
     if (typeof email !== 'string' || typeof password !== 'string') {
-      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid payload' }, 
+        { status: 400, headers: corsHeaders }
+      );
     }
 
     const isEmailMatch = email.trim().toLowerCase() === ADMIN_EMAIL;
     const isPasswordMatch = sha256Hex(password) === PASSWORD_HASH_HEX;
 
     if (!isEmailMatch || !isPasswordMatch) {
-      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Invalid email or password' }, 
+        { status: 401, headers: corsHeaders }
+      );
     }
 
     // Issue a signed cookie token (HMAC) with expiry
@@ -42,7 +54,7 @@ export async function POST(request: NextRequest) {
     const signature = sha256Hex((process.env.AUTH_SECRET || 'dev-secret') + '|' + payload);
     const token = Buffer.from(payload).toString('base64url') + '.' + signature;
 
-    const res = NextResponse.json({ ok: true });
+    const res = NextResponse.json({ ok: true }, { headers: corsHeaders });
     res.cookies.set('admin_session', token, {
       httpOnly: true,
       sameSite: 'lax',

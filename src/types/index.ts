@@ -212,16 +212,21 @@ export interface SiteSettings {
   [key: string]: any;
 }
 
+export interface AlumniMember {
+  name: string;
+  batch?: string;
+  department?: string;
+  position?: string;
+  company?: string;
+  image?: string;
+  [key: string]: any; // Allow additional properties
+}
+
 export interface AlumniAssociation {
   title: string;
   content: string;
   image?: string;
-  members?: Array<{
-    name: string;
-    year: string;
-    description?: string;
-    image?: string;
-  }>;
+  members: AlumniMember[];
 }
 
 export interface PlacementSection {

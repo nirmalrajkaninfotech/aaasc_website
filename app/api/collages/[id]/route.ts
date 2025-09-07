@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { Collage } from '@/types';
+import { corsHeaders } from '@/lib/cors';
 
 const collagesPath = path.join(process.cwd(), 'data', 'collages.json');
 
@@ -27,13 +28,18 @@ export async function GET(
     const collage = collages.find(c => c.id === parseInt(params.id));
     
     if (!collage) {
-      return NextResponse.json({ error: 'Collage not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Collage not found' }, { status: 404, headers: corsHeaders });
     }
     
-    return NextResponse.json(collage);
+    return NextResponse.json(collage, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch collage' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch collage' }, { status: 500, headers: corsHeaders });
   }
+}
+
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
 }
 
 export async function PUT(
@@ -46,14 +52,14 @@ export async function PUT(
     const id = parseInt(params.id);
 
     if (!title || !category || !images || !Array.isArray(images)) {
-      return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid data' }, { status: 400, headers: corsHeaders });
     }
 
     const collages = readCollages();
     const index = collages.findIndex(c => c.id === id);
 
     if (index === -1) {
-      return NextResponse.json({ error: 'Collage not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Collage not found' }, { status: 404, headers: corsHeaders });
     }
 
     collages[index] = { 
@@ -67,9 +73,9 @@ export async function PUT(
     };
     
     writeCollages(collages);
-    return NextResponse.json(collages[index]);
+    return NextResponse.json(collages[index], { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update collage' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update collage' }, { status: 500, headers: corsHeaders });
   }
 }
 
@@ -83,12 +89,12 @@ export async function DELETE(
     const filteredCollages = collages.filter(c => c.id !== id);
 
     if (filteredCollages.length === collages.length) {
-      return NextResponse.json({ error: 'Collage not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Collage not found' }, { status: 404, headers: corsHeaders });
     }
 
     writeCollages(filteredCollages);
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete collage' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete collage' }, { status: 500, headers: corsHeaders });
   }
 }

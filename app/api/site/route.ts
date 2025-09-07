@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { SiteSettings } from '@/types';
+import { corsHeaders } from '@/lib/cors';
 
 const sitePath = path.join(process.cwd(), 'data', 'site.json');
 
@@ -102,7 +103,7 @@ function readSiteSettings(): SiteSettings {
         items: []
       },
       footer: {
-        text: "© 2025 University Memories. All rights reserved.",
+        text: " 2025 University Memories. All rights reserved.",
         socialLinks: [
           { label: "Facebook", href: "https://facebook.com/university" },
           { label: "Twitter", href: "https://twitter.com/university" },
@@ -121,10 +122,20 @@ function writeSiteSettings(settings: SiteSettings): void {
 export async function GET() {
   try {
     const settings = readSiteSettings();
-    return NextResponse.json(settings);
+    return NextResponse.json(settings, {
+      headers: corsHeaders,
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to read site settings' }, { status: 500 });
   }
+}
+
+// Handle CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
 }
 
 export async function PUT(request: NextRequest) {
@@ -253,7 +264,9 @@ export async function PUT(request: NextRequest) {
     }
 
     writeSiteSettings(body);
-    return NextResponse.json(body);
+    return NextResponse.json(body, {
+      headers: corsHeaders,
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update site settings' }, { status: 500 });
   }
