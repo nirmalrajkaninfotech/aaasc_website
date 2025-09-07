@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
-    "build:spa": "node build-static.js",
-    "build:static": "node build-static.js",
-    "preview": "node preview-server.js",
+    "build": "next build && next export",
+    "build:spa": "next build && next export",
+    "build:static": "next build && next export",
+    "preview": "serve out",
     "cpanel-build": "set NODE_OPTIONS=--max_old_space_size=4096 && next build --no-lint",
     "start": "node server.js",
     "start:prod": "HOST=0.0.0.0 PORT=3000 NODE_ENV=production node server.js",
@@ -62,6 +62,7 @@
     "recharts": "^3.1.2"
   },
   "devDependencies": {
+    "serve": "^14.2.1",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
