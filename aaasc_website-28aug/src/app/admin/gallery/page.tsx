@@ -33,7 +33,7 @@ export default function GalleryAdmin() {
 
   const fetchCollages = async () => {
     try {
-      const res = await fetch('/api/collages');
+      const res = await fetch('https://apiaasc.veetusaapadu.in/api/collages');
       if (res.ok) {
         const data = await res.json();
         setCollages(data);
@@ -66,7 +66,7 @@ export default function GalleryAdmin() {
         const formData = new FormData();
         formData.append('file', file);
         
-        const res = await fetch('/api/upload', {
+        const res = await fetch('https://apiaasc.veetusaapadu.in/api/upload', {
           method: 'POST',
           body: formData,
         });

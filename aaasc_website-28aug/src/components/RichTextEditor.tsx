@@ -135,7 +135,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch('/api/upload-image', {
+      const response = await fetch('https://apiaasc.veetusaapadu.in/api/upload-image', {
         method: 'POST',
         body: formData,
       });
@@ -187,7 +187,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
             
             setIsUploading(true);
             try {
-              const response = await fetch('/api/upload-image', {
+              const response = await fetch('https://apiaasc.veetusaapadu.in/api/upload-image', {
                 method: 'POST',
                 body: formData,
               });

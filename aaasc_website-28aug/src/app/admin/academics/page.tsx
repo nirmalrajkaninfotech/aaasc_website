@@ -29,7 +29,7 @@ export default function AcademicsAdmin() {
   const fetchAcademicData = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/academics', { cache: 'no-store' });
+      const response = await fetch('https://apiaasc.veetusaapadu.in/api/academics', { cache: 'no-store' });
       if (response.ok) {
         const data = await response.json();
         if (data) setAcademic(data);
@@ -47,7 +47,7 @@ export default function AcademicsAdmin() {
   const saveAll = async (payload: AcademicSection = academic) => {
     try {
       setIsSaving(true);
-      const response = await fetch('/api/academics', {
+      const response = await fetch('https://apiaasc.veetusaapadu.in/api/academics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

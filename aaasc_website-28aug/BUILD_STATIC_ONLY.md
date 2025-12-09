@@ -159,3 +159,4 @@ If you already uploaded the server build:
 After these steps, you'll have a **pure static site** that runs on cPanel without any server! 🎉
 
 
+

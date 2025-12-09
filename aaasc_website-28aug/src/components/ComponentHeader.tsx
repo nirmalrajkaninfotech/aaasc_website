@@ -31,7 +31,7 @@ const ComponentHeader: React.FC = () => {
   const fetchAdmissionForms = async () => {
     try {
       console.log('Fetching admission forms...');
-      const response = await fetch('/api/admission-forms');
+      const response = await fetch('https://apiaasc.veetusaapadu.in/api/admission-forms');
       console.log('Response status:', response.status);
       if (response.ok) {
         const data = await response.json();

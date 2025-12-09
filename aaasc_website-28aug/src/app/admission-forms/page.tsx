@@ -26,7 +26,7 @@ export default function AdmissionFormsPage() {
   const fetchAdmissionForms = async () => {
     try {
       console.log('Admission forms page: Fetching admission forms...');
-      const response = await fetch('/api/admission-forms');
+      const response = await fetch('https://apiaasc.veetusaapadu.in/api/admission-forms');
       console.log('Admission forms page: Response status:', response.status);
       if (response.ok) {
         const data = await response.json();

@@ -29,7 +29,7 @@ export default function Placements() {
 
   const fetchPlacements = async () => {
     try {
-      const response = await fetch('/api/placements');
+      const response = await fetch('https://apiaasc.veetusaapadu.in/api/placements');
       if (response.ok) {
         const data = await response.json();
         setPlacementSectionTitle(data.title || '');
@@ -206,7 +206,7 @@ export default function Placements() {
                         subtitle: placementSectionSubtitle,
                         items: placements,
                       };
-                      await fetch('/api/placements', {
+                      await fetch('https://apiaasc.veetusaapadu.in/api/placements', {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(body),

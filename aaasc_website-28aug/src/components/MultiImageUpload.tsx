@@ -31,7 +31,7 @@ export default function MultiImageUpload({ onUpload, label = "Upload Multiple Im
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch('/api/upload', {
+        const response = await fetch('https://apiaasc.veetusaapadu.in/api/upload', {
           method: 'POST',
           body: formData,
         });

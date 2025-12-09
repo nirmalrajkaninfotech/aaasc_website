@@ -13,7 +13,7 @@ export default function AdminHeaderPage() {
   useEffect(() => {
     const fetchHeaderContent = async () => {
       try {
-        const response = await fetch('/api/header3', { cache: 'no-store' });
+        const response = await fetch('https://apiaasc.veetusaapadu.in/api/header3', { cache: 'no-store' });
         if (!response.ok) throw new Error('Failed to fetch header content');
         const data = await response.json();
         setContent(data);
@@ -29,7 +29,7 @@ export default function AdminHeaderPage() {
 
   const handleSave = async (updatedContent: Header3Content) => {
     try {
-      const response = await fetch('/api/header3', {
+      const response = await fetch('https://apiaasc.veetusaapadu.in/api/header3', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedContent),

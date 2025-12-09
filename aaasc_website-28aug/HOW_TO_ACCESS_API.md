@@ -53,12 +53,12 @@ After building the Next.js server, you can access APIs in two ways:
 
 ```javascript
 // Simple fetch
-fetch('/api/carousel')
+fetch('https://apiaasc.veetusaapadu.in/api/carousel')
   .then(res => res.json())
   .then(data => console.log(data));
 
 // With async/await
-const response = await fetch('/api/carousel');
+const response = await fetch('https://apiaasc.veetusaapadu.in/api/carousel');
 const data = await response.json();
 ```
 
@@ -249,4 +249,5 @@ See individual route files in `src/app/api/` for detailed documentation:
 ---
 
 **Your APIs are ready to use once the server is running!** 🎉
+
 

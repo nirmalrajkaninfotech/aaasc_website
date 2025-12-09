@@ -11,7 +11,7 @@ export default function Header3Wrapper({ isAdmin = false }) {
   useEffect(() => {
     const fetchHeaderContent = async () => {
       try {
-        const response = await fetch('/api/header3');
+        const response = await fetch('https://apiaasc.veetusaapadu.in/api/header3');
         const data = await response.json();
         setContent(data);
       } catch (error) {
@@ -27,7 +27,7 @@ export default function Header3Wrapper({ isAdmin = false }) {
   const handleSave = async (updatedContent: Header3Content) => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/header3', {
+      const response = await fetch('https://apiaasc.veetusaapadu.in/api/header3', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
