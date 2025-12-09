@@ -13,6 +13,10 @@ import {
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 import ImageUpload from '@/components/ImageUpload';
 import MultiImageUpload from '@/components/MultiImageUpload';
+import { API_BASE_URL } from '@/config';
+
+// Remove trailing slash for concatenation with '/api/...'
+const apiurl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 
 interface Facility {
   id: string;
@@ -63,7 +67,7 @@ export default function Facilities() {
 
   const fetchFacilities = async () => {
     try {
-      const response = await fetch('apiaasc.veetusaapadu.in/api/site');
+      const response = await fetch(`${apiurl}/api/site`);
       if (response.ok) {
         const data = await response.json();
         if (data.facilities) {
@@ -88,7 +92,7 @@ export default function Facilities() {
   const handleSaveFacilities = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch('apiaasc.veetusaapadu.in/api/site', {
+      const response = await fetch(`${apiurl}/api/site`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ facilities }),

@@ -81,6 +81,10 @@ import {
     FaIdCard,  
     FaFileAlt, 
 } from 'react-icons/fa';
+import { API_BASE_URL } from '@/config';
+
+// Ensure API URL ends with slash and remove trailing slash for concatenation
+const apiurl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 
 // Placement state type
 interface AdminPlacement {
@@ -112,7 +116,6 @@ export default function AdminPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-const apiurl = "https://apiaasc.veetusaapadu.in";
   const saveSiteSettings = async (updatedSettings: SiteSettings) => {
     try {
       setSaving(true);

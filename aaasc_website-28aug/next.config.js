@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
-  // output: 'export', // Disabled for server build
+  output: 'export', // Enable static export for SPA
   distDir: 'out',
   trailingSlash: true, // Important for static hosting
   images: {

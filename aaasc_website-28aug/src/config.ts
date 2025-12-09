@@ -1,6 +1,6 @@
 
 // Base API URL for the application
-export const API_BASE_URL = "https://apiaasc.veetusaapadu.in";
+export const API_BASE_URL = "https://apiaasc.veetusaapadu.in/";
 
 // Helper function to get full image URL
 export const getImageUrl = (path: string): string => {
@@ -11,11 +11,11 @@ export const getImageUrl = (path: string): string => {
     return path;
   }
   
-  // If path starts with a forward slash, append directly to base URL
-  if (path.startsWith('/')) {
-    return `${API_BASE_URL}${path}`;
-  }
+  // Ensure API_BASE_URL ends with a single slash
+  const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
   
-  // For relative paths, add a slash between base URL and path
-  return `${API_BASE_URL}/${path}`;
+  // Remove leading slash from path if present to avoid double slashes
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  return `${baseUrl}${cleanPath}`;
 };

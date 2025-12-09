@@ -8,7 +8,7 @@ async function buildStatic() {
   console.log('🚀 Starting static build with API integration...');
   
   // Ensure API base URL is set for build
-  const apiUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://apiaasc.veetusaapadu.in';
+  const apiUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://apiaasc.veetusaapadu.in/';
   console.log(`📡 Using API URL: ${apiUrl}`);
   
   // Set environment variables for build

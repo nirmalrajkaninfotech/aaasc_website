@@ -3,10 +3,14 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import { API_BASE_URL } from '@/config';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 import ImageUpload from '@/components/ImageUpload';
 import MultiImageUpload from '@/components/MultiImageUpload';
+
+// Remove trailing slash for concatenation with '/api/...'
+const apiurl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 
 interface Achievement {
   id: string;
@@ -42,7 +46,7 @@ export default function Achievements() {
 
   const fetchSiteSettings = async () => {
     try {
-      const response = await fetch('apiaasc.veetusaapadu.in/api/site');
+      const response = await fetch(`${apiurl}/api/site`);
       if (response.ok) {
         const data = await response.json();
         setSiteSettings(data);
@@ -80,7 +84,7 @@ export default function Achievements() {
     setNewAchievement({ title: '', content: '', image: '', alignment: 'left', published: true });
     
     // Save to backend
-    fetch('apiaasc.veetusaapadu.in/api/site', {
+    fetch(`${apiurl}/api/site`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedSettings),
@@ -104,7 +108,7 @@ export default function Achievements() {
     setEditingAchievement(null);
     
     // Save to backend
-    fetch('apiaasc.veetusaapadu.in/api/site', {
+    fetch(`${apiurl}/api/site`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedSettings),
@@ -125,7 +129,7 @@ export default function Achievements() {
     setSiteSettings(updatedSettings);
     
     // Save to backend
-    fetch('apiaasc.veetusaapadu.in/api/site', {
+    fetch(`${apiurl}/api/site`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedSettings),
@@ -137,7 +141,7 @@ export default function Achievements() {
 
     setSaving(true);
     try {
-      const res = await fetch('apiaasc.veetusaapadu.in/api/site', {
+      const res = await fetch(`${apiurl}/api/site`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(siteSettings)

@@ -3,7 +3,8 @@ import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/lib/api-utils';
-const apiurl = API_BASE_URL;
+// Remove trailing slash for concatenation with '/api/...'
+const apiurl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 
 export default function LoginPage() {
     useDisableRightClick();

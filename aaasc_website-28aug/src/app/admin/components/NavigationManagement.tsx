@@ -3,6 +3,10 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableNavItem } from '@/components/SortableNavItem';
+import { API_BASE_URL } from '@/config';
+
+// Remove trailing slash for concatenation with '/api/...'
+const apiurl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 
 interface NavigationItem {
   label: string;
@@ -33,7 +37,7 @@ export const NavigationManagement: React.FC<NavigationManagementProps> = ({
   const saveSiteSettings = async (updatedSettings: any) => {
     try {
       setSaving(true);
-      const response = await fetch('apiaasc.veetusaapadu.in/api/site', {
+      const response = await fetch(`${apiurl}/api/site`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSettings),

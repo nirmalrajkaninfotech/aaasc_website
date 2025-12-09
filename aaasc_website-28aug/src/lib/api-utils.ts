@@ -1,8 +1,10 @@
 
+import { API_BASE_URL as CONFIG_API_BASE_URL } from '@/config';
 
-export const API_BASE_URL = typeof window !== 'undefined'
-  ? window.location.origin
-  : (process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`);
+// Use the configured API URL, with fallback for development
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL 
+  ? (process.env.NEXT_PUBLIC_BASE_URL.endsWith('/') ? process.env.NEXT_PUBLIC_BASE_URL : `${process.env.NEXT_PUBLIC_BASE_URL}/`)
+  : (CONFIG_API_BASE_URL.endsWith('/') ? CONFIG_API_BASE_URL : `${CONFIG_API_BASE_URL}/`);
 
   import { AcademicSection } from '@/types';
 
@@ -15,7 +17,10 @@ type AdmissionForm = {
 
 export async function fetchAPI<T>(endpoint: string, fallback?: T): Promise<T> {
     try {
-        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        // Remove leading slash from endpoint if API_BASE_URL ends with slash
+        const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+        const url = `${API_BASE_URL}${cleanEndpoint}`;
+        const res = await fetch(url, {
             // Cache for static export, no revalidate for static builds
         });
 
@@ -38,7 +43,7 @@ export async function fetchAPI<T>(endpoint: string, fallback?: T): Promise<T> {
 }
 
 // Specific API functions with fallbacks
-export const getSiteSettings = () => fetchAPI('/api/site', {
+export const getSiteSettings = () => fetchAPI('api/site', {
   siteTitle: 'AAASC',
   title: 'AAASC - Academic Excellence',
   description: 'A leading academic institution',
@@ -86,15 +91,15 @@ export const getSiteSettings = () => fetchAPI('/api/site', {
     copyright: '© 2024 AAASC. All rights reserved.'
   }
 });
-export const getCollages = () => fetchAPI('/api/collages', []);
-export const getFaculty = () => fetchAPI('/api/faculty', { items: [] });
-export const getPlacements = () => fetchAPI('/api/placements', { items: [] });
-export const getIQAC = () => fetchAPI('/api/iqac', null);
-export const getAlumni = () => fetchAPI('/api/alumni', []);
+export const getCollages = () => fetchAPI('api/collages', []);
+export const getFaculty = () => fetchAPI('api/faculty', { items: [] });
+export const getPlacements = () => fetchAPI('api/placements', { items: [] });
+export const getIQAC = () => fetchAPI('api/iqac', null);
+export const getAlumni = () => fetchAPI('api/alumni', []);
 export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
   try {
     console.log('Fetching admission forms...');
-    const response = await fetch(`${API_BASE_URL}/api/admission-forms`);
+    const response = await fetch(`${API_BASE_URL}api/admission-forms`);
     console.log('Response status:', response.status);
     
     if (!response.ok) {
@@ -116,7 +121,10 @@ export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
 
 export const getAcademics = async (): Promise<AcademicSection> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || API_BASE_URL}/api/academics/public`);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL 
+      ? (process.env.NEXT_PUBLIC_API_URL.endsWith('/') ? process.env.NEXT_PUBLIC_API_URL : `${process.env.NEXT_PUBLIC_API_URL}/`)
+      : API_BASE_URL;
+    const response = await fetch(`${apiUrl}api/academics/public`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

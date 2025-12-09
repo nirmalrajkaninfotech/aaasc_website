@@ -3,7 +3,9 @@ import { Phone, Mail, Megaphone, FileText, Download } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from '@/lib/api-utils';
-const apiurl = API_BASE_URL;
+import { getImageUrl } from '@/config';
+// Remove trailing slash for concatenation with '/api/...'
+const apiurl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 
 
 interface AdmissionForm {
@@ -107,7 +109,7 @@ const ComponentHeader: React.FC = () => {
       {/* Full-width image - ensure not cropped */}
       <div className="relative w-full">
         <Image
-          src={`https://apiaasc.veetusaapadu.in/uploads/uploadsx.png`}
+          src={getImageUrl('/uploads/uploadsx.png')}
           alt="College Campus"
           width={1900}
           height={450}
