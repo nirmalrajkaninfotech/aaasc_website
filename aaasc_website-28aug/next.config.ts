@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Basic configuration for static export
-  //output: 'export',
+  // Basic configuration for server build
+  // output: 'export', // Disabled for server build
   distDir: 'out',
   trailingSlash: true,
   reactStrictMode: true,

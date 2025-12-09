@@ -1,24 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/cors';
+
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  return handleOptionsRequest(origin);
+}
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      const response = NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return addCorsHeaders(response, origin);
     }
 
     // Check file type
     if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+      const response = NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+      return addCorsHeaders(response, origin);
     }
 
     // Check file size (10MB limit)
     if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 });
+      const response = NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 });
+      return addCorsHeaders(response, origin);
     }
 
     // Create uploads directory if it doesn't exist
@@ -40,10 +51,12 @@ export async function POST(request: NextRequest) {
 
     // Return the public URL
     const url = `/uploads/${filename}`;
-    return NextResponse.json({ url }, { status: 200 });
+    const response = NextResponse.json({ url }, { status: 200 });
+    return addCorsHeaders(response, origin);
 
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    const response = NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    return addCorsHeaders(response, origin);
   }
 }

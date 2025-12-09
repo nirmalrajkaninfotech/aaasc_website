@@ -1,14 +1,17 @@
 import PlacementSection from '@/components/PlacementSection';
 import UpscrollButton from '@/components/UpscrollButton';
-
-async function getPlacements() {
-  const res = await fetch('https://demoaaasc.kumarantex.com/api/placements', { cache: 'force-cache' });
-  if (!res.ok) return null;
-  return res.json();
-}
+import { getPlacements } from '@/lib/api-utils';
 
 export default async function PlacementsPage() {
-  const placements = await getPlacements();
+  let placements = null;
+  
+  try {
+    const placementsData = await getPlacements();
+    placements = placementsData;
+  } catch (error) {
+    console.error('Error fetching placements:', error);
+    placements = null;
+  }
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <main className="flex-1">

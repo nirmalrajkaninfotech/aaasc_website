@@ -107,7 +107,7 @@ const ComponentHeader: React.FC = () => {
       {/* Full-width image - ensure not cropped */}
       <div className="relative w-full">
         <Image
-          src={`https://demoaaasc.kumarantex.com/uploads/uploadsx.png`}
+          src={`https://apiaasc.veetusaapadu.in/uploads/uploadsx.png`}
           alt="College Campus"
           width={1900}
           height={450}

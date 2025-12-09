@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { CarouselItem } from '@/types';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/cors';
 
 const sitePath = path.join(process.cwd(), 'data', 'site.json');
 
@@ -32,16 +33,27 @@ function writeCarouselItems(items: CarouselItem[]): void {
   writeSiteJson(siteData);
 }
 
-export async function GET() {
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  return handleOptionsRequest(origin);
+}
+
+export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
     const items = readCarouselItems();
-    return NextResponse.json(items);
+    const response = NextResponse.json(items);
+    return addCorsHeaders(response, origin);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to read carousel items' }, { status: 500 });
+    const response = NextResponse.json({ error: 'Failed to read carousel items' }, { status: 500 });
+    return addCorsHeaders(response, origin);
   }
 }
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
     const newItem = await request.json();
     let items = readCarouselItems();
@@ -58,43 +70,56 @@ export async function POST(request: NextRequest) {
     items = items.filter(item => item.id !== newItem.id);
     items.push(newItem);
     writeCarouselItems(items);
-    return NextResponse.json(newItem, { status: 201 });
+    const response = NextResponse.json(newItem, { status: 201 });
+    return addCorsHeaders(response, origin);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create carousel item' }, { status: 500 });
+    const response = NextResponse.json({ error: 'Failed to create carousel item' }, { status: 500 });
+    return addCorsHeaders(response, origin);
   }
 }
 
 export async function PUT(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
     const updatedItem = await request.json();
     const items = readCarouselItems();
     const index = items.findIndex(item => item.id === updatedItem.id);
     if (index === -1) {
-      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+      const response = NextResponse.json({ error: 'Item not found' }, { status: 404 });
+      return addCorsHeaders(response, origin);
     }
     items[index] = updatedItem;
     writeCarouselItems(items);
-    return NextResponse.json(updatedItem);
+    const response = NextResponse.json(updatedItem);
+    return addCorsHeaders(response, origin);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update carousel item' }, { status: 500 });
+    const response = NextResponse.json({ error: 'Failed to update carousel item' }, { status: 500 });
+    return addCorsHeaders(response, origin);
   }
 }
 
 export async function DELETE(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) {
-      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+      const response = NextResponse.json({ error: 'ID is required' }, { status: 400 });
+      return addCorsHeaders(response, origin);
     }
     const items = readCarouselItems();
     const filteredItems = items.filter(item => item.id !== id);
     if (items.length === filteredItems.length) {
-      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+      const response = NextResponse.json({ error: 'Item not found' }, { status: 404 });
+      return addCorsHeaders(response, origin);
     }
     writeCarouselItems(filteredItems);
-    return NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true });
+    return addCorsHeaders(response, origin);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete carousel item' }, { status: 500 });
+    const response = NextResponse.json({ error: 'Failed to delete carousel item' }, { status: 500 });
+    return addCorsHeaders(response, origin);
   }
 }

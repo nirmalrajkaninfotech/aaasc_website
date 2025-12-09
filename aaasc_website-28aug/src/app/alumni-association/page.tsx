@@ -1,32 +1,23 @@
 import AlumniSection from '@/components/AlumniSection';
 import { SiteSettings } from '@/types';
-
-// Fetch site settings
-async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'https://demoaaasc.kumarantex.com'}/api/site`,
-    { cache: 'force-cache' }
-  );
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
-}
-
-// Fetch alumni data
-async function getAlumni() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'https://demoaaasc.kumarantex.com'}/api/alumni`,
-    { cache: 'force-cache' }
-  );
-  if (!res.ok) return null;
-  return res.json();
-}
+import { getSiteSettings, getAlumni } from '@/lib/api-utils';
 
 // Page Component
 export default async function AlumniPage() {
-  const [siteSettings, alumni] = await Promise.all([
-    getSiteSettings(),
-    getAlumni(),
-  ]);
+  let siteSettings: SiteSettings | null = null;
+  let alumni = null;
+
+  try {
+    [siteSettings, alumni] = await Promise.all([
+      getSiteSettings(),
+      getAlumni(),
+    ]);
+  } catch (error) {
+    console.error('Error fetching data for alumni page:', error);
+    // Use fallback data from api-utils
+    siteSettings = await getSiteSettings();
+    alumni = await getAlumni();
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">

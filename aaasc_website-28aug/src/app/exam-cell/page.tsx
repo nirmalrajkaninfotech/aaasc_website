@@ -1,19 +1,46 @@
 import UpscrollButton from '@/components/UpscrollButton';
-import { API_BASE_URL } from '@/config';
 import { ExamCellSection } from '@/types';
 import { ChevronRight, Calendar, FileText, Users, Clock, Award } from 'lucide-react';
-
-async function getExamCell(): Promise<ExamCellSection> {
- const res = await fetch('https://demoaaasc.kumarantex.com/api/site', {
-  cache: 'default' // or simply omit the cache option
-});
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  const data = await res.json();
-  return data.examCell;
-}
+import { getSiteSettings } from '@/lib/api-utils';
 
 export default async function ExamCellPage() {
-  const examCell = await getExamCell();
+  let examCell: ExamCellSection | null = null;
+  
+  try {
+    const siteSettings = await getSiteSettings();
+    examCell = siteSettings.examCell || {
+      title: 'Exam Cell',
+      subtitle: 'Centralized examination management and updates.',
+      content: '<p>Exam cell information will be available soon.</p>',
+      showHero: false,
+      showFeatures: false,
+      showQuickLinks: false,
+      showCTA: false
+    };
+  } catch (error) {
+    console.error('Error fetching exam cell data:', error);
+    examCell = {
+      title: 'Exam Cell',
+      subtitle: 'Centralized examination management and updates.',
+      content: '<p>Exam cell information will be available soon.</p>',
+      showHero: false,
+      showFeatures: false,
+      showQuickLinks: false,
+      showCTA: false
+    };
+  }
+  
+  if (!examCell) {
+    examCell = {
+      title: 'Exam Cell',
+      subtitle: 'Centralized examination management and updates.',
+      content: '<p>Exam cell information will be available soon.</p>',
+      showHero: false,
+      showFeatures: false,
+      showQuickLinks: false,
+      showCTA: false
+    };
+  }
 
   const examFeatures = [
     {

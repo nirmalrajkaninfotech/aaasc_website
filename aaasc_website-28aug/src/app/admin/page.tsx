@@ -112,7 +112,7 @@ export default function AdminPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-const apiurl = "https://demoaaasc.kumarantex.com";
+const apiurl = "https://apiaasc.veetusaapadu.in";
   const saveSiteSettings = async (updatedSettings: SiteSettings) => {
     try {
       setSaving(true);
@@ -441,10 +441,10 @@ const apiurl = "https://demoaaasc.kumarantex.com";
             const uploadPromises = Array.from(files).map(async (file) => {
                 const formData = new FormData();
                 formData.append('file', file);
-                const response = await fetch('/api/upload', { method: 'POST', body: formData });
+                const response = await fetch(apiurl + '/api/upload', { method: 'POST', body: formData });
                 if (response.ok) {
                     const data = await response.json();
-                    await fetch('/api/carousel', {
+                    await fetch(apiurl + '/api/carousel', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ image: data.url }),

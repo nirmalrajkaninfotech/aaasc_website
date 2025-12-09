@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
-  // output: 'export',
+  // output: 'export', // Disabled for server build
   distDir: 'out',
   trailingSlash: true, // Important for static hosting
   images: {
@@ -12,11 +12,6 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  },
-  // Ensure proper static generation
-  experimental: {
-    // Enable static generation for dynamic routes
-    staticGenerationAsyncStorage: true,
   },
 };
 
