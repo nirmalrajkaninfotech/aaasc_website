@@ -10,14 +10,26 @@ const port = process.env.PORT || 3000;
 const app = next({ 
   dev, 
   hostname, 
-  port,
-  distDir: 'out' 
+  port
 });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
+      // Add CORS headers to all responses
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Range, X-Requested-With, Referer, Accept');
+      res.setHeader('Access-Control-Max-Age', '86400');
+
+      // Handle OPTIONS preflight requests
+      if (req.method === 'OPTIONS') {
+        res.statusCode = 204;
+        res.end();
+        return;
+      }
+
       // Parse the request URL
       const parsedUrl = parse(req.url, true);
       const { pathname, query } = parsedUrl;
