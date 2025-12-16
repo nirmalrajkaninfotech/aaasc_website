@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import HeaderWrapper from '@/components/HeaderWrapper';
-import Footer from '@/components/Footer';
+import ClientLayout from './ClientLayout';
 import type { SiteSettings, Logo } from '@/types';
 import React from 'react';
-import DisableRightClick from '@/components/DisableRightClick';
-// Import ErrorBoundary directly since we've created it
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { getSiteSettings as fetchSiteSettings } from '@/lib/api-utils';
 
 // Helper to safely get the logo URL
 const getLogoUrl = (logo: Logo): string => {
@@ -73,18 +70,11 @@ const defaultSiteSettings: SiteSettings = {
   }
 };
 
-import { getSiteSettings as fetchSiteSettings } from '@/lib/api-utils';
-
+// Minimal server-side data fetching for layout (only for initial HTML structure)
 async function getSiteSettings(): Promise<SiteSettings> {
-  try {
-    // Try to fetch real site settings
-    const settings = await fetchSiteSettings();
-    return settings;
-  } catch (error) {
-    console.error('Error fetching site settings in layout:', error);
-    // Fallback to default settings
-    return defaultSiteSettings;
-  }
+  // For CSR, we use default settings in layout and fetch real data on client
+  // This minimizes server-side rendering
+  return defaultSiteSettings;
 }
 
 // Generate metadata dynamically based on site settings
@@ -232,24 +222,15 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Use static settings for static export
+  // Use default settings for initial HTML structure (CSR will fetch real data)
   const siteSettings = await getSiteSettings();
-
-  // Determine if this is an admin route
-  const isAdminRoute = false; // This will be determined client-side by HeaderWrapper
   
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-gray-50 flex flex-col">
-        <ErrorBoundary>
-          <DisableRightClick>
-            <HeaderWrapper siteSettings={siteSettings} />
-            <main className="flex-1">
-              {children}
-            </main>
-            {!isAdminRoute && <Footer siteSettings={siteSettings} />}
-          </DisableRightClick>
-        </ErrorBoundary>
+        <ClientLayout siteSettings={siteSettings}>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );

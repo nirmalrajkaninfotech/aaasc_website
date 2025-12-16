@@ -1,6 +1,7 @@
 'use client';
 import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -99,6 +100,17 @@ interface AdminPlacement {
 
 export default function AdminPage() {
     useDisableRightClick();
+    const router = useRouter();
+
+    // Check authentication on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const isAuthenticated = sessionStorage.getItem('admin_authenticated') === 'true';
+            if (!isAuthenticated) {
+                router.replace('/login');
+            }
+        }
+    }, [router]);
 
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
@@ -1077,10 +1089,10 @@ export default function AdminPage() {
       if (saved) setOthers(saved.others);
     };
 
-    const handleLogout = async () => {
-      try {
-        await fetch(apiurl+'/api/auth/logout', { method: 'POST' });
-      } finally {
+    const handleLogout = () => {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('admin_authenticated');
+        sessionStorage.removeItem('admin_username');
         window.location.href = '/login';
       }
     };

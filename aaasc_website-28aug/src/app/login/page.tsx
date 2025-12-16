@@ -1,59 +1,46 @@
 'use client';
 import { useDisableRightClick } from '@/hooks/useDisableRightClick';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { API_BASE_URL } from '@/lib/api-utils';
-// Remove trailing slash for concatenation with '/api/...'
-const apiurl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+
+// Static credentials
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'admin@123';
 
 export default function LoginPage() {
     useDisableRightClick();
 
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Check if already logged in
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isAuthenticated = sessionStorage.getItem('admin_authenticated') === 'true';
+      if (isAuthenticated) {
+        router.replace('/admin');
+      }
+    }
+  }, [router]);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
     
-    console.log('Attempting login with:', { email, password: '***' });
-    console.log('Current origin:', window.location.origin);
-    console.log('Current URL:', window.location.href);
-    
-    try {
-      const res = await fetch(apiurl+'/api/auth/login', {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'include', 
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Origin': window.location.origin,
-          'Referer': window.location.href,
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      console.log('Response status:', res.status);
-      console.log('Response headers:', Object.fromEntries(res.headers.entries()));
-      
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Login failed with status: ${res.status}`);
+    // Simple static authentication check
+    if (username.trim() === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      // Store authentication in sessionStorage
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('admin_authenticated', 'true');
+        sessionStorage.setItem('admin_username', username);
       }
-      
-      const responseData = await res.json();
-      console.log('Login successful:', responseData);
       router.replace('/admin');
-    } catch (err: any) {
-      console.error('Login error details:', err);
-      setError(err.message || 'Login failed');
-    } finally {
+    } else {
+      setError('Invalid username or password');
       setLoading(false);
     }
   };
@@ -68,13 +55,13 @@ export default function LoginPage() {
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="you@example.com"
+              placeholder="admin"
               required
             />
           </div>

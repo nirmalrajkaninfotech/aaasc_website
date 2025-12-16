@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Basic configuration for static export (SPA)
-  output: 'export', // Enable static export for SPA
+  // Client-side rendering (CSR) configuration
+  output: 'export', // Enable static export for CSR
   distDir: 'out',
   trailingSlash: true,
   reactStrictMode: true,
@@ -31,6 +31,12 @@ const nextConfig: NextConfig = {
   // Environment variables for build time
   env: {
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+  },
+  
+  // Optimize for client-side rendering
+  // This ensures minimal HTML and maximum client-side rendering
+  experimental: {
+    optimizePackageImports: ['@/components', '@/lib'],
   },
 };
 
