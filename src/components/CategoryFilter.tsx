@@ -31,7 +31,7 @@ export default function CategoryFilter({ collages, onFilterChange }: CategoryFil
           className={`px-6 py-2 rounded-full font-medium transition-colors duration-200 ${
             activeCategory === category
               ? 'bg-blue-600 text-white'
-              : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-300'
+              : 'bg-[var(--theme-bg-card)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)]'
           }`}
         >
           {category}

@@ -56,13 +56,13 @@ export default function GalleryPage() {
   }
 
   return (
-    <main className="flex-1 bg-gray-50">
+    <main className="flex-1 bg-[var(--theme-bg-secondary)]">
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          <h1 className="text-4xl font-bold text-[var(--theme-text)] mb-4">
             College Gallery
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-[var(--theme-text-secondary)]">
             Explore our collection of memorable moments and experiences
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function GalleryPage() {
 
         {filteredCollages.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg mb-4">No collages found!</p>
+            <p className="text-[var(--theme-text-secondary)] text-lg mb-4">No collages found!</p>
             <p className="text-gray-400">
               Try selecting a different category or visit the{' '}
               <a href="/admin" className="text-blue-600 hover:underline">

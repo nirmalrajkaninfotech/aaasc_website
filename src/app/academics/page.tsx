@@ -1,16 +1,9 @@
 import AcademicSection from '@/components/AcademicSection';
+import { fetchApi } from '@/lib/api';
 
 async function getAcademicData() {
   try {
-    const res = await fetch(`/api/academics/public`, {
-      cache: 'no-store'
-    });
-    
-    if (!res.ok) {
-      throw new Error('Failed to fetch academic data');
-    }
-    
-    return await res.json();
+    return await fetchApi('/api/academics/public', { cache: 'no-store' });
   } catch (error) {
     console.error('Error fetching academic data:', error);
     return {

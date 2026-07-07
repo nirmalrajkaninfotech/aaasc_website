@@ -1,9 +1,12 @@
 import PlacementSection from '@/components/PlacementSection';
+import { fetchApi } from '@/lib/api';
 
 async function getPlacements() {
-  const res = await fetch(`/api/placements`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    return await fetchApi('/api/placements', { cache: 'no-store' });
+  } catch {
+    return null;
+  }
 }
 
 export default async function PlacementsPage() {

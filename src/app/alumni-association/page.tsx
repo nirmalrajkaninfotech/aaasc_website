@@ -30,9 +30,9 @@ export default async function AlumniPage() {
   ]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">
+    <div className="flex flex-col min-h-screen bg-[var(--theme-bg-secondary)] text-[var(--theme-text)]">
       {/* Page Header */}
-      <header className="w-full bg-white shadow-md">
+      <header className="w-full bg-[var(--theme-bg-card)] shadow-md">
       </header>
 
       {/* Main Content */}
@@ -42,7 +42,7 @@ export default async function AlumniPage() {
           {alumni ? (
             <AlumniSection alumni={alumni} />
           ) : (
-            <p className="text-center text-gray-500 italic">
+            <p className="text-center text-[var(--theme-text-secondary)] italic">
               No alumni data available at this moment.
             </p>
           )}

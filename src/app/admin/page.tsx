@@ -93,6 +93,151 @@ interface AdminPlacement {
   published?: boolean;
 }
 
+const PRESET_COLORS = [
+  { label: 'Navy', value: '#1e293b' },
+  { label: 'Indigo', value: '#4338ca' },
+  { label: 'Blue', value: '#2563eb' },
+  { label: 'Teal', value: '#0d9488' },
+  { label: 'Emerald', value: '#059669' },
+  { label: 'Purple', value: '#7c3aed' },
+  { label: 'Rose', value: '#e11d48' },
+  { label: 'Orange', value: '#ea580c' },
+];
+
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return { h: 0, s: 0, l: Math.round(l * 100) };
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h = 0;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+  else if (max === g) h = ((b - r) / d + 2) / 6;
+  else h = ((r - g) / d + 4) / 6;
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+
+function generateShades(hex: string): Record<string, string> {
+  const { h, s } = hexToHsl(hex);
+  const shades: Record<string, string> = {};
+  const lightnesses: Record<string, number> = {
+    50: 97, 100: 94, 200: 86, 300: 74, 400: 62,
+    500: 50, 600: 42, 700: 34, 800: 26, 900: 18, 950: 12,
+  };
+  for (const [step, l] of Object.entries(lightnesses)) {
+    shades[step] = `hsl(${h}, ${s}%, ${l}%)`;
+  }
+  return shades;
+}
+
+function ThemeColorPicker({ siteSettings, setSiteSettings }: { siteSettings: SiteSettings; setSiteSettings: (s: SiteSettings) => void }) {
+  const currentColor = siteSettings.themeColor || '#1e293b';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.15 }}
+      className="space-y-4"
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></span>
+        <div>
+          <h3 className="text-xl font-bold text-gray-800">Theme Color</h3>
+          <p className="text-sm text-gray-500">Choose the primary color for your entire website</p>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-2xl border border-gray-200 p-6">
+        {/* Preset Colors */}
+        <div className="flex flex-wrap gap-3 mb-4">
+          {PRESET_COLORS.map((preset) => (
+            <button
+              key={preset.value}
+              onClick={() => setSiteSettings({ ...siteSettings, themeColor: preset.value })}
+              className={`group flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-200 ${
+                currentColor.toLowerCase() === preset.value.toLowerCase()
+                  ? 'bg-white shadow-lg ring-2 ring-offset-2'
+                  : 'hover:bg-white/60 hover:shadow-md'
+              }`}
+              style={
+                currentColor.toLowerCase() === preset.value.toLowerCase()
+                  ? { '--tw-ring-color': preset.value } as React.CSSProperties
+                  : {}
+              }
+            >
+              <div
+                className="w-10 h-10 rounded-full shadow-inner transition-transform duration-200 group-hover:scale-110"
+                style={{ backgroundColor: preset.value }}
+              />
+              <span className="text-xs font-medium text-gray-600">{preset.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Custom Color Picker */}
+        <div className="flex items-center gap-4 mt-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={currentColor}
+              onChange={(e) => setSiteSettings({ ...siteSettings, themeColor: e.target.value })}
+              className="w-12 h-12 rounded-lg cursor-pointer border-2 border-gray-200 hover:border-gray-400 transition-colors"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Custom Color</label>
+              <input
+                type="text"
+                value={currentColor}
+                onChange={(e) => {
+                  if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
+                    setSiteSettings({ ...siteSettings, themeColor: e.target.value });
+                  }
+                }}
+                className="w-28 px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="#1e293b"
+              />
+            </div>
+          </div>
+
+          {/* Live Preview */}
+          <div className="ml-auto">
+            <span className="text-xs text-gray-500 mb-1 block">Preview</span>
+            <div className="flex gap-2">
+              <div className="w-16 h-8 rounded-lg shadow-inner flex items-center justify-center text-white text-xs font-medium" style={{ backgroundColor: currentColor }}>
+                Primary
+              </div>
+              <div className="w-16 h-8 rounded-lg shadow-inner flex items-center justify-center text-white text-xs font-medium" style={{ backgroundColor: currentColor, opacity: 0.8 }}>
+                Hover
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Shade Preview */}
+        <div className="mt-4">
+          <span className="text-xs text-gray-500 mb-1 block">Generated Shades</span>
+          <div className="flex gap-1 rounded-lg overflow-hidden">
+            {Object.entries(generateShades(currentColor)).map(([shade, color]) => (
+              <div
+                key={shade}
+                className="flex-1 h-6 flex items-center justify-center text-white text-[9px] font-medium"
+                style={{ backgroundColor: color }}
+                title={`${shade}: ${color}`}
+              >
+                {shade}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function AdminPage() {
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [collages, setCollages] = useState<Collage[]>([]);
@@ -2018,6 +2163,9 @@ export default function AdminPage() {
                     </div>
                 </div>
             </motion.div>
+
+            {/* Theme Color Section */}
+            <ThemeColorPicker siteSettings={siteSettings} setSiteSettings={setSiteSettings} />
 
             {/* Navigation Links Section */}
             <motion.div

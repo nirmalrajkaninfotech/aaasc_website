@@ -17,14 +17,14 @@ export default function PlacementsSection({ placements }: PlacementsSectionProps
   }
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-[var(--theme-bg-card)]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+          <h2 className="text-4xl font-bold text-[var(--theme-text)] mb-4">
             {placements.title}
           </h2>
           {placements.subtitle && (
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto">
               {placements.subtitle}
             </p>
           )}
@@ -53,11 +53,11 @@ export default function PlacementsSection({ placements }: PlacementsSectionProps
               
               <div className={`lg:w-1/2 ${item.alignment === 'center' ? 'text-center' : 
                 item.alignment === 'right' ? 'text-right' : 'text-left'}`}>
-                <h3 className="text-3xl font-bold text-gray-800 mb-6">
+                <h3 className="text-3xl font-bold text-[var(--theme-text)] mb-6">
                   {item.title}
                 </h3>
                 <div 
-                  className="text-gray-600 prose prose-lg max-w-none"
+                  className="text-[var(--theme-text-secondary)] prose prose-lg max-w-none"
                   dangerouslySetInnerHTML={{ __html: item.content }}
                 />
               </div>

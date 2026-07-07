@@ -354,13 +354,13 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   }, [editor]);
 
   if (!editor) {
-    return <div className="border border-gray-300 rounded-lg p-4 min-h-[300px] bg-gray-50 animate-pulse" />;
+    return <div className="border border-[var(--theme-border)] rounded-lg p-4 min-h-[300px] bg-[var(--theme-bg-secondary)] animate-pulse" />;
   }
 
   return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+    <div className="border border-[var(--theme-border)] rounded-lg overflow-hidden bg-[var(--theme-bg-card)]">
       {/* Toolbar */}
-      <div className="border-b border-gray-200 p-3 bg-gray-50">
+      <div className="border-b border-[var(--theme-border)] p-3 bg-[var(--theme-bg-secondary)]">
         <div className="flex flex-wrap gap-1">
           {/* Text Formatting */}
           <div className="flex gap-1 mr-2">
@@ -505,11 +505,11 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
             
             {/* Custom Image Resize Controls */}
             <div className="flex gap-1 items-center">
-              <span className="text-xs text-gray-600">Size:</span>
+              <span className="text-xs text-[var(--theme-text-secondary)]">Size:</span>
               <input
                 type="number"
                 placeholder="Width"
-                className="w-16 px-2 py-1 text-xs border border-gray-300 rounded"
+                className="w-16 px-2 py-1 text-xs border border-[var(--theme-border)] rounded"
                 title="Width in pixels"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -536,7 +536,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
               <input
                 type="number"
                 placeholder="%"
-                className="w-12 px-2 py-1 text-xs border border-gray-300 rounded"
+                className="w-12 px-2 py-1 text-xs border border-[var(--theme-border)] rounded"
                 title="Width as percentage"
                 min="1"
                 max="100"
@@ -582,7 +582,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                     }
                   }
                 }}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
+                className="px-2 py-1 text-xs border border-[var(--theme-border)] rounded hover:bg-[var(--theme-bg-secondary)]"
                 title="Custom Size Dialog"
               >
                 📐
@@ -593,7 +593,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
             {/* Image Alignment Controls */}
             <div className="flex gap-1 items-center">
-              <span className="text-xs text-gray-600">Align:</span>
+              <span className="text-xs text-[var(--theme-text-secondary)]">Align:</span>
               <button
                 onClick={() => {
                   if (editor) {
@@ -611,7 +611,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                     }
                   }
                 }}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
+                className="px-2 py-1 text-xs border border-[var(--theme-border)] rounded hover:bg-[var(--theme-bg-secondary)]"
                 title="Align Left"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
@@ -635,7 +635,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                     }
                   }
                 }}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
+                className="px-2 py-1 text-xs border border-[var(--theme-border)] rounded hover:bg-[var(--theme-bg-secondary)]"
                 title="Center"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
@@ -659,7 +659,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                     }
                   }
                 }}
-                className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
+                className="px-2 py-1 text-xs border border-[var(--theme-border)] rounded hover:bg-[var(--theme-bg-secondary)]"
                 title="Align Right"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
@@ -755,7 +755,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
               type="color"
               onInput={(e) => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
               value={editor.getAttributes('textStyle').color || '#000000'}
-              className="w-8 h-8 rounded border border-gray-300 cursor-pointer"
+              className="w-8 h-8 rounded border border-[var(--theme-border)] cursor-pointer"
               title="Text Color"
             /> */}
             <button
@@ -780,12 +780,12 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       {/* Professional Image Control Panel */}
       {showImagePanel && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] w-full mx-4 overflow-hidden">
+          <div className="bg-[var(--theme-bg-card)] rounded-lg shadow-xl max-w-4xl max-h-[90vh] w-full mx-4 overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b">
               <h3 className="text-lg font-semibold">🎨 Professional Image Controls</h3>
               <button
                 onClick={() => setShowImagePanel(false)}
-                className="text-gray-500 hover:text-gray-700 text-xl"
+                className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)] text-xl"
               >
                 ×
               </button>
@@ -795,33 +795,33 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                 
                 {/* Size & Position */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-gray-800 border-b pb-2">📏 Size & Position</h4>
+                  <h4 className="font-semibold text-[var(--theme-text)] border-b pb-2">📏 Size & Position</h4>
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Width</label>
+                      <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Width</label>
                       <input
                         type="text"
                         value={imageProperties.width}
                         onChange={(e) => setImageProperties(prev => ({ ...prev, width: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        className="w-full px-3 py-2 border border-[var(--theme-border)] rounded-md text-sm"
                         placeholder="300px or 50%"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Height</label>
+                      <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Height</label>
                       <input
                         type="text"
                         value={imageProperties.height}
                         onChange={(e) => setImageProperties(prev => ({ ...prev, height: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        className="w-full px-3 py-2 border border-[var(--theme-border)] rounded-md text-sm"
                         placeholder="auto or 200px"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Opacity: {imageProperties.opacity}%</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Opacity: {imageProperties.opacity}%</label>
                     <input
                       type="range"
                       min="0"
@@ -833,7 +833,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Rotation: {imageProperties.rotation}°</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Rotation: {imageProperties.rotation}°</label>
                     <input
                       type="range"
                       min="-180"
@@ -847,10 +847,10 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
                 {/* Borders & Effects */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-gray-800 border-b pb-2">🎭 Borders & Effects</h4>
+                  <h4 className="font-semibold text-[var(--theme-text)] border-b pb-2">🎭 Borders & Effects</h4>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Border Radius: {imageProperties.borderRadius}px</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Border Radius: {imageProperties.borderRadius}px</label>
                     <input
                       type="range"
                       min="0"
@@ -863,7 +863,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Border Width: {imageProperties.borderWidth}px</label>
+                      <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Border Width: {imageProperties.borderWidth}px</label>
                       <input
                         type="range"
                         min="0"
@@ -874,19 +874,19 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Border Color</label>
+                      <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Border Color</label>
                       <input
                         type="color"
                         value={imageProperties.borderColor}
                         onChange={(e) => setImageProperties(prev => ({ ...prev, borderColor: e.target.value }))}
-                        className="w-full h-10 border border-gray-300 rounded-md"
+                        className="w-full h-10 border border-[var(--theme-border)] rounded-md"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Shadow Blur: {imageProperties.shadowBlur}px</label>
+                      <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Shadow Blur: {imageProperties.shadowBlur}px</label>
                       <input
                         type="range"
                         min="0"
@@ -897,12 +897,12 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Shadow Color</label>
+                      <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Shadow Color</label>
                       <input
                         type="color"
                         value={imageProperties.shadowColor}
                         onChange={(e) => setImageProperties(prev => ({ ...prev, shadowColor: e.target.value }))}
-                        className="w-full h-10 border border-gray-300 rounded-md"
+                        className="w-full h-10 border border-[var(--theme-border)] rounded-md"
                       />
                     </div>
                   </div>
@@ -910,10 +910,10 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
                 {/* Filters */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-gray-800 border-b pb-2">🌈 Filters</h4>
+                  <h4 className="font-semibold text-[var(--theme-text)] border-b pb-2">🌈 Filters</h4>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Brightness: {imageProperties.brightness}%</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Brightness: {imageProperties.brightness}%</label>
                     <input
                       type="range"
                       min="0"
@@ -925,7 +925,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Contrast: {imageProperties.contrast}%</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Contrast: {imageProperties.contrast}%</label>
                     <input
                       type="range"
                       min="0"
@@ -937,7 +937,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Saturation: {imageProperties.saturate}%</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Saturation: {imageProperties.saturate}%</label>
                     <input
                       type="range"
                       min="0"
@@ -949,7 +949,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Grayscale: {imageProperties.grayscale}%</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Grayscale: {imageProperties.grayscale}%</label>
                     <input
                       type="range"
                       min="0"
@@ -963,10 +963,10 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
                 {/* Advanced Filters */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-gray-800 border-b pb-2">✨ Advanced</h4>
+                  <h4 className="font-semibold text-[var(--theme-text)] border-b pb-2">✨ Advanced</h4>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sepia: {imageProperties.sepia}%</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Sepia: {imageProperties.sepia}%</label>
                     <input
                       type="range"
                       min="0"
@@ -978,7 +978,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Hue Rotate: {imageProperties.hueRotate}°</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Hue Rotate: {imageProperties.hueRotate}°</label>
                     <input
                       type="range"
                       min="0"
@@ -990,7 +990,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Blur: {imageProperties.blur}px</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-1">Blur: {imageProperties.blur}px</label>
                     <input
                       type="range"
                       min="0"
@@ -1003,29 +1003,29 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
                   {/* Quick Presets */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Quick Presets</label>
+                    <label className="block text-sm font-medium text-[var(--theme-text)] mb-2">Quick Presets</label>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => setImageProperties(prev => ({ ...prev, brightness: 100, contrast: 100, saturate: 100, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0 }))}
-                        className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+                        className="px-3 py-2 text-xs bg-[var(--theme-bg-secondary)] hover:bg-gray-200 rounded"
                       >
                         Reset Filters
                       </button>
                       <button
                         onClick={() => setImageProperties(prev => ({ ...prev, grayscale: 100, contrast: 110 }))}
-                        className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+                        className="px-3 py-2 text-xs bg-[var(--theme-bg-secondary)] hover:bg-gray-200 rounded"
                       >
                         B&W
                       </button>
                       <button
                         onClick={() => setImageProperties(prev => ({ ...prev, sepia: 80, brightness: 110, contrast: 120 }))}
-                        className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+                        className="px-3 py-2 text-xs bg-[var(--theme-bg-secondary)] hover:bg-gray-200 rounded"
                       >
                         Vintage
                       </button>
                       <button
                         onClick={() => setImageProperties(prev => ({ ...prev, saturate: 150, contrast: 120, brightness: 105 }))}
-                        className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+                        className="px-3 py-2 text-xs bg-[var(--theme-bg-secondary)] hover:bg-gray-200 rounded"
                       >
                         Vibrant
                       </button>
@@ -1061,7 +1061,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                       marginRight: 0,
                     });
                   }}
-                  className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                  className="px-4 py-2 text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)]"
                 >
                   Reset All
                 </button>

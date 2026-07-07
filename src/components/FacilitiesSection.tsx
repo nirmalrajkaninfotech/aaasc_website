@@ -41,13 +41,13 @@ export default function FacilitiesSection({ facilities }: FacilitiesSectionProps
   };
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-[var(--theme-bg-secondary)]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+          <h2 className="text-4xl font-bold text-[var(--theme-text)] mb-4">
           Facilities
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-[var(--theme-text-secondary)]">
 
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function FacilitiesSection({ facilities }: FacilitiesSectionProps
           {visibleItems.map((facility) => (
             <div
               key={facility.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+              className="bg-[var(--theme-bg-card)] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
               onClick={() => setActiveFacilityId(facility.id)}
             >
               {(facility.gallery && facility.gallery.length > 0) ? (
@@ -91,26 +91,26 @@ export default function FacilitiesSection({ facilities }: FacilitiesSectionProps
               ) : null}
               
               <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-3">
+                <h3 className="text-xl font-bold text-[var(--theme-text)] mb-3">
                   {facility.name}
                 </h3>
                 
-                <p className="text-gray-700 mb-4">
+                <p className="text-[var(--theme-text)] mb-4">
                   {getPreviewText(facility.description)}
                 </p>
                 
                 {facility.features && facility.features.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-gray-800 text-sm">Key Features:</h4>
+                    <h4 className="font-semibold text-[var(--theme-text)] text-sm">Key Features:</h4>
                     <ul className="space-y-1">
                       {facility.features.slice(0, 3).map((feature, index) => (
-                        <li key={index} className="text-sm text-gray-600 flex items-center">
+                        <li key={index} className="text-sm text-[var(--theme-text-secondary)] flex items-center">
                           <span className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-2"></span>
                           {feature}
                         </li>
                       ))}
                       {facility.features.length > 3 && (
-                        <li className="text-sm text-gray-500 italic">+{facility.features.length - 3} more</li>
+                        <li className="text-sm text-[var(--theme-text-secondary)] italic">+{facility.features.length - 3} more</li>
                       )}
                     </ul>
                   </div>
@@ -135,25 +135,25 @@ export default function FacilitiesSection({ facilities }: FacilitiesSectionProps
           <div className="fixed inset-0 z-50">
             <div className="absolute inset-0 bg-black/60" onClick={() => setActiveFacilityId(null)} />
             <div className="absolute inset-0 flex items-center justify-center p-4">
-              <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full overflow-hidden">
+              <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-2xl max-w-3xl w-full overflow-hidden">
                 <div className="flex items-center justify-between px-6 py-4 border-b">
-                  <h3 className="text-xl font-semibold text-gray-800">{activeFacility.name}</h3>
-                  <button aria-label="Close" onClick={() => setActiveFacilityId(null)} className="text-gray-500 hover:text-gray-800">✕</button>
+                  <h3 className="text-xl font-semibold text-[var(--theme-text)]">{activeFacility.name}</h3>
+                  <button aria-label="Close" onClick={() => setActiveFacilityId(null)} className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)]">✕</button>
                 </div>
                 {activeFacility.image && (
-                  <div className="relative w-full h-64 bg-gray-100">
+                  <div className="relative w-full h-64 bg-[var(--theme-bg-secondary)]">
                     <Image src={activeFacility.image} alt={activeFacility.name} fill className="object-cover" />
                     <span className="absolute top-3 right-3 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">{activeFacility.category}</span>
                   </div>
                 )}
                 <div className="px-6 py-5 space-y-4">
-                  <div className="prose prose-lg max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: activeFacility.description }} />
+                  <div className="prose prose-lg max-w-none text-[var(--theme-text)]" dangerouslySetInnerHTML={{ __html: activeFacility.description }} />
                   {activeFacility.features && activeFacility.features.length > 0 && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Key Features</h4>
+                      <h4 className="font-semibold text-[var(--theme-text)] mb-2">Key Features</h4>
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {activeFacility.features.map((feature, idx) => (
-                          <li key={idx} className="text-sm text-gray-700 flex items-center">
+                          <li key={idx} className="text-sm text-[var(--theme-text)] flex items-center">
                             <span className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-2"></span>
                             {feature}
                           </li>

@@ -88,13 +88,13 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" }:
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-[var(--theme-text)]">
         {label}
       </label>
       
       {value ? (
         <div className="relative inline-block">
-          <div className="relative w-48 h-32 border border-gray-300 rounded-md overflow-hidden">
+          <div className="relative w-48 h-32 border border-[var(--theme-border)] rounded-md overflow-hidden">
             <Image
               src={value}
               alt="Uploaded image"
@@ -119,16 +119,16 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" }:
           className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors ${
             dragOver
               ? 'border-blue-400 bg-blue-50'
-              : 'border-gray-300 hover:border-gray-400'
+              : 'border-[var(--theme-border)] hover:border-gray-400'
           }`}
         >
           {uploading ? (
-            <div className="text-gray-500">
+            <div className="text-[var(--theme-text-secondary)]">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
               Uploading...
             </div>
           ) : (
-            <div className="text-gray-500">
+            <div className="text-[var(--theme-text-secondary)]">
               <svg className="mx-auto h-12 w-12 mb-2" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               </svg>

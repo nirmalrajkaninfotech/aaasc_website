@@ -6,42 +6,11 @@ import { Collage, SiteSettings } from '@/types';
 import { fetchApi } from '@/lib/api';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`/api/site`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    return {
-      siteTitle: "My Collage Website",
-      logo: "/logo.png",
-      navLinks: [
-        { label: "Home", href: "/" },
-        { label: "Gallery", href: "/" },
-        { label: "About", href: "/about" }
-      ],
-      footer: {
-        text: "© 2025 My Collage Website. All rights reserved.",
-        socialLinks: [
-          { label: "Twitter", href: "https://twitter.com/myprofile" },
-          { label: "GitHub", href: "https://github.com/myprofile" }
-        ]
-      }
-    };
-  }
-  
-  return res.json();
+  return fetchApi<SiteSettings>('/api/site', { cache: 'no-store' });
 }
 
 async function getCollage(id: string): Promise<Collage | null> {
-  const res = await fetch(`/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    return null;
-  }
-  
-  const collages: Collage[] = await res.json();
+  const collages = await fetchApi<Collage[]>('/api/collages', { cache: 'no-store' });
   return collages.find(c => c.id === parseInt(id)) || null;
 }
 
@@ -83,17 +52,17 @@ export default async function CollagePage({ params }: { params: { id: string } }
               )}
             </div>
             
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            <h1 className="text-4xl font-bold text-[var(--theme-text)] mb-4">
               {collage.title}
             </h1>
             
             {collage.description && (
-              <p className="text-xl text-gray-600 mb-6 max-w-3xl mx-auto">
+              <p className="text-xl text-[var(--theme-text-secondary)] mb-6 max-w-3xl mx-auto">
                 {collage.description}
               </p>
             )}
             
-            <div className="flex justify-center items-center gap-6 text-gray-500">
+            <div className="flex justify-center items-center gap-6 text-[var(--theme-text-secondary)]">
               <span>{collage.images.length} images</span>
               <span>•</span>
               <span>{new Date(collage.date).toLocaleDateString('en-US', {
@@ -108,7 +77,7 @@ export default async function CollagePage({ params }: { params: { id: string } }
                 {collage.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm"
+                    className="bg-[var(--theme-bg-secondary)] text-[var(--theme-text-secondary)] px-3 py-1 rounded-full text-sm"
                   >
                     #{tag}
                   </span>
@@ -135,7 +104,7 @@ export default async function CollagePage({ params }: { params: { id: string } }
 
           {collage.images.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500">No images in this collage yet.</p>
+              <p className="text-[var(--theme-text-secondary)]">No images in this collage yet.</p>
             </div>
           )}
         </div>

@@ -1,9 +1,12 @@
 import IQACSection from '@/components/IQACSection';
+import { fetchApi } from '@/lib/api';
 
 async function getIQACData() {
-  const res = await fetch(`/api/iqac`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    return await fetchApi('/api/iqac', { cache: 'no-store' });
+  } catch {
+    return null;
+  }
 }
 
 export default async function IQACPage() {

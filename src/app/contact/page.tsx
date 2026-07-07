@@ -128,7 +128,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[var(--theme-bg-card)]">
    
       <main className="flex-1">
         {/* Hero Section */}
@@ -144,14 +144,14 @@ export default function ContactPage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Contact Information Card */}
-              <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+              <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-md overflow-hidden border border-gray-100">
                 <div className="p-6 md:p-8">
                   <div className="flex items-center mb-6">
                     <div className="w-1 h-8 bg-blue-600 rounded-full mr-3"></div>
-                    <h2 className="text-2xl font-bold text-gray-800">Get in Touch</h2>
+                    <h2 className="text-2xl font-bold text-[var(--theme-text)]">Get in Touch</h2>
                   </div>
                 <div className="space-y-6">
-                  <div className="flex items-start space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
+                  <div className="flex items-start space-x-4 p-4 hover:bg-[var(--theme-bg-secondary)] rounded-lg transition-colors">
                     <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
                       <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -159,50 +159,50 @@ export default function ContactPage() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wider mb-1">Address</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
+                      <h3 className="font-semibold text-[var(--theme-text)] text-sm uppercase tracking-wider mb-1">Address</h3>
+                      <p className="text-[var(--theme-text-secondary)] text-sm leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
                         {siteSettings.contact?.address || '123 University Avenue\nCollege Town, ST 12345'}
                       </p>
                     </div>
                   </div>
 
-                    <div className="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className="flex items-center space-x-4 p-4 hover:bg-[var(--theme-bg-secondary)] rounded-lg transition-colors">
                       <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
                         <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wider mb-1">Phone</h3>
+                        <h3 className="font-semibold text-[var(--theme-text)] text-sm uppercase tracking-wider mb-1">Phone</h3>
                         <a href={`tel:${siteSettings.contact?.phone || '5551234567'}`} className="text-blue-600 hover:text-blue-800 transition-colors text-sm">
                           {siteSettings.contact?.phone || '(555) 123-4567'}
                         </a>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className="flex items-center space-x-4 p-4 hover:bg-[var(--theme-bg-secondary)] rounded-lg transition-colors">
                       <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
                         <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wider mb-1">Email</h3>
+                        <h3 className="font-semibold text-[var(--theme-text)] text-sm uppercase tracking-wider mb-1">Email</h3>
                         <a href={`mailto:${siteSettings.contact?.email || 'info@university.edu'}`} className="text-blue-600 hover:text-blue-800 transition-colors text-sm">
                           {siteSettings.contact?.email || 'info@university.edu'}
                         </a>
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className="flex items-start space-x-4 p-4 hover:bg-[var(--theme-bg-secondary)] rounded-lg transition-colors">
                       <div className="bg-blue-50 p-3 rounded-full flex-shrink-0 mt-0.5">
                         <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wider mb-1">Office Hours</h3>
-                        <p className="text-gray-600 text-sm leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
+                        <h3 className="font-semibold text-[var(--theme-text)] text-sm uppercase tracking-wider mb-1">Office Hours</h3>
+                        <p className="text-[var(--theme-text-secondary)] text-sm leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
                           {siteSettings.contact?.officeHours || 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM'}
                         </p>
                       </div>
@@ -212,14 +212,14 @@ export default function ContactPage() {
               </div>
 
               {/* Contact Form */}
-              <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 md:p-8 lg:col-span-2">
+              <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-md border border-gray-100 p-6 md:p-8 lg:col-span-2">
                 <div className="flex items-center mb-6">
                   <div className="w-1 h-8 bg-blue-600 rounded-full mr-3"></div>
-                  <h2 className="text-2xl font-bold text-gray-800">Send us a Message</h2>
+                  <h2 className="text-2xl font-bold text-[var(--theme-text)]">Send us a Message</h2>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="name" className="block text-sm font-medium text-[var(--theme-text)]">
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -229,13 +229,13 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-2.5 text-sm border border-[var(--theme-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="Your full name"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="email" className="block text-sm font-medium text-[var(--theme-text)]">
                       Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -245,13 +245,13 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-2.5 text-sm border border-[var(--theme-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="your.email@example.com"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="subject" className="block text-sm font-medium text-[var(--theme-text)]">
                       Subject <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -261,13 +261,13 @@ export default function ContactPage() {
                       value={formData.subject}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-2.5 text-sm border border-[var(--theme-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="What is this about?"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="message" className="block text-sm font-medium text-[var(--theme-text)]">
                       Message <span className="text-red-500">*</span>
                     </label>
                     <textarea
@@ -277,7 +277,7 @@ export default function ContactPage() {
                       onChange={handleChange}
                       required
                       rows={4}
-                      className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                      className="w-full px-4 py-3 text-sm border border-[var(--theme-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
                       placeholder="Your message here..."
                     />
                   </div>
@@ -304,7 +304,7 @@ export default function ContactPage() {
             <div className="mt-12">
               <div className="flex items-center mb-6">
                 <div className="w-1 h-8 bg-blue-600 rounded-full mr-3"></div>
-                <h2 className="text-2xl font-bold text-gray-800">Find Us</h2>
+                <h2 className="text-2xl font-bold text-[var(--theme-text)]">Find Us</h2>
               </div>
               <div className="w-full h-80 rounded-xl overflow-hidden shadow-md border border-gray-100">
                 <iframe
@@ -319,7 +319,7 @@ export default function ContactPage() {
                 />
               </div>
               {!hasEmbedApi && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[var(--theme-text-secondary)] mt-1">
                   Tip: For better map display, add API key in site settings.
                 </p>
               )}

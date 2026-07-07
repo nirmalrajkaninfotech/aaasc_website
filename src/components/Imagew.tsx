@@ -144,21 +144,21 @@ const shadowClassMap: Record<NonNullable<ImageItem["shadow"]>, string> = {
 };
 
 const controlButton =
-  "p-2 bg-white/90 hover:bg-white text-gray-700 rounded-md border border-gray-200 hover:border-gray-300 transition-all shadow-sm hover:shadow-md";
+  "p-2 bg-[var(--theme-bg-card)]/90 hover:bg-[var(--theme-bg-card)] text-[var(--theme-text)] rounded-md border border-[var(--theme-border)] hover:border-[var(--theme-border)] transition-all shadow-sm hover:shadow-md";
 
 const pillButton =
-  "px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full border border-gray-200 transition-all";
+  "px-3 py-1.5 bg-[var(--theme-bg-secondary)] hover:bg-gray-200 text-[var(--theme-text)] rounded-full border border-[var(--theme-border)] transition-all";
 
 const panelClass =
-  "fixed top-4 right-4 bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-2xl z-50 w-96 border border-gray-200";
+  "fixed top-4 right-4 bg-[var(--theme-bg-card)]/80 backdrop-blur-lg p-6 rounded-2xl shadow-2xl z-50 w-96 border border-[var(--theme-border)]";
 
 const toolbarClass =
   "absolute inset-x-2 top-2 flex items-center justify-between gap-2 opacity-0 group-hover:opacity-100 transition-opacity";
 
 const resizeHandleClass =
-  "absolute w-4 h-4 bg-white border border-gray-300 rounded-sm shadow cursor-nwse-resize opacity-0 group-hover:opacity-100 transition-opacity";
+  "absolute w-4 h-4 bg-[var(--theme-bg-card)] border border-[var(--theme-border)] rounded-sm shadow cursor-nwse-resize opacity-0 group-hover:opacity-100 transition-opacity";
 
-const viewButton = "p-2 bg-white text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors";
+const viewButton = "p-2 bg-[var(--theme-bg-card)] text-[var(--theme-text)] rounded-lg border border-[var(--theme-border)] hover:bg-[var(--theme-bg-secondary)] transition-colors";
 const activeViewButton = "p-2 bg-blue-100 text-blue-700 rounded-lg border border-blue-200 hover:bg-blue-200 transition-colors";
 
 const descriptions: Record<ImageFit, string> = {
@@ -365,7 +365,7 @@ const DraggableImage = ({
       tabIndex={0}
     >
       <div
-        className={`relative overflow-hidden bg-white ${radiusClass} ${shadowClass} border border-gray-200 hover:border-gray-300 transition-all`}
+        className={`relative overflow-hidden bg-[var(--theme-bg-card)] ${radiusClass} ${shadowClass} border border-[var(--theme-border)] hover:border-[var(--theme-border)] transition-all`}
         style={{
           height: `calc(${rowSpan} * ${grid.rowHeight}px + ${(rowSpan - 1) * grid.gap}px)`,
           ...(view === "absolute" && image.layout === "absolute" ? {
@@ -523,7 +523,7 @@ const DraggableImage = ({
 
         <div className="absolute -bottom-2 -right-2" onMouseDown={onResizeStart}>
           <div className={`${resizeHandleClass} translate-x-2 translate-y-2 flex items-center justify-center`}>
-            {resizing ? <FiMinimize2 className="text-gray-500" /> : <FiMaximize2 className="text-gray-500" />}
+            {resizing ? <FiMinimize2 className="text-[var(--theme-text-secondary)]" /> : <FiMaximize2 className="text-[var(--theme-text-secondary)]" />}
           </div>
         </div>
 
@@ -824,7 +824,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             </label>
 
             <button 
-              className="px-4 py-2 bg-white text-gray-700 rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm flex items-center gap-2"
+              className="px-4 py-2 bg-[var(--theme-bg-card)] text-[var(--theme-text)] rounded-xl border border-[var(--theme-border)] hover:bg-[var(--theme-bg-secondary)] hover:border-[var(--theme-border)] transition-colors shadow-sm flex items-center gap-2"
               onClick={() => fileInputRef.current?.click()}
             >
               <FiPlus />
@@ -834,7 +834,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 
           <div className="flex items-center gap-2">
             <button
-              className="px-4 py-2 bg-white text-gray-700 rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm flex items-center gap-2"
+              className="px-4 py-2 bg-[var(--theme-bg-card)] text-[var(--theme-text)] rounded-xl border border-[var(--theme-border)] hover:bg-[var(--theme-bg-secondary)] hover:border-[var(--theme-border)] transition-colors shadow-sm flex items-center gap-2"
               onClick={toggleConfigPanel}
             >
               <FiSettings />
@@ -891,7 +891,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <FiImage /> Gallery Configuration
             </h3>
-            <button onClick={toggleConfigPanel} className="text-gray-500 hover:text-gray-700">
+            <button onClick={toggleConfigPanel} className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)]">
               <FiX size={22} />
             </button>
           </div>
@@ -953,7 +953,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 <FiType /> Selected Image
               </h4>
               {!selectedImage ? (
-                <div className="text-gray-500 text-sm">No image selected</div>
+                <div className="text-[var(--theme-text-secondary)] text-sm">No image selected</div>
               ) : (
                 <div className="space-y-3">
                   <div>

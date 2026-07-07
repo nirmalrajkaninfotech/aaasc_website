@@ -15,13 +15,13 @@ export default function FeaturedCollages({ collages }: FeaturedCollagesProps) {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-[var(--theme-bg-secondary)]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+          <h2 className="text-4xl font-bold text-[var(--theme-text)] mb-4">
             Featured Collections
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-[var(--theme-text-secondary)]">
             Discover our most popular and memorable college moments
           </p>
         </div>

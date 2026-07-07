@@ -19,7 +19,7 @@ export default function CollageCard({ collage }: CollageCardProps) {
 
   return (
     <Link href={`/collage/${collage.id}`}>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:border-blue-400 border border-transparent transition-all duration-300 cursor-pointer flex flex-col h-full min-h-[370px]">
+      <div className="bg-[var(--theme-bg-card)] rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:border-blue-400 border border-transparent transition-all duration-300 cursor-pointer flex flex-col h-full min-h-[370px]">
         <div className="aspect-video relative bg-gray-200">
           {collage.images.length > 0 ? (
             <Image
@@ -44,15 +44,15 @@ export default function CollageCard({ collage }: CollageCardProps) {
           </div>
         </div>
         <div className="p-4 flex flex-col flex-1">
-          <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+          <h3 className="text-lg font-semibold text-[var(--theme-text)] mb-2 line-clamp-2">
             {collage.title}
           </h3>
           {collage.description && (
-            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+            <p className="text-sm text-[var(--theme-text-secondary)] mb-3 line-clamp-2">
               {collage.description}
             </p>
           )}
-          <div className="flex justify-between items-center text-sm text-gray-500 mt-auto">
+          <div className="flex justify-between items-center text-sm text-[var(--theme-text-secondary)] mt-auto">
             <span>{collage.images.length} image{collage.images.length !== 1 ? 's' : ''}</span>
             <span>{formatDate(collage.date)}</span>
           </div>
@@ -61,7 +61,7 @@ export default function CollageCard({ collage }: CollageCardProps) {
               {collage.tags.slice(0, 3).map((tag, index) => (
                 <span
                   key={index}
-                  className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs"
+                  className="bg-[var(--theme-bg-secondary)] text-[var(--theme-text-secondary)] px-2 py-1 rounded text-xs"
                 >
                   #{tag}
                 </span>

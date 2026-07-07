@@ -60,7 +60,7 @@ export default function Header3({
                 type="text"
                 value={content.title}
                 onChange={(e) => setContent({...content, title: e.target.value})}
-                className="text-3xl md:text-5xl font-bold bg-white bg-opacity-20 p-2 rounded w-full max-w-2xl text-center"
+                className="text-3xl md:text-5xl font-bold bg-[var(--theme-bg-card)] bg-opacity-20 p-2 rounded w-full max-w-2xl text-center"
               />
             ) : (
               <h1 className="text-3xl md:text-5xl font-bold mb-4">
@@ -72,7 +72,7 @@ export default function Header3({
                 type="text"
                 value={content.subtitle}
                 onChange={(e) => setContent({...content, subtitle: e.target.value})}
-                className="text-xl md:text-2xl bg-white bg-opacity-20 p-2 rounded w-full max-w-2xl text-center"
+                className="text-xl md:text-2xl bg-[var(--theme-bg-card)] bg-opacity-20 p-2 rounded w-full max-w-2xl text-center"
               />
             ) : (
               <p className="text-xl md:text-2xl">{content.subtitle}</p>
@@ -83,7 +83,7 @@ export default function Header3({
 
       {/* Admin Controls */}
       {isAdmin && (
-        <div className="bg-gray-100 p-4">
+        <div className="bg-[var(--theme-bg-secondary)] p-4">
           <div className="container mx-auto flex justify-between items-center">
             <h3 className="text-lg font-semibold">Header Settings</h3>
             {isEditing ? (
@@ -93,7 +93,7 @@ export default function Header3({
                     setContent(initialContent);
                     setIsEditing(false);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-200"
+                  className="px-4 py-2 border border-[var(--theme-border)] rounded text-[var(--theme-text)] hover:bg-gray-200"
                   disabled={isLoading}
                 >
                   Cancel

@@ -31,7 +31,7 @@ export default function AboutSection({ about }: AboutSectionProps) {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <section className="py-20 bg-[var(--theme-bg)]">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-16">
@@ -47,7 +47,7 @@ export default function AboutSection({ about }: AboutSectionProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+              className="text-xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto leading-relaxed"
             >
               {about.masterCaption}
             </motion.p>
@@ -56,7 +56,7 @@ export default function AboutSection({ about }: AboutSectionProps) {
 
         {/* Enhanced Tab Navigation */}
         <div className="mb-12">
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/20 inline-flex flex-wrap gap-2 mx-auto">
+          <div className="bg-[var(--theme-bg-card)]/70 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-[var(--theme-border)] inline-flex flex-wrap gap-2 mx-auto">
             <TabButton 
               active={activeTab === 'overview'} 
               onClick={() => setActiveTab('overview')}
@@ -143,7 +143,7 @@ export default function AboutSection({ about }: AboutSectionProps) {
               <motion.div variants={staggerContainer} animate="animate" className="space-y-8">
                 <motion.div variants={fadeInUp} className="prose max-w-none">
                   <div 
-                    className="text-gray-700 text-lg leading-relaxed"
+                    className="text-[var(--theme-text)] text-lg leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: about.content }}
                   />
                 </motion.div>
@@ -252,7 +252,7 @@ function TabButton({
         relative px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2
         ${active 
           ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 scale-105' 
-          : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:shadow-md'
+          : 'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)] hover:bg-[var(--theme-bg-card)]/50 hover:shadow-md'
         }
       `}
     >
@@ -277,7 +277,7 @@ function StatCard({ stat, index }: { stat: { value: string; label: string }; ind
         animate: { opacity: 1, y: 0 }
       }}
       transition={{ delay: index * 0.1 }}
-      className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
+      className="bg-[var(--theme-bg-card)]/80 backdrop-blur-sm rounded-2xl p-6 text-center shadow-lg border border-[var(--theme-border)] hover:shadow-xl transition-all duration-300"
     >
       <motion.div 
         initial={{ scale: 0 }}
@@ -287,7 +287,7 @@ function StatCard({ stat, index }: { stat: { value: string; label: string }; ind
       >
         {stat.value}
       </motion.div>
-      <div className="text-gray-600 font-medium text-sm uppercase tracking-wide">
+      <div className="text-[var(--theme-text-secondary)] font-medium text-sm uppercase tracking-wide">
         {stat.label}
       </div>
     </motion.div>
@@ -301,7 +301,7 @@ function GallerySection({ images }: { images?: Array<{ url: string; caption?: st
       <div className="text-center py-20">
         <div className="text-6xl mb-4">🖼️</div>
         <h3 className="text-2xl font-semibold text-gray-400 mb-2">No Images Yet</h3>
-        <p className="text-gray-500">Gallery images will appear here once added.</p>
+        <p className="text-[var(--theme-text-secondary)]">Gallery images will appear here once added.</p>
       </div>
     );
   }
@@ -320,7 +320,7 @@ function GallerySection({ images }: { images?: Array<{ url: string; caption?: st
             animate: { opacity: 1, scale: 1 }
           }}
           whileHover={{ y: -5 }}
-          className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+          className="group relative bg-[var(--theme-bg-card)] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
         >
           <div className="relative aspect-square">
             <Image 
@@ -334,10 +334,10 @@ function GallerySection({ images }: { images?: Array<{ url: string; caption?: st
           {(img.caption || img.subtitle) && (
             <div className="p-4">
               {img.caption && (
-                <h4 className="font-semibold text-gray-800 mb-1">{img.caption}</h4>
+                <h4 className="font-semibold text-[var(--theme-text)] mb-1">{img.caption}</h4>
               )}
               {img.subtitle && (
-                <p className="text-sm text-gray-500">{img.subtitle}</p>
+                <p className="text-sm text-[var(--theme-text-secondary)]">{img.subtitle}</p>
               )}
             </div>
           )}
@@ -366,13 +366,13 @@ function ContentSection({ section }: {
         animate={{ opacity: 1, x: 0 }}
         className={section.image ? (section.alignment === 'right' ? 'lg:order-1' : 'lg:order-2') : ''}
       >
-        <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
-          <h3 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+        <div className="bg-[var(--theme-bg-card)]/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-[var(--theme-border)]">
+          <h3 className="text-3xl font-bold text-[var(--theme-text)] mb-6 flex items-center gap-3">
             <span className="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></span>
             {section.title}
           </h3>
           <div 
-            className="prose max-w-none text-gray-700 leading-relaxed"
+            className="prose max-w-none text-[var(--theme-text)] leading-relaxed"
             dangerouslySetInnerHTML={{ __html: section.content }}
           />
         </div>

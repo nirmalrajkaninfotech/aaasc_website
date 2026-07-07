@@ -45,9 +45,9 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
 
   if (!iqacData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--theme-bg-secondary)] flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">IQAC Section Loading...</h2>
+          <h2 className="text-2xl font-bold text-[var(--theme-text)] mb-4">IQAC Section Loading...</h2>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
         </div>
       </div>
@@ -63,9 +63,9 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
   ].filter(tab => tab.id === 'committee' ? true : (iqacData.enabled ? iqacData.enabled[tab.id] !== false : true));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-[var(--theme-bg)]">
       {/* Hero Section */}
-      <div className="relative h-96 bg-gradient-to-r from-blue-600 to-indigo-700 overflow-hidden">
+      <div className="relative h-96 bg-gradient-to-r from-blue-600 to-blue-800 overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src={iqacData.heroImage}
@@ -88,7 +88,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white shadow-lg">
+      <div className="bg-[var(--theme-bg-card)] shadow-lg">
         <div className="container mx-auto px-4">
           <div className="flex space-x-8 overflow-x-auto">
             {tabs.map((tab) => (
@@ -98,7 +98,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
                 className={`py-4 px-2 border-b-2 whitespace-nowrap transition-colors duration-200 ${
                   activeTab === tab.id
                     ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-blue-600'
+                    : 'border-transparent text-[var(--theme-text-secondary)] hover:text-blue-600'
                 }`}
               >
                 <span className="mr-2">{tab.icon}</span>
@@ -118,35 +118,35 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
             transition={{ duration: 0.5 }}
           >
             <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">{iqacData.mission.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{iqacData.mission.content}</p>
+              <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-8">
+                <h3 className="text-2xl font-bold text-[var(--theme-text)] mb-4">{iqacData.mission.title}</h3>
+                <p className="text-[var(--theme-text-secondary)] leading-relaxed">{iqacData.mission.content}</p>
               </div>
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">{iqacData.vision.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{iqacData.vision.content}</p>
+              <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-8">
+                <h3 className="text-2xl font-bold text-[var(--theme-text)] mb-4">{iqacData.vision.title}</h3>
+                <p className="text-[var(--theme-text-secondary)] leading-relaxed">{iqacData.vision.content}</p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6">Objectives</h3>
+              <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-8">
+                <h3 className="text-2xl font-bold text-[var(--theme-text)] mb-6">Objectives</h3>
                 <ul className="space-y-3">
                   {iqacData.objectives.map((objective, index) => (
                     <li key={index} className="flex items-start">
                       <span className="text-blue-600 mr-3 mt-1">•</span>
-                      <span className="text-gray-600">{objective}</span>
+                      <span className="text-[var(--theme-text-secondary)]">{objective}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6">Functions</h3>
+              <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-8">
+                <h3 className="text-2xl font-bold text-[var(--theme-text)] mb-6">Functions</h3>
                 <ul className="space-y-3">
                   {iqacData.functions.map((func, index) => (
                     <li key={index} className="flex items-start">
                       <span className="text-blue-600 mr-3 mt-1">•</span>
-                      <span className="text-gray-600">{func}</span>
+                      <span className="text-[var(--theme-text-secondary)]">{func}</span>
                     </li>
                   ))}
                 </ul>
@@ -161,20 +161,20 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h3 className="text-3xl font-bold text-gray-800 mb-8">{iqacData.committee.title}</h3>
+            <h3 className="text-3xl font-bold text-[var(--theme-text)] mb-8">{iqacData.committee.title}</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {iqacData.committee.members.map((member, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div key={index} className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
                   <div className="text-center">
                     <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-white text-xl font-bold">
                         {member.name.split(' ').map(n => n[0]).join('')}
                       </span>
                     </div>
-                    <h4 className="text-xl font-bold text-gray-800 mb-1">{member.name}</h4>
+                    <h4 className="text-xl font-bold text-[var(--theme-text)] mb-1">{member.name}</h4>
                     <p className="text-blue-600 font-semibold mb-1">{member.position}</p>
-                    <p className="text-gray-600 text-sm">{member.designation}</p>
-                    <p className="text-gray-500 text-sm">{member.department}</p>
+                    <p className="text-[var(--theme-text-secondary)] text-sm">{member.designation}</p>
+                    <p className="text-[var(--theme-text-secondary)] text-sm">{member.department}</p>
                   </div>
                 </div>
               ))}
@@ -188,14 +188,14 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h3 className="text-3xl font-bold text-gray-800 mb-8">Recent Activities</h3>
+            <h3 className="text-3xl font-bold text-[var(--theme-text)] mb-8">Recent Activities</h3>
             <div className="space-y-6">
               {iqacData.activities.map((activity, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg p-6">
+                <div key={index} className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h4 className="text-xl font-bold text-gray-800">{activity.title}</h4>
-                      <p className="text-gray-600 mt-2">{activity.description}</p>
+                      <h4 className="text-xl font-bold text-[var(--theme-text)]">{activity.title}</h4>
+                      <p className="text-[var(--theme-text-secondary)] mt-2">{activity.description}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       activity.status === 'Completed' ? 'bg-green-100 text-green-800' :
@@ -205,7 +205,7 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
                       {activity.status}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500">Date: {new Date(activity.date).toLocaleDateString()}</p>
+                  <p className="text-sm text-[var(--theme-text-secondary)]">Date: {new Date(activity.date).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>
@@ -218,12 +218,12 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h3 className="text-3xl font-bold text-gray-800 mb-8">Reports & Documents</h3>
+            <h3 className="text-3xl font-bold text-[var(--theme-text)] mb-8">Reports & Documents</h3>
             <div className="grid md:grid-cols-2 gap-6">
               {iqacData.reports.map((report, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg p-6">
-                  <h4 className="text-xl font-bold text-gray-800 mb-2">{report.title}</h4>
-                  <p className="text-gray-600 mb-4">Date: {new Date(report.date).toLocaleDateString()}</p>
+                <div key={index} className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-6">
+                  <h4 className="text-xl font-bold text-[var(--theme-text)] mb-2">{report.title}</h4>
+                  <p className="text-[var(--theme-text-secondary)] mb-4">Date: {new Date(report.date).toLocaleDateString()}</p>
                   <a
                     href={report.file}
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -245,15 +245,15 @@ export default function IQACSection({ iqacData }: IQACSectionProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h3 className="text-3xl font-bold text-gray-800 mb-8">Best Practices</h3>
+            <h3 className="text-3xl font-bold text-[var(--theme-text)] mb-8">Best Practices</h3>
             <div className="grid md:grid-cols-2 gap-6">
               {iqacData.bestPractices.map((practice, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg p-6">
+                <div key={index} className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-6">
                   <div className="flex items-start">
                     <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
                       <span className="text-white text-sm font-bold">{index + 1}</span>
                     </div>
-                    <p className="text-gray-600">{practice}</p>
+                    <p className="text-[var(--theme-text-secondary)]">{practice}</p>
                   </div>
                 </div>
               ))}

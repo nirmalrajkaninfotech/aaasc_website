@@ -186,6 +186,7 @@ export interface SiteSettings {
   others: OthersSection;
   faculty: FacultySection;
   header2?: Header2;
+  themeColor?: string;
 }
 
 export interface AlumniAssociation {

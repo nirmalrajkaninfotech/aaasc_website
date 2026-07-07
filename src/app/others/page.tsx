@@ -29,10 +29,10 @@ export default async function OthersPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-8 text-center">
               <div className="text-red-500 text-5xl mb-4">⚠️</div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Content</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl font-bold text-[var(--theme-text)] mb-2">Error Loading Content</h1>
+              <p className="text-[var(--theme-text-secondary)]">
                 We couldn't load the requested information. Please try refreshing the page.
               </p>
             </div>
@@ -48,10 +48,10 @@ export default async function OthersPage() {
         <div className="max-w-6xl mx-auto">
           {/* Page Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-[var(--theme-text)] mb-4">
               Additional Information
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-[var(--theme-text-secondary)] max-w-2xl mx-auto">
               Important institutional information and coordination details
             </p>
           </div>
@@ -60,11 +60,11 @@ export default async function OthersPage() {
             {/* AISHE Section */}
             <section 
               aria-labelledby="aishe-heading" 
-              className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden"
+              className="bg-[var(--theme-bg-card)] rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden"
             >
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
                 <div className="flex items-center space-x-4">
-                  <div className="bg-white bg-opacity-20 rounded-full p-3">
+                  <div className="bg-[var(--theme-bg-card)] bg-opacity-20 rounded-full p-3">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -91,11 +91,11 @@ export default async function OthersPage() {
             {/* Academic Coordinator Section */}
             <section 
               aria-labelledby="academic-coordinator-heading" 
-              className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden"
+              className="bg-[var(--theme-bg-card)] rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden"
             >
               <div className="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6">
                 <div className="flex items-center space-x-4">
-                  <div className="bg-white bg-opacity-20 rounded-full p-3">
+                  <div className="bg-[var(--theme-bg-card)] bg-opacity-20 rounded-full p-3">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>

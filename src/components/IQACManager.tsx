@@ -97,7 +97,7 @@ export default function IQACManager() {
       </div>
 
       {/* Basic Information */}
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
+      <div className="bg-[var(--theme-bg-card)] rounded-lg shadow p-6 space-y-4">
         <h3 className="text-lg font-semibold">Basic Information</h3>
         <div>
           <label className="block text-sm font-medium mb-1">Title</label>
@@ -128,7 +128,7 @@ export default function IQACManager() {
 
       {/* Mission & Vision */}
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-[var(--theme-bg-card)] rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4">Mission</h3>
           <RichTextEditor
             value={iqacData.mission.content}
@@ -138,7 +138,7 @@ export default function IQACManager() {
             })}
           />
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-[var(--theme-bg-card)] rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4">Vision</h3>
           <RichTextEditor
             value={iqacData.vision.content}
@@ -151,7 +151,7 @@ export default function IQACManager() {
       </div>
 
       {/* Committee Members */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-[var(--theme-bg-card)] rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold mb-4">Committee Members</h3>
         {iqacData.committee.members.map((member, index) => (
           <div key={index} className="border rounded-lg p-4 mb-4">
@@ -218,7 +218,7 @@ export default function IQACManager() {
       </div>
 
       {/* Activities */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-[var(--theme-bg-card)] rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold mb-4">Activities</h3>
         {iqacData.activities.map((activity, index) => (
           <div key={index} className="border rounded-lg p-4 mb-4">

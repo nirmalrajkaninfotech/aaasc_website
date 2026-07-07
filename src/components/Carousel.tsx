@@ -219,8 +219,8 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
             key={index}
             className={`w-3 h-3 rounded-full focus:outline-none transition-all duration-300 ${
               index === currentIndex 
-                ? 'bg-white scale-125 border border-black' 
-                : 'bg-white/50 hover:bg-white/75'
+                ? 'bg-[var(--theme-bg-card)] scale-125 border border-black' 
+                : 'bg-[var(--theme-bg-card)]/50 hover:bg-[var(--theme-bg-card)]/75'
             }`}
             onClick={() => goToSlide(index)}
             aria-label={`Go to slide ${index + 1}`}
@@ -232,7 +232,7 @@ export default function Carousel({ isTamil, items = [] }: CarouselProps) {
       {/* Progress Bar */}
       <div className="absolute bottom-0 left-0 w-full h-1 bg-black/20">
         <div 
-          className="h-full bg-white/80 transition-all duration-4000 ease-linear"
+          className="h-full bg-[var(--theme-bg-card)]/80 transition-all duration-4000 ease-linear"
           style={{ width: totalSlides > 0 ? `${((currentIndex + 1) / totalSlides) * 100}%` : '0%' }}
         />
       </div>

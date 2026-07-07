@@ -48,9 +48,13 @@ export default function Header({ siteSettings }: HeaderProps) {
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           isScrolled 
-            ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-white/20' 
-            : 'bg-white shadow-md'
+            ? 'backdrop-blur-xl shadow-lg border-b' 
+            : 'shadow-md'
         }`}
+        style={{
+          backgroundColor: isScrolled ? 'color-mix(in srgb, var(--theme-bg) 95%, transparent)' : 'var(--theme-bg)',
+          borderBottomColor: 'var(--theme-border)',
+        } as React.CSSProperties}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 lg:h-20">
@@ -91,7 +95,7 @@ export default function Header({ siteSettings }: HeaderProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileMenu}
-              className="lg:hidden p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+              className="lg:hidden p-2 rounded-xl bg-[var(--theme-bg-secondary)] hover:bg-[var(--theme-bg-secondary)] transition-colors duration-200"
               aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? (
@@ -125,10 +129,9 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <div>
       <Link
         href={href}
-        className="relative px-4 py-2.5 text-gray-700 hover:text-blue-600 font-medium text-sm transition-all duration-300 rounded-xl hover:bg-blue-50 group"
+        className="relative px-4 py-2.5 text-[var(--theme-text)] hover:text-blue-600 font-medium text-sm transition-colors duration-200"
       >
         {label}
-        <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-3/4 group-hover:-translate-x-1/2" />
       </Link>
     </div>
   );
@@ -152,23 +155,22 @@ function DropdownMenu({
     <div className="relative">
       <button
         onClick={() => onToggle(index)}
-        className="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:text-blue-600 font-medium text-sm transition-all duration-300 rounded-xl hover:bg-blue-50 group"
+        className="flex items-center gap-2 px-4 py-2.5 text-[var(--theme-text)] hover:text-blue-600 font-medium text-sm transition-colors duration-200"
       >
         {link.label}
         <span className="inline-block transform transition-transform" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           <ChevronIcon />
         </span>
-        <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-3/4 group-hover:-translate-x-1/2" />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full mt-2 left-0 min-w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden z-50">
+        <div className="absolute top-full mt-2 left-0 min-w-56 backdrop-blur-xl rounded-2xl shadow-2xl border overflow-hidden z-50" style={{ backgroundColor: 'color-mix(in srgb, var(--theme-bg) 95%, transparent)', borderColor: 'var(--theme-border)' } as React.CSSProperties}>
           <div className="py-2">
             {link.subLinks.map((subLink: any, subIndex: number) => (
               <div key={subIndex}>
                 <Link
                   href={subLink.href}
-                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200 group text-sm"
+                  className="block px-4 py-3 text-[var(--theme-text)] hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200 group text-sm"
                   onClick={() => onToggle(-1)}
                 >
                   <div className="flex items-center gap-3">
@@ -196,7 +198,7 @@ function MobileMenu({
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
 
   return (
-    <div className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-gray-200/50 overflow-hidden">
+    <div className="lg:hidden backdrop-blur-xl border-t overflow-hidden" style={{ backgroundColor: 'color-mix(in srgb, var(--theme-bg) 95%, transparent)', borderTopColor: 'var(--theme-border)' } as React.CSSProperties}>
       <div className="container mx-auto px-4 py-6">
         <nav className="space-y-2">
           {siteSettings.navLinks?.map((link, index) => (
@@ -205,7 +207,7 @@ function MobileMenu({
                 <div className="space-y-2">
                   <button
                     onClick={() => setOpenSubMenu(openSubMenu === index ? null : index)}
-                    className="flex items-center justify-between w-full p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group text-sm"
+                    className="flex items-center justify-between w-full p-3 text-[var(--theme-text)] hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group text-sm"
                   >
                     <span className="font-medium">{link.label}</span>
                     <span className="inline-block transform transition-transform" style={{ transform: openSubMenu === index ? 'rotate(180deg)' : 'rotate(0deg)' }}>
@@ -220,7 +222,7 @@ function MobileMenu({
                           <Link
                             href={subLink.href}
                             onClick={onClose}
-                            className="block p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group text-sm"
+                            className="block p-3 text-[var(--theme-text)] hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 group text-sm"
                           >
                             <div className="flex items-center gap-3">
                               <span className="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
@@ -237,7 +239,7 @@ function MobileMenu({
                   <Link
                     href={link.href}
                     onClick={onClose}
-                    className="block p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 font-medium text-sm"
+                    className="block p-3 text-[var(--theme-text)] hover:text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 font-medium text-sm"
                   >
                     {link.label}
                   </Link>
@@ -247,7 +249,7 @@ function MobileMenu({
           ))}
 
           {/* Mobile Admin Button */}
-          <div className="pt-4 border-t border-gray-200">
+          <div className="pt-4 border-t border-[var(--theme-border)]">
             <Link
               href="/admin"
               onClick={onClose}

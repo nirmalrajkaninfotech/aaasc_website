@@ -32,13 +32,13 @@ export function SortableNavItem({ id, children, onRemove, onEdit }: SortableNavI
     <div 
       ref={setNodeRef} 
       style={style}
-      className="flex items-center justify-between p-3 bg-white border rounded-md shadow-sm hover:shadow-md transition-shadow mb-2"
+      className="flex items-center justify-between p-3 bg-[var(--theme-bg-card)] border rounded-md shadow-sm hover:shadow-md transition-shadow mb-2"
     >
       <div className="flex items-center">
         <button
           {...attributes}
           {...listeners}
-          className="p-1 mr-2 text-gray-400 hover:text-gray-600 cursor-move"
+          className="p-1 mr-2 text-gray-400 hover:text-[var(--theme-text-secondary)] cursor-move"
           aria-label="Drag to reorder"
         >
           <GripVertical className="h-5 w-5" />

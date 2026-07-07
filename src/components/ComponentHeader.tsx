@@ -5,7 +5,7 @@ const ComponentHeader: React.FC = () => {
   return (
     <header className="w-full">
       {/* Top bar */}
-      <div className="bg-white text-black text-sm flex flex-col sm:flex-row justify-between items-center px-4 py-1 gap-2 w-full">
+      <div className="text-sm flex flex-col sm:flex-row justify-between items-center px-4 py-1 gap-2 w-full" style={{ backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text)' } as React.CSSProperties}>
         <div className="flex items-center gap-6">
           <span className="flex items-center gap-2">
             <Phone size={16} /> 04288 – 260333

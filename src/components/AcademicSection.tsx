@@ -53,24 +53,24 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
   }, [programsBySection, activeTab]);
 
   return (
-    <section className="py-16 bg-white" aria-labelledby="academic-section-title">
+    <section className="py-16 bg-[var(--theme-bg-card)]" aria-labelledby="academic-section-title">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 
             id="academic-section-title"
-            className="text-4xl font-bold text-gray-800 mb-4"
+            className="text-4xl font-bold text-[var(--theme-text)] mb-4"
           >
             {academic.title}
           </h2>
           {academic.subtitle && (
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-[var(--theme-text-secondary)] max-w-3xl mx-auto">
               {academic.subtitle}
             </p>
           )}
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap justify-center mb-8 border-b border-gray-200">
+        <div className="flex flex-wrap justify-center mb-8 border-b border-[var(--theme-border)]">
           {Object.keys(programsBySection).map((sectionName) => (
             <button
               key={sectionName}
@@ -78,7 +78,7 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
               className={`px-6 py-3 font-medium text-sm md:text-base transition-colors duration-200 ${
                 activeTab === sectionName
                   ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)]'
               }`}
               aria-selected={activeTab === sectionName}
               role="tab"
@@ -101,7 +101,7 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                 {programs.map((program) => (
                   <div 
                     key={program.id} 
-                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 flex flex-col h-full"
+                    className="bg-[var(--theme-bg-card)] rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 flex flex-col h-full"
                   >
                     {program.image && (
                       <div className="relative h-48 w-full bg-gray-200">
@@ -116,28 +116,28 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                     )}
                     
                     <div className="p-6 flex flex-col flex-grow">
-                      <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                      <h3 className="text-xl font-semibold mb-2 text-[var(--theme-text)]">
                         {program.title}
                       </h3>
                       
                       {program.content ? (
-                        <p className="text-gray-600 mb-4 flex-grow line-clamp-3">
+                        <p className="text-[var(--theme-text-secondary)] mb-4 flex-grow line-clamp-3">
                           {(() => {
                             const text = getPlainText(program.content);
                             return text.length > 200 ? text.slice(0, 200) + '…' : text;
                           })()}
                         </p>
                       ) : (
-                        <p className="text-gray-600 mb-4 flex-grow line-clamp-3">
+                        <p className="text-[var(--theme-text-secondary)] mb-4 flex-grow line-clamp-3">
                           {program.description?.length > 200 ? program.description.slice(0, 200) + '…' : program.description}
                         </p>
                       )}
                       
                       <div className="mt-auto mb-4">
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-[var(--theme-text)]">
                         </p>
                         {program.eligibility && (
-                          <p className="text-sm text-gray-700 mt-1">
+                          <p className="text-sm text-[var(--theme-text)] mt-1">
                             <span className="font-medium">Eligibility:</span> {program.eligibility}
                           </p>
                         )}
@@ -170,30 +170,30 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
               aria-hidden="true"
             ></div>
             
-            <div className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="relative bg-[var(--theme-bg-card)] rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
               {(() => {
                 const program = publishedPrograms.find(p => p.id === modalProgramId);
                 if (!program) return null;
                 
                 return (
                   <>
-                    <div className="p-6 border-b flex items-start justify-between gap-4 bg-gray-50">
+                    <div className="p-6 border-b flex items-start justify-between gap-4 bg-[var(--theme-bg-secondary)]">
                       <div>
                         <h3 
                           id="modal-title"
-                          className="text-2xl font-semibold text-gray-800"
+                          className="text-2xl font-semibold text-[var(--theme-text)]"
                         >
                           {program.title}
                         </h3>
                         {program.section && (
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-[var(--theme-text-secondary)] mt-1">
                             Section: {program.section}
                           </p>
                         )}
                       </div>
                       <button
                         onClick={() => setModalProgramId(null)}
-                        className="text-gray-500 hover:text-gray-700 text-3xl leading-none p-1"
+                        className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)] text-3xl leading-none p-1"
                         aria-label="Close dialog"
                       >
                         ×
@@ -201,7 +201,7 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                     </div>
                     
                     {program.image && (
-                      <div className="w-full h-64 bg-gray-100 relative">
+                      <div className="w-full h-64 bg-[var(--theme-bg-secondary)] relative">
                         <Image
                           src={program.image}
                           alt={program.title}
@@ -216,23 +216,23 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                       <div className="space-y-6">
                         {program.content ? (
                           <div 
-                            className="prose max-w-none text-gray-700"
+                            className="prose max-w-none text-[var(--theme-text)]"
                             dangerouslySetInnerHTML={{ __html: program.content }} 
                           />
                         ) : (
-                          <p className="text-gray-700">{program.description}</p>
+                          <p className="text-[var(--theme-text)]">{program.description}</p>
                         )}
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
-                            <div className="space-y-2 text-sm text-gray-700">
+                            <div className="space-y-2 text-sm text-[var(--theme-text)]">
                             </div>
                           </div>
                           
                           {program.syllabus && (
                             <div>
-                              <h4 className="font-medium text-gray-800 mb-2">Syllabus</h4>
-                              <p className="text-sm text-gray-700 whitespace-pre-line bg-gray-50 p-3 rounded">
+                              <h4 className="font-medium text-[var(--theme-text)] mb-2">Syllabus</h4>
+                              <p className="text-sm text-[var(--theme-text)] whitespace-pre-line bg-[var(--theme-bg-secondary)] p-3 rounded">
                                 {program.syllabus}
                               </p>
                             </div>
@@ -241,8 +241,8 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                         
                         {program.careerProspects && program.careerProspects.length > 0 && (
                           <div>
-                            <h4 className="font-medium text-gray-800 mb-2">Career Prospects</h4>
-                            <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 pl-4">
+                            <h4 className="font-medium text-[var(--theme-text)] mb-2">Career Prospects</h4>
+                            <ul className="list-disc list-inside text-sm text-[var(--theme-text)] space-y-1 pl-4">
                               {program.careerProspects.map((c, i) => (
                                 <li key={`${c}-${i}`}>{c}</li>
                               ))}
@@ -259,10 +259,10 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
         )}
 
         {academic.additionalInfo && (
-          <div className="mt-16 p-6 bg-gray-50 rounded-xl border border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Additional Information</h3>
+          <div className="mt-16 p-6 bg-[var(--theme-bg-secondary)] rounded-xl border border-[var(--theme-border)]">
+            <h3 className="text-xl font-semibold text-[var(--theme-text)] mb-4">Additional Information</h3>
             <div 
-              className="prose max-w-none text-gray-700" 
+              className="prose max-w-none text-[var(--theme-text)]" 
               dangerouslySetInnerHTML={{ __html: academic.additionalInfo }} 
             />
           </div>

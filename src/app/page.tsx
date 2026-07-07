@@ -66,7 +66,7 @@ export default async function Home() {
     <div className="min-h-screen">
       {/* Homepage Image Section */}
       {siteSettings.homepage_image?.image && (
-        <section className="w-full flex flex-col items-center justify-center bg-gray-100 py-8">
+        <section className="w-full flex flex-col items-center justify-center bg-[var(--theme-bg-secondary)] py-8">
           <div className="relative w-full max-w-4xl h-80 rounded overflow-hidden shadow-lg">
             <Image
               src={siteSettings.homepage_image.image}
@@ -79,7 +79,7 @@ export default async function Home() {
           {(siteSettings.homepage_image.title || siteSettings.homepage_image.description) && (
             <div className="mt-4 text-center">
               {siteSettings.homepage_image.title && <h2 className="text-2xl font-bold mb-2">{siteSettings.homepage_image.title}</h2>}
-              {siteSettings.homepage_image.description && <p className="text-gray-600">{siteSettings.homepage_image.description}</p>}
+              {siteSettings.homepage_image.description && <p className="text-[var(--theme-text-secondary)]">{siteSettings.homepage_image.description}</p>}
             </div>
           )}
         </section>

@@ -68,7 +68,7 @@ export default function SortableSection({ sections, onSectionsChange }: Sortable
 
   return (
     <div className="space-y-3">
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-[var(--theme-text-secondary)] mb-4">
         Drag and drop to reorder sections. Toggle switches to show/hide sections on homepage.
       </div>
       
@@ -80,14 +80,14 @@ export default function SortableSection({ sections, onSectionsChange }: Sortable
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, section.id)}
           onDragEnd={handleDragEnd}
-          className={`flex items-center justify-between p-4 bg-white border rounded-lg cursor-move transition-all duration-200 ${
+          className={`flex items-center justify-between p-4 bg-[var(--theme-bg-card)] border rounded-lg cursor-move transition-all duration-200 ${
             draggedItem === section.id
               ? 'opacity-50 scale-95'
               : 'hover:shadow-md'
           } ${
             section.enabled
-              ? 'border-gray-200'
-              : 'border-gray-100 bg-gray-50'
+              ? 'border-[var(--theme-border)]'
+              : 'border-gray-100 bg-[var(--theme-bg-secondary)]'
           }`}
         >
           <div className="flex items-center space-x-3">
@@ -100,11 +100,11 @@ export default function SortableSection({ sections, onSectionsChange }: Sortable
             
             <div>
               <h3 className={`font-medium ${
-                section.enabled ? 'text-gray-800' : 'text-gray-500'
+                section.enabled ? 'text-[var(--theme-text)]' : 'text-[var(--theme-text-secondary)]'
               }`}>
                 {section.name}
               </h3>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[var(--theme-text-secondary)]">
                 Order: {section.order}
               </p>
             </div>
@@ -112,7 +112,7 @@ export default function SortableSection({ sections, onSectionsChange }: Sortable
 
           <div className="flex items-center space-x-3">
             <span className={`text-sm ${
-              section.enabled ? 'text-green-600' : 'text-gray-500'
+              section.enabled ? 'text-green-600' : 'text-[var(--theme-text-secondary)]'
             }`}>
               {section.enabled ? 'Visible' : 'Hidden'}
             </span>
@@ -124,7 +124,7 @@ export default function SortableSection({ sections, onSectionsChange }: Sortable
                 onChange={() => toggleSection(section.id)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--theme-bg-card)] after:border-[var(--theme-border)] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
             </label>
           </div>
         </div>

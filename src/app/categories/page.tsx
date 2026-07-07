@@ -5,27 +5,11 @@ import { Collage, SiteSettings } from '@/types';
 import { fetchApi } from '@/lib/api';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`/api/site`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch site settings');
-  }
-  
-  return res.json();
+  return fetchApi<SiteSettings>('/api/site', { cache: 'no-store' });
 }
 
 async function getCollages(): Promise<Collage[]> {
-  const res = await fetch(`/api/collages`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    return [];
-  }
-  
-  return res.json();
+  return fetchApi<Collage[]>('/api/collages', { cache: 'no-store' });
 }
 
 export default async function CategoriesPage() {
@@ -49,20 +33,20 @@ export default async function CategoriesPage() {
     <div className="min-h-screen flex flex-col">
 
       
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1 bg-[var(--theme-bg-secondary)]">
         <div className="container mx-auto px-4 py-12">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            <h1 className="text-4xl font-bold text-[var(--theme-text)] mb-4">
               Browse by Category
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-[var(--theme-text-secondary)]">
               Discover collages organized by different aspects of college life
             </p>
           </div>
 
           {categories.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No categories available yet.</p>
+              <p className="text-[var(--theme-text-secondary)] text-lg">No categories available yet.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -72,7 +56,7 @@ export default async function CategoriesPage() {
                   href={`/gallery?category=${encodeURIComponent(category)}`}
                   className="group"
                 >
-                  <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-1">
+                  <div className="bg-[var(--theme-bg-card)] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-1">
                     <div className="aspect-video relative bg-gray-200">
                       {categoryCollages[0]?.images[0] ? (
                         <Image
@@ -99,7 +83,7 @@ export default async function CategoriesPage() {
                     
                     <div className="p-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">
+                        <span className="text-[var(--theme-text-secondary)]">
                           {categoryCollages.reduce((total, collage) => total + collage.images.length, 0)} images total
                         </span>
                         <span className="text-blue-600 group-hover:text-blue-700 font-medium">
