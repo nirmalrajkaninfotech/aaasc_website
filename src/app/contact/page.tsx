@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-
+import Loader from '@/components/Loader';
 import { SiteSettings } from '@/types';
 
 type FormState = {
@@ -71,11 +71,7 @@ export default function ContactPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <Loader text="Loading contact..." />;
   }
 
   if (!siteSettings) {
@@ -128,7 +124,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--theme-bg-card)]">
+    <div className="min-h-screen flex flex-col bg-[var(--theme-bg-card)] w-full">
    
       <main className="flex-1">
         {/* Hero Section */}

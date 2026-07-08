@@ -30,7 +30,7 @@ export default async function AlumniPage() {
   ]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--theme-bg-secondary)] text-[var(--theme-text)]">
+    <div className="flex flex-col min-h-screen bg-[var(--theme-bg-secondary)] text-[var(--theme-text)] w-full">
       {/* Page Header */}
       <header className="w-full bg-[var(--theme-bg-card)] shadow-md">
       </header>

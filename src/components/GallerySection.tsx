@@ -27,7 +27,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({ items }) => {
     );
   }
   return (
-    <section className="py-12">
+    <section className="py-12 w-full">
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold mb-8 text-center"></h2>
         <div className="flex flex-wrap justify-center items-center gap-8">

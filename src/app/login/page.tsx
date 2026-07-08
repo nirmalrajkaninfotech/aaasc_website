@@ -33,7 +33,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[var(--theme-bg-secondary)] px-4">
+    <main className="min-h-screen flex items-center justify-center bg-[var(--theme-bg-secondary)] px-4 w-full">
       <div className="w-full max-w-sm bg-[var(--theme-bg-card)] shadow-lg rounded-2xl p-6">
         <h1 className="text-xl font-bold text-[var(--theme-text)] mb-1">Admin Login</h1>
         <p className="text-sm text-[var(--theme-text-secondary)] mb-6">Sign in to access the admin panel</p>

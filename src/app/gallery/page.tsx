@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import CollageCard from '@/components/CollageCard';
 import CategoryFilter from '@/components/CategoryFilter';
+import Loader from '@/components/Loader';
 import { Collage, SiteSettings } from '@/types';
 
 export default function GalleryPage() {
@@ -40,11 +41,7 @@ export default function GalleryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <Loader text="Loading gallery..." />;
   }
 
   if (!siteSettings) {
@@ -56,7 +53,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <main className="flex-1 bg-[var(--theme-bg-secondary)]">
+    <main className="flex-1 bg-[var(--theme-bg-secondary)] w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[var(--theme-text)] mb-4">

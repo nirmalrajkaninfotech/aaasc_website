@@ -53,7 +53,7 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
   }, [programsBySection, activeTab]);
 
   return (
-    <section className="py-16 bg-[var(--theme-bg-card)]" aria-labelledby="academic-section-title">
+    <section className="py-16 bg-[var(--theme-bg-card)] w-full" aria-labelledby="academic-section-title">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 
@@ -97,14 +97,18 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
               role="tabpanel"
               aria-labelledby={`tab-${sectionName}`}
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className={`grid gap-8 ${
+                programs.length === 1 ? 'grid-cols-1 max-w-4xl mx-auto' : 
+                programs.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto' : 
+                'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              }`}>
                 {programs.map((program) => (
                   <div 
                     key={program.id} 
-                    className="bg-[var(--theme-bg-card)] rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 flex flex-col h-full"
+                    className={`bg-[var(--theme-bg-card)] rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 flex ${programs.length === 1 ? 'flex-col md:flex-row' : 'flex-col'} h-full`}
                   >
                     {program.image && (
-                      <div className="relative h-48 w-full bg-gray-200">
+                      <div className={`relative bg-gray-200 ${programs.length === 1 ? 'w-full md:w-2/5 h-64 md:h-auto shrink-0' : 'h-48 w-full'}`}>
                         <Image
                           src={program.image}
                           alt={program.title}
@@ -120,17 +124,26 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                         {program.title}
                       </h3>
                       
-                      {program.content ? (
-                        <p className="text-[var(--theme-text-secondary)] mb-4 flex-grow line-clamp-3">
-                          {(() => {
-                            const text = getPlainText(program.content);
-                            return text.length > 200 ? text.slice(0, 200) + '…' : text;
-                          })()}
-                        </p>
+                      {programs.length === 1 ? (
+                        <div 
+                          className="prose max-w-none text-[var(--theme-text-secondary)] mb-4 flex-grow"
+                          dangerouslySetInnerHTML={{ __html: program.content || program.description }}
+                        />
                       ) : (
-                        <p className="text-[var(--theme-text-secondary)] mb-4 flex-grow line-clamp-3">
-                          {program.description?.length > 200 ? program.description.slice(0, 200) + '…' : program.description}
-                        </p>
+                        <>
+                          {program.content ? (
+                            <p className="text-[var(--theme-text-secondary)] mb-4 flex-grow line-clamp-3">
+                              {(() => {
+                                const text = getPlainText(program.content);
+                                return text.length > 200 ? text.slice(0, 200) + '…' : text;
+                              })()}
+                            </p>
+                          ) : (
+                            <p className="text-[var(--theme-text-secondary)] mb-4 flex-grow line-clamp-3">
+                              {program.description?.length > 200 ? program.description.slice(0, 200) + '…' : program.description}
+                            </p>
+                          )}
+                        </>
                       )}
                       
                       <div className="mt-auto mb-4">
@@ -142,13 +155,15 @@ export default function AcademicSectionComponent({ academic }: AcademicSectionPr
                           </p>
                         )}
                       </div>
-                      <button
-                        onClick={() => setModalProgramId(program.id)}
-                        className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium self-start transition-colors"
-                        aria-label={`View details for ${program.title}`}
-                      >
-                        View Details →
-                      </button>
+                      {programs.length > 1 && (
+                        <button
+                          onClick={() => setModalProgramId(program.id)}
+                          className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium self-start transition-colors"
+                          aria-label={`View details for ${program.title}`}
+                        >
+                          View Details →
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -33,7 +33,7 @@ export default async function CategoriesPage() {
     <div className="min-h-screen flex flex-col">
 
       
-      <main className="flex-1 bg-[var(--theme-bg-secondary)]">
+      <main className="flex-1 bg-[var(--theme-bg-secondary)] w-full">
         <div className="container mx-auto px-4 py-12">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-[var(--theme-text)] mb-4">

@@ -26,7 +26,7 @@ export default async function OthersPage() {
     others = await getOthers();
   } catch (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12">
+      <div className="min-h-screen bg-[var(--theme-bg-secondary)] py-12 w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <div className="bg-[var(--theme-bg-card)] rounded-xl shadow-lg p-8 text-center">
@@ -43,7 +43,7 @@ export default async function OthersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="min-h-screen bg-[var(--theme-bg-secondary)] w-full">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Page Header */}

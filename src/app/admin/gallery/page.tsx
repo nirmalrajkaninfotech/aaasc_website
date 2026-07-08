@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPlus, FaEdit, FaTrash, FaUpload, FaSave, FaTimes } from 'react-icons/fa';
+import Loader from '@/components/Loader';
 import { Collage } from '@/types';
 
 export default function GalleryAdmin() {
@@ -195,11 +196,7 @@ export default function GalleryAdmin() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <Loader text="Loading gallery..." />;
   }
 
   return (

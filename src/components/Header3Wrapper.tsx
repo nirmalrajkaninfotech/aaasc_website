@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Header3 from './Header3';
+import Loader from '@/components/Loader';
 import { Header3Content } from '@/types/header3';
 
 export default function Header3Wrapper({ isAdmin = false }) {
@@ -53,7 +54,7 @@ export default function Header3Wrapper({ isAdmin = false }) {
   };
 
   if (isLoading) {
-    return <div className="w-full h-16 bg-gray-200 animate-pulse"></div>;
+    return <Loader text="Loading header..." />;
   }
 
   if (!content) {

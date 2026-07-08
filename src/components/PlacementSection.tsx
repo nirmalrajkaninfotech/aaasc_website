@@ -14,7 +14,7 @@ export default function PlacementSectionComponent({ placements }: { placements: 
   const galleryImages = mainImage ? allImages.slice(1) : allImages;
 
   return (
-    <section className="py-16 bg-green-50">
+    <section className="py-16 bg-[var(--theme-bg-secondary)] w-full">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 className="text-4xl font-bold text-[var(--theme-text)] mb-3">{placements.title}</h2>

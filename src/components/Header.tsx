@@ -56,7 +56,7 @@ export default function Header({ siteSettings }: HeaderProps) {
           borderBottomColor: 'var(--theme-border)',
         } as React.CSSProperties}
       >
-        <div className="container mx-auto px-4">
+        <div className="w-full px-4">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo + Title */}
             <div>
@@ -129,7 +129,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <div>
       <Link
         href={href}
-        className="relative px-4 py-2.5 text-[var(--theme-text)] hover:text-blue-600 font-medium text-sm transition-colors duration-200"
+        className="relative px-2 xl:px-4 py-2.5 text-[var(--theme-text)] hover:text-blue-600 font-medium text-sm transition-colors duration-200 whitespace-nowrap"
       >
         {label}
       </Link>
@@ -155,7 +155,7 @@ function DropdownMenu({
     <div className="relative">
       <button
         onClick={() => onToggle(index)}
-        className="flex items-center gap-2 px-4 py-2.5 text-[var(--theme-text)] hover:text-blue-600 font-medium text-sm transition-colors duration-200"
+        className="flex items-center gap-1 xl:gap-2 px-2 xl:px-4 py-2.5 text-[var(--theme-text)] hover:text-blue-600 font-medium text-sm transition-colors duration-200 whitespace-nowrap"
       >
         {link.label}
         <span className="inline-block transform transition-transform" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
@@ -199,7 +199,7 @@ function MobileMenu({
 
   return (
     <div className="lg:hidden backdrop-blur-xl border-t overflow-hidden" style={{ backgroundColor: 'color-mix(in srgb, var(--theme-bg) 95%, transparent)', borderTopColor: 'var(--theme-border)' } as React.CSSProperties}>
-      <div className="container mx-auto px-4 py-6">
+      <div className="w-full px-4 py-6">
         <nav className="space-y-2">
           {siteSettings.navLinks?.map((link, index) => (
             <div key={index}>

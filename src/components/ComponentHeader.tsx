@@ -24,12 +24,12 @@ const ComponentHeader: React.FC = () => {
       </div>
 
       {/* Full-width image */}
-      <div className="relative w-full h-24 sm:h-32 md:h-32 lg:h-20">
+      <div className="relative w-full h-24 sm:h-32 md:h-32 lg:h-20 overflow-hidden">
         <Image
           src="/uploads/image.png"
           alt="College Header"
           fill
-          className="object-contain"
+          className="object-cover"
           priority
         />
       </div>

@@ -17,7 +17,7 @@ export default function PlacementsSection({ placements }: PlacementsSectionProps
   }
 
   return (
-    <section className="py-16 bg-[var(--theme-bg-card)]">
+    <section className="py-16 bg-[var(--theme-bg-card)] w-full">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-[var(--theme-text)] mb-4">

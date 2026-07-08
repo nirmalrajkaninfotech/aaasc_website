@@ -20,7 +20,7 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
 	if (items.length === 0) return null;
 
 	return (
-		<section className="py-16 bg-[var(--theme-bg-secondary)]">
+		<section className="py-16 bg-[var(--theme-bg-secondary)] w-full">
 			<div className="container mx-auto px-4">
 				<div className="text-center mb-12">
 					<h2 className="text-4xl font-bold text-[var(--theme-text)] mb-4">{faculty.title}</h2>
@@ -50,20 +50,20 @@ export default function FacultySection({ faculty }: FacultySectionProps) {
 				{activeItem && (
 					<div className="bg-[var(--theme-bg-card)] rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row items-stretch">
 						{/* Subtitle on the left */}
-						<div className="md:w-1/3 flex flex-col justify-center p-6 border-b md:border-b-0 md:border-r border-gray-100">
+						<div className="md:w-1/3 lg:w-1/4 flex flex-col justify-center p-6 border-b md:border-b-0 md:border-r border-gray-100">
 							{activeItem.subtitle && <div className="text-lg font-semibold text-blue-700 mb-2">{activeItem.subtitle}</div>}
 							<h3 className="text-xl font-bold text-[var(--theme-text)] mb-3">{activeItem.title}</h3>
 							<div className="text-sm text-[var(--theme-text-secondary)]" dangerouslySetInnerHTML={{ __html: activeItem.content }} />
 						</div>
 						{/* Images with captions on the right */}
-						<div className="md:w-2/3 flex flex-wrap gap-4 p-6 items-center justify-center">
+						<div className="md:w-2/3 lg:w-3/4 flex flex-wrap gap-6 md:gap-8 p-6 items-center justify-center">
 							{(activeItem.images && activeItem.images.length > 0 ? activeItem.images : activeItem.image ? [{ url: activeItem.image }] : []).map((img, idx) => (
-								<div key={idx} className="flex flex-col items-center">
-									<div className="relative w-32 h-32 mb-2 rounded-lg bg-[var(--theme-bg-card)] shadow-md hover:shadow-lg transition-shadow">
-										<Image src={img.url} alt={activeItem.title} fill className="object-contain rounded" />
+								<div key={idx} className="flex flex-col items-center max-w-[200px]">
+									<div className="relative w-44 h-56 md:w-48 md:h-64 mb-3 rounded-xl bg-[var(--theme-bg-card)] shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+										<Image src={img.url} alt={activeItem.title} fill className="object-cover object-top" />
 									</div>
-									{img.caption && <div className="text-xs text-[var(--theme-text)] font-medium text-center">{img.caption}</div>}
-									{img.subtitle && <div className="text-xs text-[var(--theme-text-secondary)] text-center">{img.subtitle}</div>}
+									{img.caption && <div className="text-[15px] text-[var(--theme-text)] font-bold text-center leading-tight mb-1">{img.caption}</div>}
+									{img.subtitle && <div className="text-[13px] text-[var(--theme-text-secondary)] text-center leading-tight">{img.subtitle}</div>}
 								</div>
 							))}
 						</div>

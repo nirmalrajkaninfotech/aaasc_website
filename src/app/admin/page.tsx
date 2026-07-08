@@ -11,6 +11,7 @@ const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ss
 import ImageUpload from '@/components/ImageUpload';
 import SortableSection from '@/components/SortableSection';
 import MultiImageUpload from '@/components/MultiImageUpload';
+import Loader from '@/components/Loader';
 import { Collage, SiteSettings, RichTextContent, HomepageSection, CarouselItem, AlumniAssociation, ExamCellSection } from '@/types';
 import {
   FaAlignLeft,
@@ -1205,11 +1206,7 @@ export default function AdminPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-xl">Loading...</div>
-            </div>
-        );
+        return <Loader text="Loading admin panel..." />;
     }
 
     if (!siteSettings) {

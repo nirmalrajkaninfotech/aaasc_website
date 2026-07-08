@@ -41,7 +41,7 @@ export default async function ExamCellPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--theme-bg)]">
+    <div className="min-h-screen bg-[var(--theme-bg)] w-full">
       {/* Hero Section */}
       {examCell.showHero && (
         <section className="relative bg-[var(--theme-bg-secondary)] text-[var(--theme-text)] py-20">

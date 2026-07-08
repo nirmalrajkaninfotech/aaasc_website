@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { RichTextEditor } from '@/components/RichTextEditor';
 import ImageUpload from '@/components/ImageUpload';
+import Loader from '@/components/Loader';
 
 interface IQACData {
   title: string;
@@ -80,7 +81,7 @@ export default function IQACManager() {
     }
   };
 
-  if (loading) return <div className="p-8">Loading...</div>;
+  if (loading) return <Loader text="Loading IQAC data..." />;
   if (!iqacData) return <div className="p-8">Error loading IQAC data</div>;
 
   return (

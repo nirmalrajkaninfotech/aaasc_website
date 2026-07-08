@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import Loader from '@/components/Loader';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 import ImageUpload from '@/components/ImageUpload';
@@ -156,7 +157,7 @@ export default function Achievements() {
   };
 
   if (!siteSettings) {
-    return <div className="text-center py-8 text-gray-500">Loading...</div>;
+    return <Loader text="Loading achievements..." />;
   }
 
   return (

@@ -22,3 +22,15 @@
   --theme-text-secondary: #6b7280;
   --theme-border: #e5e7eb;
 }
+
+html {
+  width: 100%;
+  min-height: 100vh;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
