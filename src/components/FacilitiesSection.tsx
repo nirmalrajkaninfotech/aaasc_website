@@ -20,7 +20,7 @@ export default function FacilitiesSection({ facilities }: FacilitiesSectionProps
 
   // Build category list and active filter
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(publishedItems.map(f => f.category)));
+    const unique = Array.from(new Set(publishedItems.map(f => f.category).filter(Boolean)));
     return ['All', ...unique];
   }, [publishedItems]);
   const [activeCategory, setActiveCategory] = useState<string>('All');

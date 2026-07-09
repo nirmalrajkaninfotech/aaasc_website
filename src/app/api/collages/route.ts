@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { readCollages, writeCollages } from '@/lib/data';
 import { Collage } from '@/types';
-
-const collagesPath = path.join(process.cwd(), 'data', 'collages.json');
-
-function readCollages(): Collage[] {
-  try {
-    const data = fs.readFileSync(collagesPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-function writeCollages(collages: Collage[]): void {
-  fs.writeFileSync(collagesPath, JSON.stringify(collages, null, 2));
-}
 
 export async function GET() {
   try {

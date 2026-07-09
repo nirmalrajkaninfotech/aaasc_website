@@ -1,9 +1,9 @@
 import IQACSection from '@/components/IQACSection';
-import { fetchApi } from '@/lib/api';
+import { readIQACData } from '@/lib/data';
 
 async function getIQACData() {
   try {
-    return await fetchApi('/api/iqac', { cache: 'no-store' });
+    return readIQACData();
   } catch {
     return null;
   }

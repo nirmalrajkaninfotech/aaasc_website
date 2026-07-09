@@ -1,25 +1,12 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { readAcademicData } from '@/lib/data';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const dataFilePath = path.join(process.cwd(), 'data/academics.json');
-
 export async function GET() {
   try {
-    if (!fs.existsSync(dataFilePath)) {
-      return NextResponse.json({
-        title: 'Academic Programs',
-        subtitle: 'Explore our diverse range of academic programs',
-        programs: [],
-        additionalInfo: ''
-      });
-    }
-    
-    const data = fs.readFileSync(dataFilePath, 'utf-8');
-    const academicData = JSON.parse(data);
+    const academicData = readAcademicData();
     
     // Normalize items to support both `image` and `img` and ensure defaults
     const normalized = (academicData.programs || []).map((program: any, index: number) => ({

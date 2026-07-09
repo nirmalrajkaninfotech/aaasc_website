@@ -1,9 +1,9 @@
 import AcademicSection from '@/components/AcademicSection';
-import { fetchApi } from '@/lib/api';
+import { readAcademicData } from '@/lib/data';
 
 async function getAcademicData() {
   try {
-    return await fetchApi('/api/academics/public', { cache: 'no-store' });
+    return readAcademicData();
   } catch (error) {
     console.error('Error fetching academic data:', error);
     return {

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 // Removed framer-motion animations
 import { SiteSettings } from '@/types';
 import ComponentHeader from './ComponentHeader';
@@ -15,6 +16,7 @@ export default function Header({ siteSettings }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const pathname = usePathname() || '';
 
   if (!siteSettings) return null;
 
@@ -73,9 +75,10 @@ export default function Header({ siteSettings }: HeaderProps) {
                     index={index}
                     activeDropdown={activeDropdown}
                     onToggle={handleDropdownToggle}
+                    pathname={pathname}
                   />
                 ) : (
-                  <NavLink key={index} href={link.href} label={link.label} />
+                  <NavLink key={index} href={link.href} label={link.label} pathname={pathname} />
                 )
               )}
 
@@ -124,14 +127,21 @@ export default function Header({ siteSettings }: HeaderProps) {
 }
 
 // Desktop Navigation Link Component
-function NavLink({ href, label }: { href: string; label: string }) {
+function NavLink({ href, label, pathname }: { href: string; label: string; pathname: string }) {
+  const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
+
   return (
     <div>
       <Link
         href={href}
-        className="relative px-2 xl:px-4 py-2.5 text-[var(--theme-text)] hover:text-blue-600 font-medium text-sm transition-colors duration-200 whitespace-nowrap"
+        className={`relative px-2 xl:px-4 py-2.5 font-medium text-sm transition-colors duration-200 whitespace-nowrap group block ${
+          isActive ? 'text-white' : 'text-[var(--theme-text)] hover:text-white'
+        }`}
       >
         {label}
+        <span className={`absolute bottom-0 left-2 right-2 h-[2px] bg-white transition-transform origin-left duration-300 ${
+          isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+        }`} />
       </Link>
     </div>
   );
@@ -142,25 +152,33 @@ function DropdownMenu({
   link, 
   index, 
   activeDropdown, 
-  onToggle 
+  onToggle,
+  pathname
 }: { 
   link: any; 
   index: number; 
   activeDropdown: number | null; 
-  onToggle: (index: number) => void; 
+  onToggle: (index: number) => void;
+  pathname: string;
 }) {
   const isOpen = activeDropdown === index;
+  const isActive = link.subLinks.some((subLink: any) => pathname === subLink.href || (subLink.href !== '/' && pathname.startsWith(subLink.href)));
 
   return (
     <div className="relative">
       <button
         onClick={() => onToggle(index)}
-        className="flex items-center gap-1 xl:gap-2 px-2 xl:px-4 py-2.5 text-[var(--theme-text)] hover:text-blue-600 font-medium text-sm transition-colors duration-200 whitespace-nowrap"
+        className={`relative flex items-center gap-1 xl:gap-2 px-2 xl:px-4 py-2.5 font-medium text-sm transition-colors duration-200 whitespace-nowrap group ${
+          isActive ? 'text-white' : 'text-[var(--theme-text)] hover:text-white'
+        }`}
       >
         {link.label}
         <span className="inline-block transform transition-transform" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           <ChevronIcon />
         </span>
+        <span className={`absolute bottom-0 left-2 right-2 h-[2px] bg-white transition-transform origin-left duration-300 ${
+          isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+        }`} />
       </button>
 
       {isOpen && (

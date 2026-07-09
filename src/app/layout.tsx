@@ -4,13 +4,10 @@ import HeaderWrapper from '@/components/HeaderWrapper';
 import Footer from '@/components/Footer';
 import { SiteSettings } from '@/types';
 import React from 'react';
-import { API_BASE_URL } from "@/config";
-
+import { readSiteSettings } from '@/lib/data';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  const res = await fetch(`${API_BASE_URL}/api/site`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch site settings');
-  return res.json();
+  return readSiteSettings();
 }
 
 export const metadata: Metadata = {

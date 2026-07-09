@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { readIQACData, writeIQACData } from '@/lib/data';
 
 export async function GET() {
   try {
-    const filePath = path.join(process.cwd(), 'data', 'iqac.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    const iqacData = JSON.parse(data);
-    
+    const iqacData = readIQACData();
     return NextResponse.json(iqacData);
   } catch (error) {
     console.error('Error reading IQAC data:', error);
@@ -18,10 +14,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const filePath = path.join(process.cwd(), 'data', 'iqac.json');
-    
-    fs.writeFileSync(filePath, JSON.stringify(body, null, 2));
-    
+    writeIQACData(body);
     return NextResponse.json({ success: true, message: 'IQAC data updated successfully' });
   } catch (error) {
     console.error('Error updating IQAC data:', error);

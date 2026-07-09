@@ -1,9 +1,9 @@
 import PlacementSection from '@/components/PlacementSection';
-import { fetchApi } from '@/lib/api';
+import { readPlacements } from '@/lib/data';
 
 async function getPlacements() {
   try {
-    return await fetchApi('/api/placements', { cache: 'no-store' });
+    return readPlacements();
   } catch {
     return null;
   }

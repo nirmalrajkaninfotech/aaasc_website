@@ -8,19 +8,15 @@ import GallerySection from '@/components/GallerySection';
 import { Collage, SiteSettings } from '@/types';
 import Carousel from '@/components/Carousel';
 import Image from 'next/image';
-import { fetchApi } from '@/lib/api';
+import { readSiteSettings, readCollages } from '@/lib/data';
 
 async function getSiteSettings(): Promise<SiteSettings> {
-  return fetchApi<SiteSettings>('/api/site', {
-    cache: 'no-store',
-  });
+  return readSiteSettings();
 }
 
 async function getCollages(): Promise<Collage[]> {
   try {
-    return await fetchApi<Collage[]>('/api/collages', {
-      cache: 'no-store',
-    });
+    return readCollages();
   } catch (error) {
     console.error('Failed to fetch collages:', error);
     return [];
