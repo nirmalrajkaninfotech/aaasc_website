@@ -1,46 +1,49 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import UpscrollButton from '@/components/UpscrollButton';
 import { ExamCellSection } from '@/types';
 import { ChevronRight, Calendar, FileText, Users, Clock, Award } from 'lucide-react';
 import { getSiteSettings } from '@/lib/api-utils';
 
-export default async function ExamCellPage() {
-  let examCell: ExamCellSection | null = null;
-  
-  try {
-    const siteSettings = await getSiteSettings();
-    examCell = siteSettings.examCell || {
-      title: 'Exam Cell',
-      subtitle: 'Centralized examination management and updates.',
-      content: '<p>Exam cell information will be available soon.</p>',
-      showHero: false,
-      showFeatures: false,
-      showQuickLinks: false,
-      showCTA: false
-    };
-  } catch (error) {
-    console.error('Error fetching exam cell data:', error);
-    examCell = {
-      title: 'Exam Cell',
-      subtitle: 'Centralized examination management and updates.',
-      content: '<p>Exam cell information will be available soon.</p>',
-      showHero: false,
-      showFeatures: false,
-      showQuickLinks: false,
-      showCTA: false
-    };
-  }
-  
-  if (!examCell) {
-    examCell = {
-      title: 'Exam Cell',
-      subtitle: 'Centralized examination management and updates.',
-      content: '<p>Exam cell information will be available soon.</p>',
-      showHero: false,
-      showFeatures: false,
-      showQuickLinks: false,
-      showCTA: false
-    };
-  }
+export default function ExamCellPage() {
+  const [examCell, setExamCell] = useState<ExamCellSection | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const siteSettings = await getSiteSettings();
+        setExamCell(siteSettings.examCell || {
+          title: 'Exam Cell',
+          subtitle: 'Centralized examination management and updates.',
+          content: '<p>Exam cell information will be available soon.</p>',
+          showHero: false,
+          showFeatures: false,
+          showQuickLinks: false,
+          showCTA: false,
+          heroButtonText: '',
+          ctaButtonText: ''
+        });
+      } catch (error) {
+        console.error('Error fetching exam cell data:', error);
+        setExamCell({
+          title: 'Exam Cell',
+          subtitle: 'Centralized examination management and updates.',
+          content: '<p>Exam cell information will be available soon.</p>',
+          showHero: false,
+          showFeatures: false,
+          showQuickLinks: false,
+          showCTA: false,
+          heroButtonText: '',
+          ctaButtonText: ''
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   const examFeatures = [
     {
@@ -69,6 +72,19 @@ export default async function ExamCellPage() {
       description: "Quick access to results and documentation"
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading exam cell information...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!examCell) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -107,7 +123,7 @@ export default async function ExamCellPage() {
                 Comprehensive examination management system designed for student success
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {examFeatures.map((feature, index) => (
                 <div key={index} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
@@ -129,9 +145,9 @@ export default async function ExamCellPage() {
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
               <div className="prose prose-lg max-w-none">
-                <div 
-                  className="text-gray-700 leading-relaxed" 
-                  dangerouslySetInnerHTML={{ __html: examCell.content }} 
+                <div
+                  className="text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: examCell.content }}
                 />
               </div>
             </div>
@@ -157,7 +173,7 @@ export default async function ExamCellPage() {
                     <ChevronRight className="w-5 h-5 text-blue-600 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </a>
-                
+
                 <a href="#" className="group bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl hover:shadow-lg transition-all">
                   <div className="flex items-center justify-between">
                     <div>
@@ -167,7 +183,7 @@ export default async function ExamCellPage() {
                     <ChevronRight className="w-5 h-5 text-green-600 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </a>
-                
+
                 <a href="#" className="group bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl hover:shadow-lg transition-all">
                   <div className="flex items-center justify-between">
                     <div>
@@ -177,7 +193,7 @@ export default async function ExamCellPage() {
                     <ChevronRight className="w-5 h-5 text-purple-600 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </a>
-                
+
                 <a href="#" className="group bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl hover:shadow-lg transition-all">
                   <div className="flex items-center justify-between">
                     <div>

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { API_BASE_URL } from '@/config';
 
 // Allowed origins for CORS
 const allowedOrigins = [
@@ -6,6 +7,7 @@ const allowedOrigins = [
   'http://localhost:3002',
   'http://localhost:3003',
   'http://127.0.0.1:3000',
+  API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL,
   'https://apiaasc.veetusaapadu.in',
   'https://aaasc.edu.in',
   'https://www.aaasc.edu.in',

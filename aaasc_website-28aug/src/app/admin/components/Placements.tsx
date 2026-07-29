@@ -5,6 +5,13 @@ import dynamic from 'next/dynamic';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 import MultiImageUpload from '@/components/MultiImageUpload';
+import { API_BASE_URL, getImageUrl } from '@/config';
+
+const getCleanApiUrl = (endpoint: string) => {
+  const base = API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  return `${base}${cleanEndpoint}`;
+};
 
 interface Placement {
   id: string;
@@ -29,7 +36,7 @@ export default function Placements() {
 
   const fetchPlacements = async () => {
     try {
-      const response = await fetch('https://apiaasc.veetusaapadu.in/api/placements');
+      const response = await fetch(getCleanApiUrl('api/placements'));
       if (response.ok) {
         const data = await response.json();
         setPlacementSectionTitle(data.title || '');
@@ -129,7 +136,7 @@ export default function Placements() {
                         imageDragIndexRef.current = null;
                       }}
                     >
-                      <img src={img} alt="" className="object-cover w-full h-full rounded-md border border-gray-200" />
+                      <img src={getImageUrl(img)} alt="" className="object-cover w-full h-full rounded-md border border-gray-200" />
                       <button
                         type="button"
                         className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -206,7 +213,7 @@ export default function Placements() {
                         subtitle: placementSectionSubtitle,
                         items: placements,
                       };
-                      await fetch('https://apiaasc.veetusaapadu.in/api/placements', {
+                      await fetch(getCleanApiUrl('api/placements'), {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(body),

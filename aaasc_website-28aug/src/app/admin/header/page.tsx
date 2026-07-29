@@ -3,9 +3,16 @@ import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState, useEffect } from 'react';
 import Header3 from '@/components/Header3';
 import { Header3Content } from '@/types/header3';
+import { API_BASE_URL } from '@/config';
+
+const getCleanApiUrl = (endpoint: string) => {
+  const base = API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  return `${base}${cleanEndpoint}`;
+};
 
 export default function AdminHeaderPage() {
-    useDisableRightClick();
+  useDisableRightClick();
 
   const [content, setContent] = useState<Header3Content | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,7 +20,7 @@ export default function AdminHeaderPage() {
   useEffect(() => {
     const fetchHeaderContent = async () => {
       try {
-        const response = await fetch('https://apiaasc.veetusaapadu.in/api/header3', { cache: 'no-store' });
+        const response = await fetch(getCleanApiUrl('api/header3'), { cache: 'no-store' });
         if (!response.ok) throw new Error('Failed to fetch header content');
         const data = await response.json();
         setContent(data);
@@ -29,7 +36,7 @@ export default function AdminHeaderPage() {
 
   const handleSave = async (updatedContent: Header3Content) => {
     try {
-      const response = await fetch('https://apiaasc.veetusaapadu.in/api/header3', {
+      const response = await fetch(getCleanApiUrl('api/header3'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedContent),
@@ -37,7 +44,7 @@ export default function AdminHeaderPage() {
       });
 
       if (!response.ok) throw new Error('Failed to save header content');
-      
+
       const savedContent = await response.json();
       setContent(savedContent);
       return true;
@@ -67,10 +74,10 @@ export default function AdminHeaderPage() {
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Header Management</h1>
       <div className="bg-white rounded-lg shadow-md p-6">
-        <Header3 
-          isAdmin={true} 
-          initialContent={content} 
-          onSave={handleSave} 
+        <Header3
+          isAdmin={true}
+          initialContent={content}
+          onSave={handleSave}
         />
       </div>
     </div>

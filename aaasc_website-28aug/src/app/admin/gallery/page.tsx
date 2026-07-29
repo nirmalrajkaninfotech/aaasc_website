@@ -2,11 +2,18 @@
 import { useDisableRightClick } from '@/hooks/useDisableRightClick';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaPlus, FaEdit, FaTrash, FaUpload, FaSave, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaUpload, FaSave, FaTimes, FaImage } from 'react-icons/fa';
 import { Collage } from '@/types';
+import { getImageUrl, API_BASE_URL } from '@/config';
+
+const getCleanApiUrl = (endpoint: string) => {
+  const base = API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  return `${base}${cleanEndpoint}`;
+};
 
 export default function GalleryAdmin() {
-    useDisableRightClick();
+  useDisableRightClick();
 
   const [collages, setCollages] = useState<Collage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +40,7 @@ export default function GalleryAdmin() {
 
   const fetchCollages = async () => {
     try {
-      const res = await fetch('https://apiaasc.veetusaapadu.in/api/collages');
+      const res = await fetch(getCleanApiUrl('api/collages'));
       if (res.ok) {
         const data = await res.json();
         setCollages(data);
@@ -47,7 +54,7 @@ export default function GalleryAdmin() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
@@ -56,7 +63,7 @@ export default function GalleryAdmin() {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
-    
+
     setIsUploading(true);
     const files = Array.from(e.target.files);
     const uploadedImages: string[] = [];
@@ -65,8 +72,8 @@ export default function GalleryAdmin() {
       for (const file of files) {
         const formData = new FormData();
         formData.append('file', file);
-        
-        const res = await fetch('https://apiaasc.veetusaapadu.in/api/upload', {
+
+        const res = await fetch(getCleanApiUrl('api/upload'), {
           method: 'POST',
           body: formData,
         });
@@ -94,14 +101,14 @@ export default function GalleryAdmin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
-      const url = editingCollage 
-        ? `/api/collages/${editingCollage.id}`
-        : '/api/collages';
-      
+      const url = editingCollage
+        ? getCleanApiUrl(`api/collages/${editingCollage.id}`)
+        : getCleanApiUrl('api/collages');
+
       const method = editingCollage ? 'PUT' : 'POST';
-      
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -124,14 +131,13 @@ export default function GalleryAdmin() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this collage?')) return;
-    
+
     try {
-      const res = await fetch(`/api/collages/${id}`, {
+      const response = await fetch(getCleanApiUrl(`api/collages/${id}`), {
         method: 'DELETE',
       });
-
-      if (res.ok) {
-        fetchCollages();
+      if (response.ok) {
+        setCollages((prev: Collage[]) => prev.filter((c) => c.id !== id));
       } else {
         throw new Error('Failed to delete collage');
       }
@@ -181,13 +187,17 @@ export default function GalleryAdmin() {
     };
     setFormData(updatedFormData);
     try {
-      const res = await fetch(`/api/collages/${editingCollage.id}`, {
+      const response = await fetch(getCleanApiUrl(`api/collages/${editingCollage.id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedFormData),
       });
-      if (!res.ok) throw new Error('Failed to update collage');
-      // Optionally update collages list or editingCollage state here
+      if (response.ok) {
+        setCollages((prev: Collage[]) => prev.map(c => c.id === editingCollage.id ? { ...c, images: newImages } : c));
+        setEditingCollage(prev => prev ? { ...prev, images: newImages } : null);
+      } else {
+        throw new Error('Failed to update collage');
+      }
       alert('Image deleted and collage updated successfully.');
     } catch (error) {
       alert('Failed to update collage after deleting image.');
@@ -221,7 +231,7 @@ export default function GalleryAdmin() {
           <h2 className="text-xl font-semibold mb-4">
             {editingCollage ? 'Edit Collage' : 'Add New Collage'}
           </h2>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -297,12 +307,12 @@ export default function GalleryAdmin() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Images *
               </label>
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-4">
-                {formData.images?.map((image, index) => (
+                {formData.images?.map((image: string, index: number) => (
                   <div key={index} className="relative group">
                     <img
-                      src={image}
+                      src={getImageUrl(image)}
                       alt={`Preview ${index + 1}`}
                       className="w-full h-24 object-cover rounded border border-gray-200"
                       onMouseEnter={() => setPreviewImage(image)}
@@ -317,7 +327,7 @@ export default function GalleryAdmin() {
                     </button>
                   </div>
                 ))}
-                
+
                 <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                   {isUploading ? (
                     <span className="text-gray-500">Uploading...</span>
@@ -338,13 +348,13 @@ export default function GalleryAdmin() {
               </div>
 
               {previewImage && (
-                <div 
-                  className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" 
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
                   onClick={() => setPreviewImage(null)}
                 >
                   <div className="max-w-4xl max-h-[90vh] overflow-auto">
                     <img
-                      src={previewImage}
+                      src={getImageUrl(previewImage)}
                       alt="Preview"
                       className="max-w-full max-h-[80vh] object-contain"
                       onClick={e => e.stopPropagation()}
@@ -365,11 +375,10 @@ export default function GalleryAdmin() {
               <button
                 type="submit"
                 disabled={isUploading || !formData.images?.length}
-                className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                  isUploading || !formData.images?.length
-                    ? 'bg-blue-300 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isUploading || !formData.images?.length
+                  ? 'bg-blue-300 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
               >
                 {editingCollage ? 'Update Collage' : 'Add Collage'}
               </button>
@@ -381,7 +390,7 @@ export default function GalleryAdmin() {
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-medium text-gray-900">All Collages</h2>
           </div>
-          
+
           <div className="divide-y divide-gray-200">
             {collages.length === 0 ? (
               <div className="px-6 py-4 text-center text-gray-500">
@@ -419,7 +428,7 @@ export default function GalleryAdmin() {
                           {collage.images?.[0] ? (
                             <div className="h-10 w-10 rounded-full overflow-hidden">
                               <img
-                                src={collage.images[0]}
+                                src={getImageUrl(collage.images[0])}
                                 alt={collage.title}
                                 className="h-full w-full object-cover"
                               />
@@ -440,11 +449,10 @@ export default function GalleryAdmin() {
                           {collage.images?.length || 0} images
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            collage.featured 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${collage.featured
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                            }`}>
                             {collage.featured ? 'Yes' : 'No'}
                           </span>
                         </td>

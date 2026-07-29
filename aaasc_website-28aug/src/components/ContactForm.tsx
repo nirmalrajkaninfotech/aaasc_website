@@ -1,6 +1,13 @@
 'use client';
 
 import React from 'react';
+import { API_BASE_URL } from '@/config';
+
+const getCleanApiUrl = (endpoint: string) => {
+    const base = API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+    return `${base}${cleanEndpoint}`;
+};
 
 type FormState = {
     name: string;
@@ -29,7 +36,7 @@ export default function ContactForm() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const res = await fetch('https://apiaasc.veetusaapadu.in/api/contact', {
+            const res = await fetch(getCleanApiUrl('api/contact'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)

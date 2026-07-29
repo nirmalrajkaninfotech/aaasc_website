@@ -17,6 +17,7 @@ import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import Youtube from '@tiptap/extension-youtube';
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { API_BASE_URL, getImageUrl } from '@/config';
 // Temporarily disable Filerobot Image Editor due to import issues
 // import dynamic from 'next/dynamic';
 
@@ -61,6 +62,11 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   });
   const imageEditorRef = useRef<any>(null);
 
+  // Store reliable reference to onChange to prevent stale closures in standard React hooks
+  const onChangeRef = useRef(onChange);
+  // Update ref on every render - this is crucial!
+  onChangeRef.current = onChange;
+
   const editor = useEditor({
     immediatelyRender: false, // Fix SSR hydration issues
     extensions: [
@@ -102,7 +108,9 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      // Use ref to access the *latest* onChange function from the latest render
+      // This ensures we close over the latest state (like placements) in the parent
+      onChangeRef.current(editor.getHTML());
     },
     editorProps: {
       attributes: {
@@ -120,6 +128,15 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
     },
   });
 
+  // Sync editor content with external value prop updates (e.g. initial fetch)
+  useEffect(() => {
+    if (editor && value && editor.getHTML() !== value) {
+      // Create a span wrapper for non-block content to avoid Tiptap errors
+      // or just rely on Tiptap's parser
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
+
   const addImage = useCallback(async () => {
     const url = window.prompt('Enter image URL:');
     if (url && editor) {
@@ -135,14 +152,15 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch('https://apiaasc.veetusaapadu.in/api/upload-image', {
+      const uploadUrl = API_BASE_URL.endsWith('/') ? `${API_BASE_URL}api/upload-image` : `${API_BASE_URL}/api/upload-image`;
+      const response = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
       });
 
       const result = await response.json();
       if (result.success) {
-        editor.chain().focus().setImage({ src: result.file.url }).run();
+        editor.chain().focus().setImage({ src: getImageUrl(result.file.url) }).run();
       } else {
         alert('Failed to upload image: ' + result.message);
       }
@@ -173,33 +191,34 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const img = new (typeof window !== 'undefined' ? window.Image : (globalThis as any).Image)();
-      
+
       img.onload = async () => {
         canvas.width = img.width;
         canvas.height = img.height;
         ctx?.drawImage(img, 0, 0);
-        
+
         canvas.toBlob(async (blob) => {
           if (blob && editor) {
             // Upload the edited image
             const formData = new FormData();
             formData.append('image', blob, 'edited-image.png');
-            
+
             setIsUploading(true);
             try {
-              const response = await fetch('https://apiaasc.veetusaapadu.in/api/upload-image', {
+              const uploadUrl = API_BASE_URL.endsWith('/') ? `${API_BASE_URL}api/upload-image` : `${API_BASE_URL}/api/upload-image`;
+              const response = await fetch(uploadUrl, {
                 method: 'POST',
                 body: formData,
               });
-              
+
               const result = await response.json();
               if (result.success) {
                 if (selectedImageElement) {
                   // Update existing image
-                  selectedImageElement.src = result.file.url;
+                  selectedImageElement.src = getImageUrl(result.file.url);
                 } else {
                   // Insert new image
-                  editor.chain().focus().setImage({ src: result.file.url }).run();
+                  editor.chain().focus().setImage({ src: getImageUrl(result.file.url) }).run();
                 }
               }
             } catch (error) {
@@ -212,7 +231,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
           }
         }, 'image/png');
       };
-      
+
       img.src = editedImageObject.imageBase64;
     } catch (error) {
       console.error('Error saving edited image:', error);
@@ -288,8 +307,8 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
             `blur(${properties.blur}px)`
           ].join(' ');
 
-          const boxShadow = properties.shadowBlur > 0 
-            ? `0 ${properties.shadowBlur}px ${properties.shadowBlur * 2}px ${properties.shadowColor}` 
+          const boxShadow = properties.shadowBlur > 0
+            ? `0 ${properties.shadowBlur}px ${properties.shadowBlur * 2}px ${properties.shadowColor}`
             : 'none';
 
           const style = [
@@ -502,7 +521,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
             >
               🎨
             </button>
-            
+
             {/* Custom Image Resize Controls */}
             <div className="flex gap-1 items-center">
               <span className="text-xs text-gray-600">Size:</span>
@@ -520,8 +539,8 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                         const { from } = selection;
                         const node = editor.state.doc.nodeAt(from);
                         if (node?.type.name === 'image') {
-                          editor.chain().focus().updateAttributes('image', { 
-                            style: `width: ${width}px; height: auto;` 
+                          editor.chain().focus().updateAttributes('image', {
+                            style: `width: ${width}px; height: auto;`
                           }).run();
                         }
                       }
@@ -530,9 +549,9 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                 }}
               />
               <span className="text-xs text-gray-400">px</span>
-              
+
               <div className="w-px h-4 bg-gray-300 mx-1"></div>
-              
+
               <input
                 type="number"
                 placeholder="%"
@@ -549,8 +568,8 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                         const { from } = selection;
                         const node = editor.state.doc.nodeAt(from);
                         if (node?.type.name === 'image') {
-                          editor.chain().focus().updateAttributes('image', { 
-                            style: `width: ${percent}%; height: auto;` 
+                          editor.chain().focus().updateAttributes('image', {
+                            style: `width: ${percent}%; height: auto;`
                           }).run();
                         }
                       }
@@ -559,7 +578,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                 }}
               />
               <span className="text-xs text-gray-400">%</span>
-              
+
               <button
                 onClick={() => {
                   const customSize = prompt('Enter image width (e.g., 300px, 50%, auto):');
@@ -604,7 +623,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                       if (node?.type.name === 'image') {
                         const currentStyle = node.attrs.style || '';
                         const newStyle = currentStyle.replace(/display:\s*[^;]+;?/g, '').replace(/margin-left:\s*[^;]+;?/g, '').replace(/margin-right:\s*[^;]+;?/g, '');
-                        editor.chain().focus().updateAttributes('image', { 
+                        editor.chain().focus().updateAttributes('image', {
                           style: `${newStyle} display: block; margin-left: 0; margin-right: auto;`.trim()
                         }).run();
                       }
@@ -628,7 +647,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                       if (node?.type.name === 'image') {
                         const currentStyle = node.attrs.style || '';
                         const newStyle = currentStyle.replace(/display:\s*[^;]+;?/g, '').replace(/margin-left:\s*[^;]+;?/g, '').replace(/margin-right:\s*[^;]+;?/g, '');
-                        editor.chain().focus().updateAttributes('image', { 
+                        editor.chain().focus().updateAttributes('image', {
                           style: `${newStyle} display: block; margin-left: auto; margin-right: auto;`.trim()
                         }).run();
                       }
@@ -652,7 +671,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                       if (node?.type.name === 'image') {
                         const currentStyle = node.attrs.style || '';
                         const newStyle = currentStyle.replace(/display:\s*[^;]+;?/g, '').replace(/margin-left:\s*[^;]+;?/g, '').replace(/margin-right:\s*[^;]+;?/g, '');
-                        editor.chain().focus().updateAttributes('image', { 
+                        editor.chain().focus().updateAttributes('image', {
                           style: `${newStyle} display: block; margin-left: auto; margin-right: 0;`.trim()
                         }).run();
                       }
@@ -771,8 +790,8 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
       {/* Editor Content */}
       <div className="p-4 min-h-[300px]">
-        <EditorContent 
-          editor={editor} 
+        <EditorContent
+          editor={editor}
           placeholder={placeholder || 'Start writing your content...'}
         />
       </div>
@@ -792,11 +811,11 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
             </div>
             <div className="p-6 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+
                 {/* Size & Position */}
                 <div className="space-y-4">
                   <h4 className="font-semibold text-gray-800 border-b pb-2">📏 Size & Position</h4>
-                  
+
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Width</label>
@@ -848,7 +867,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                 {/* Borders & Effects */}
                 <div className="space-y-4">
                   <h4 className="font-semibold text-gray-800 border-b pb-2">🎭 Borders & Effects</h4>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Border Radius: {imageProperties.borderRadius}px</label>
                     <input
@@ -911,7 +930,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                 {/* Filters */}
                 <div className="space-y-4">
                   <h4 className="font-semibold text-gray-800 border-b pb-2">🌈 Filters</h4>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Brightness: {imageProperties.brightness}%</label>
                     <input
@@ -964,7 +983,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                 {/* Advanced Filters */}
                 <div className="space-y-4">
                   <h4 className="font-semibold text-gray-800 border-b pb-2">✨ Advanced</h4>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Sepia: {imageProperties.sepia}%</label>
                     <input

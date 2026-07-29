@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Download, FileText, Calendar } from 'lucide-react';
+import { API_BASE_URL } from '@/config';
+
+const getCleanApiUrl = (endpoint: string) => {
+  const base = API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  return `${base}${cleanEndpoint}`;
+};
 
 interface AdmissionForm {
   id: string;
@@ -26,7 +33,7 @@ export default function AdmissionFormsPage() {
   const fetchAdmissionForms = async () => {
     try {
       console.log('Admission forms page: Fetching admission forms...');
-      const response = await fetch('https://apiaasc.veetusaapadu.in/api/admission-forms');
+      const response = await fetch(getCleanApiUrl('api/admission-forms'));
       console.log('Admission forms page: Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
@@ -111,19 +118,19 @@ export default function AdmissionFormsPage() {
                   <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
                     <FileText className="h-8 w-8 text-blue-600" />
                   </div>
-                  
+
                   {/* Title */}
                   <h3 className="text-lg font-semibold text-gray-800 text-center mb-3 line-clamp-2">
                     {form.title}
                   </h3>
-                  
+
                   {/* Description */}
                   {form.description && (
                     <p className="text-gray-600 text-sm text-center mb-4 line-clamp-3">
                       {form.description}
                     </p>
                   )}
-                  
+
                   {/* File Info */}
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center justify-between text-sm text-gray-500">
@@ -141,7 +148,7 @@ export default function AdmissionFormsPage() {
                       <span>{formatDate(form.uploadDate)}</span>
                     </div>
                   </div>
-                  
+
                   {/* Download Button */}
                   <button
                     onClick={() => handlePdfDownload(form)}

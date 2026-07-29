@@ -1,17 +1,45 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { getSiteSettings } from '@/lib/api-utils';
-import { ContactSettings } from '@/types';
+import { SiteSettings } from '@/types';
 import ContactForm from '@/components/ContactForm';
 import UpscrollButton from '@/components/UpscrollButton';
 
-export default async function ContactPage() {
-  const siteSettings = await getSiteSettings();
+export default function ContactPage() {
+  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const settings = await getSiteSettings();
+        setSiteSettings(settings);
+      } catch (error) {
+        console.error('Error fetching site settings:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading contact information...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Build map iframe src
-  const apiKey = siteSettings.contact?.googleMapsApiKey || '';
-  const embedQuery = siteSettings.contact?.googleMapsEmbedQuery || '';
+  const apiKey = siteSettings?.contact?.googleMapsApiKey || '';
+  const embedQuery = siteSettings?.contact?.googleMapsEmbedQuery || '';
   const hasEmbedApi = Boolean(apiKey && embedQuery);
-  const mapsUrl = siteSettings.contact?.googleMapsUrl || '';
+  const mapsUrl = siteSettings?.contact?.googleMapsUrl || '';
   let iframeSrc = '';
 
   if (hasEmbedApi) {
@@ -26,11 +54,11 @@ export default async function ContactPage() {
       url.searchParams.set('output', 'embed');
       iframeSrc = url.toString();
     } else {
-      const addressFallback = siteSettings.contact?.address ?? '1600 Amphitheatre Parkway, Mountain View, CA';
+      const addressFallback = siteSettings?.contact?.address ?? '1600 Amphitheatre Parkway, Mountain View, CA';
       iframeSrc = `https://www.google.com/maps?q=${encodeURIComponent(addressFallback)}&output=embed`;
     }
   } else {
-    const addressFallback = siteSettings.contact?.address ?? '1600 Amphitheatre Parkway, Mountain View, CA';
+    const addressFallback = siteSettings?.contact?.address ?? '1600 Amphitheatre Parkway, Mountain View, CA';
     iframeSrc = `https://www.google.com/maps?q=${encodeURIComponent(addressFallback)}&output=embed`;
   }
 
@@ -67,7 +95,7 @@ export default async function ContactPage() {
                     <div>
                       <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wider mb-1">Address</h3>
                       <p className="text-gray-600 text-sm leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
-                        {siteSettings.contact?.address || '123 University Avenue\nCollege Town, ST 12345'}
+                        {siteSettings?.contact?.address || '123 University Avenue\nCollege Town, ST 12345'}
                       </p>
                     </div>
                   </div>
@@ -80,8 +108,8 @@ export default async function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wider mb-1">Phone</h3>
-                      <a href={`tel:${siteSettings.contact?.phone || '5551234567'}`} className="text-blue-600 hover:text-blue-800 transition-colors text-sm">
-                        {siteSettings.contact?.phone || '(555) 123-4567'}
+                      <a href={`tel:${siteSettings?.contact?.phone || '5551234567'}`} className="text-blue-600 hover:text-blue-800 transition-colors text-sm">
+                        {siteSettings?.contact?.phone || '(555) 123-4567'}
                       </a>
                     </div>
                   </div>
@@ -94,8 +122,8 @@ export default async function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wider mb-1">Email</h3>
-                      <a href={`mailto:${siteSettings.contact?.email || 'info@university.edu'}`} className="text-blue-600 hover:text-blue-800 transition-colors text-sm">
-                        {siteSettings.contact?.email || 'info@university.edu'}
+                      <a href={`mailto:${siteSettings?.contact?.email || 'info@university.edu'}`} className="text-blue-600 hover:text-blue-800 transition-colors text-sm">
+                        {siteSettings?.contact?.email || 'info@university.edu'}
                       </a>
                     </div>
                   </div>
@@ -109,7 +137,7 @@ export default async function ContactPage() {
                     <div>
                       <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wider mb-1">Office Hours</h3>
                       <p className="text-gray-600 text-sm leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
-                        {siteSettings.contact?.officeHours || 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM'}
+                        {siteSettings?.contact?.officeHours || 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM'}
                       </p>
                     </div>
                   </div>

@@ -2,11 +2,11 @@
 import { API_BASE_URL as CONFIG_API_BASE_URL } from '@/config';
 
 // Use the configured API URL, with fallback for development
-export const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL 
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
   ? (process.env.NEXT_PUBLIC_BASE_URL.endsWith('/') ? process.env.NEXT_PUBLIC_BASE_URL : `${process.env.NEXT_PUBLIC_BASE_URL}/`)
   : (CONFIG_API_BASE_URL.endsWith('/') ? CONFIG_API_BASE_URL : `${CONFIG_API_BASE_URL}/`);
 
-  import { AcademicSection } from '@/types';
+import { AcademicSection, SiteSettings, FacultySection, PlacementSection as PlacementSectionType } from '@/types';
 
 type AdmissionForm = {
   id: string;
@@ -16,34 +16,34 @@ type AdmissionForm = {
 };
 
 export async function fetchAPI<T>(endpoint: string, fallback?: T): Promise<T> {
-    try {
-        // Remove leading slash from endpoint if API_BASE_URL ends with slash
-        const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-        const url = `${API_BASE_URL}${cleanEndpoint}`;
-        const res = await fetch(url, {
-            // Cache for static export, no revalidate for static builds
-        });
+  try {
+    // Remove leading slash from endpoint if API_BASE_URL ends with slash
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+    const url = `${API_BASE_URL}${cleanEndpoint}`;
+    const res = await fetch(url, {
+      // Cache for static export, no revalidate for static builds
+    });
 
-        if (!res.ok) {
-            console.warn(`API call failed for ${endpoint}: ${res.status} ${res.statusText}`);
-            if (fallback !== undefined) {
-                return fallback;
-            }
-            throw new Error(`API call failed: ${res.status} ${res.statusText}`);
-        }
-
-        return await res.json();
-    } catch (error) {
-        console.error(`API call error for ${endpoint}:`, error);
-        if (fallback !== undefined) {
-            return fallback;
-        }
-        throw error;
+    if (!res.ok) {
+      console.warn(`API call failed for ${endpoint}: ${res.status} ${res.statusText}`);
+      if (fallback !== undefined) {
+        return fallback;
+      }
+      throw new Error(`API call failed: ${res.status} ${res.statusText}`);
     }
+
+    return await res.json();
+  } catch (error) {
+    console.error(`API call error for ${endpoint}:`, error);
+    if (fallback !== undefined) {
+      return fallback;
+    }
+    throw error;
+  }
 }
 
 // Specific API functions with fallbacks
-export const getSiteSettings = () => fetchAPI('api/site', {
+export const getSiteSettings = () => fetchAPI<SiteSettings>('api/site', {
   siteTitle: 'AAASC',
   title: 'AAASC - Academic Excellence',
   description: 'A leading academic institution',
@@ -64,7 +64,6 @@ export const getSiteSettings = () => fetchAPI('api/site', {
   },
   faculty: {
     title: 'Our Faculty',
-    subtitle: 'Expert educators',
     items: []
   },
   placements: {
@@ -89,11 +88,15 @@ export const getSiteSettings = () => fetchAPI('api/site', {
   },
   footer: {
     copyright: '© 2024 AAASC. All rights reserved.'
+  },
+  others: {
+    aishe: { title: '', subtitle: '', content: '' },
+    academicCoordinator: { title: '', subtitle: '', content: '' }
   }
 });
 export const getCollages = () => fetchAPI('api/collages', []);
-export const getFaculty = () => fetchAPI('api/faculty', { items: [] });
-export const getPlacements = () => fetchAPI('api/placements', { items: [] });
+export const getFaculty = () => fetchAPI<FacultySection>('api/faculty', { title: 'Our Faculty', items: [] });
+export const getPlacements = () => fetchAPI<PlacementSectionType>('api/placements', { title: 'Placements', subtitle: '', items: [] });
 export const getIQAC = () => fetchAPI('api/iqac', null);
 export const getAlumni = () => fetchAPI('api/alumni', []);
 export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
@@ -101,12 +104,12 @@ export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
     console.log('Fetching admission forms...');
     const response = await fetch(`${API_BASE_URL}api/admission-forms`);
     console.log('Response status:', response.status);
-    
+
     if (!response.ok) {
       console.error('Response not ok:', response.status, response.statusText);
       return [];
     }
-    
+
     const data = await response.json();
     console.log('Received data:', data);
     // Only return active forms
@@ -121,7 +124,7 @@ export const getAdmissionForms = async (): Promise<AdmissionForm[]> => {
 
 export const getAcademics = async (): Promise<AcademicSection> => {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL
       ? (process.env.NEXT_PUBLIC_API_URL.endsWith('/') ? process.env.NEXT_PUBLIC_API_URL : `${process.env.NEXT_PUBLIC_API_URL}/`)
       : API_BASE_URL;
     const response = await fetch(`${apiUrl}api/academics/public`);
@@ -129,7 +132,7 @@ export const getAcademics = async (): Promise<AcademicSection> => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    
+
     // Ensure the response has the expected structure
     return {
       title: data.title || 'Academic Programs',

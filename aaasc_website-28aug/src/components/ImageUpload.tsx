@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { getImageUrl, API_BASE_URL } from '@/config';
 
 interface ImageUploadProps {
   value?: string;
@@ -21,13 +22,14 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" }:
     }
 
     setUploading(true);
-    
+
     try {
       // Create a FormData object to send the file
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('https://apiaasc.veetusaapadu.in/api/upload', {
+      const uploadUrl = API_BASE_URL.endsWith('/') ? `${API_BASE_URL}api/upload` : `${API_BASE_URL}/api/upload`;
+      const response = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
       });
@@ -54,7 +56,7 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" }:
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileSelect(files[0]);
@@ -91,12 +93,12 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" }:
       <label className="block text-sm font-medium text-gray-700">
         {label}
       </label>
-      
+
       {value ? (
         <div className="relative inline-block">
           <div className="relative w-48 h-32 border border-gray-300 rounded-md overflow-hidden">
             <Image
-              src={value}
+              src={getImageUrl(value)}
               alt="Uploaded image"
               fill
               className="object-cover"
@@ -116,11 +118,10 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" }:
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors ${
-            dragOver
+          className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors ${dragOver
               ? 'border-blue-400 bg-blue-50'
               : 'border-gray-300 hover:border-gray-400'
-          }`}
+            }`}
         >
           {uploading ? (
             <div className="text-gray-500">
@@ -138,7 +139,7 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" }:
           )}
         </div>
       )}
-      
+
       <input
         ref={fileInputRef}
         type="file"

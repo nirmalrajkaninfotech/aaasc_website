@@ -2,8 +2,13 @@
 import { Phone, Mail, Megaphone, FileText, Download } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { API_BASE_URL } from '@/lib/api-utils';
-import { getImageUrl } from '@/config';
+import { getImageUrl, API_BASE_URL } from '@/config';
+
+const getCleanApiUrl = (endpoint: string) => {
+  const base = API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  return `${base}${cleanEndpoint}`;
+};
 // Remove trailing slash for concatenation with '/api/...'
 const apiurl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
 
@@ -31,7 +36,7 @@ const ComponentHeader: React.FC = () => {
   const fetchAdmissionForms = async () => {
     try {
       console.log('Fetching admission forms...');
-      const response = await fetch('https://apiaasc.veetusaapadu.in/api/admission-forms');
+      const response = await fetch(getCleanApiUrl('api/admission-forms'));
       console.log('Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
@@ -81,11 +86,11 @@ const ComponentHeader: React.FC = () => {
           ) : admissionForms.length > 0 ? (
             <div className="flex items-center gap-2">
               {admissionForms.map((form) => (
-      <>
-      </>
+                <>
+                </>
               ))}
-             
-              <a 
+
+              <a
                 href="/admission-forms"
                 className="text-blue-200 hover:text-white transition-colors text-sm"
               >
@@ -95,7 +100,7 @@ const ComponentHeader: React.FC = () => {
           ) : (
             <div className="flex items-center gap-2">
               <span className="text-gray-300">No admission forms available</span>
-              <a 
+              <a
                 href="/admission-forms"
                 className="text-blue-200 hover:text-white transition-colors text-sm"
               >
